@@ -295,6 +295,9 @@ async function scanMaterialBank(
 
     if (error) {
       console.warn("material_bank scan error:", error);
+      // A partial scan must not claim to be complete: the UI shows a banner
+      // when `truncated` is true, so the user knows rows may be missing.
+      truncated = true;
       break;
     }
     if (!data || data.length === 0) break;
@@ -335,6 +338,7 @@ async function scanLessonMaterials(
 
     if (error) {
       console.warn("lesson_materials scan error:", error);
+      truncated = true;
       break;
     }
     if (!data || data.length === 0) break;

@@ -544,3 +544,60 @@ describe("Unified pagination: scan guard", () => {
     assert.strictEqual(fixtureRows.length, 1200, "all 1200 fixture rows returned");
   });
 });
+
+describe("Unified pagination: partial scan must be visible", () => {
+  /**
+   * A scan that fails partway returns fewer rows than exist. The caller MUST
+   * be told, otherwise the UI silently shows an incomplete catalogue as if it
+   * were complete. `truncated` is the signal the banner keys off.
+   */
+  test("an error mid-scan sets truncated instead of looking complete", async () => {
+    const rows = buildBankRows(2500); // spans 3 windows of 1000
+    let calls = 0;
+
+    const client = {
+      from() {
+        const q = new FakeQuery(rows);
+        const originalRange = q.range.bind(q);
+        q.range = (from: number, to: number) => {
+          calls += 1;
+          // Fail on the second window, after one successful page.
+          if (calls === 2) {
+            // Replace execute's result by ordering a range that yields an error.
+            // The service checks `error` on the response object.
+            return {
+              order() {
+                return this;
+              },
+              then(resolve: (v: unknown) => unknown) {
+                return Promise.resolve({
+                  data: null,
+                  error: { message: "simulated network failure" },
+                }).then(resolve);
+              },
+            } as unknown as FakeQuery;
+          }
+          return originalRange(from, to);
+        };
+        return q;
+      },
+    } as unknown as Parameters<typeof getMaterialsUnified>[0];
+
+    const page = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: 10,
+      offset: 0,
+    });
+
+    assert.strictEqual(
+      page.truncated,
+      true,
+      "a partial scan must report truncated=true so the UI can warn the user"
+    );
+  });
+
+  test("a complete scan reports truncated=false", async () => {
+    const supabase = makeClient({ material_bank: buildBankRows(50) });
+    const page = await getMaterialsUnified(supabase, TEACHER, undefined, { limit: 10, offset: 0 });
+    assert.strictEqual(page.truncated, false);
+  });
+});
