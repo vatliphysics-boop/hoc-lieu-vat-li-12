@@ -12,10 +12,18 @@
 
 "use client";
 
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+} from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { MaterialItem, MaterialType } from "@/lib/material-bank";
-import { removeDiacritics } from "@/lib/material-query-service";
 import { LearningResourcePreview } from "./LearningResourcePreview";
 
 export const TYPE_LABELS: Record<MaterialType, string> = {
@@ -148,18 +156,71 @@ export function MaterialCatalog({
     }
   }
 
-  // Instant client-side refinement over the page already loaded.
-  const visible = useMemo(() => {
-    const q = search.trim();
-    const nq = removeDiacritics(q.toLowerCase());
-    return materials.filter((m) => {
-      if (type !== "all" && m.material_type !== type) return false;
-      if (lesson !== "all" && m.lesson_tag !== lesson) return false;
-      if (!q) return true;
-      const text = `${m.title} ${m.description ?? ""} ${m.lesson_tag ?? ""}`.toLowerCase();
-      return text.includes(q.toLowerCase()) || removeDiacritics(text).includes(nq);
-    });
-  }, [materials, type, lesson, search]);
+  // ---------------------------------------------------------------------
+  // Search and filters run on the SERVER, over the whole catalogue.
+  //
+  // Filtering only the loaded page hides results on other pages: typing
+  // "phóng xạ" would show 0 rows even though the catalogue holds 10, because
+  // those rows live on page 2+. Instead every change is pushed into the URL,
+  // which re-runs the server query and returns a correctly filtered page.
+  // ---------------------------------------------------------------------
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const navigate = useCallback(
+    (next: { type?: string; lesson?: string; search?: string; page?: number }) => {
+      const params = new URLSearchParams(baseQuery);
+      const setOrDelete = (key: string, value: string | undefined, unset: string) => {
+        if (value && value !== "all" && value !== "") params.set(key, value);
+        else if (value === "all") params.delete(key);
+        else if (value !== undefined) params.delete(key);
+        // undefined = leave unchanged
+        void unset;
+      };
+
+      if (next.type !== undefined) setOrDelete("type", next.type, "all");
+      if (next.lesson !== undefined) setOrDelete("bai", next.lesson, "all");
+      if (next.search !== undefined) setOrDelete("q", next.search, "");
+
+      // Any filter change resets to page 1; page changes keep the filters.
+      if (next.page !== undefined) {
+        if (next.page > 1) params.set("page", String(next.page));
+        else params.delete("page");
+      } else {
+        params.delete("page");
+      }
+
+      const qs = params.toString();
+      startTransition(() => {
+        router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false });
+      });
+    },
+    [baseQuery, basePath, router]
+  );
+
+  // Reset local state when the server hands us a different page.
+  // A `key` remount on the parent is not available here, so derive the
+  // initial values at mount and let `syncKey` drive a remount instead of a
+  // setState-in-effect (which triggers cascading renders and is flagged by
+  // the eslint react-hooks rule). The parent passes a stable syncKey.
+
+  const onSearchChange = (value: string) => {
+    setSearch(value); // instant local feedback
+    setOpen(null);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => navigate({ search: value }), 280);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  // With server-side filtering the page is already the result set. Keep only
+  // the search term highlighted-preview behaviour: show everything returned.
+  const visible = materials;
 
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = { all: materials.length };
@@ -175,6 +236,7 @@ export function MaterialCatalog({
     setLesson("all");
     setSearch("");
     setOpen(null);
+    navigate({ type: "all", lesson: "all", search: "", page: 1 });
   };
 
   const buildHref = (nextPage: number): string => {
@@ -200,10 +262,7 @@ export function MaterialCatalog({
           <input
             type="search"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setOpen(null);
-            }}
+            onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Tìm theo tên, bài học, hiện tượng hoặc công thức…"
             autoComplete="off"
             enterKeyHint="search"
@@ -213,10 +272,7 @@ export function MaterialCatalog({
               type="button"
               className="material-catalog-search-clear"
               aria-label="Xóa từ khóa tìm kiếm"
-              onClick={() => {
-                setSearch("");
-                setOpen(null);
-              }}
+              onClick={() => onSearchChange("")}
             >
               ×
             </button>
@@ -240,8 +296,10 @@ export function MaterialCatalog({
           <select
             value={lesson}
             onChange={(e) => {
-              setLesson(e.target.value);
+              const value = e.target.value;
+              setLesson(value);
               setOpen(null);
+              navigate({ lesson: value });
             }}
           >
             {LESSON_OPTIONS.map((o) => (
@@ -274,6 +332,7 @@ export function MaterialCatalog({
               onClick={() => {
                 setType(value);
                 setOpen(null);
+                navigate({ type: value });
               }}
             >
               {value === "all" ? "Tất cả" : TYPE_SHORT[value as MaterialType]}
@@ -287,7 +346,9 @@ export function MaterialCatalog({
 
       {/* Status line */}
       <p role="status" className="material-catalog-status">
-        {isLoading ? (
+        {isPending ? (
+          "Đang tải học liệu…"
+        ) : isLoading ? (
           "Đang tải học liệu…"
         ) : (
           <>

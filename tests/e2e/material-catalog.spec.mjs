@@ -56,9 +56,40 @@ test.describe("Public catalogue (no account)", () => {
     const rows = catalog.locator("article.material-row");
 
     const total = await rows.count();
+    expect(total).toBeGreaterThan(0);
+
+    const search = page.getByPlaceholder(/Tìm theo tên, bài học/);
+    await search.fill("phóng xạ");
+
+    // Search is server-side: the URL gains `q=` and the list re-renders.
+    await expect.poll(() => new URL(page.url()).searchParams.get("q"), { timeout: 10000 }).toBe(
+      "phóng xạ"
+    );
+    await expect
+      .poll(async () => rows.count(), { timeout: 10000 })
+      .toBeLessThan(total);
+
+    const narrowed = await rows.count();
+    expect(narrowed).toBeGreaterThan(0);
+    await expect(catalog.locator(".material-catalog-status")).toContainText(String(narrowed));
+  });
+
+  test("accent-insensitive search matches without diacritics", async ({ page }) => {
+    await page.goto(ENTRY);
+    const rows = page.locator("section.material-catalog article.material-row");
+
+    await page.getByPlaceholder(/Tìm theo tên, bài học/).fill("phong xa");
+    await expect.poll(() => new URL(page.url()).searchParams.get("q"), { timeout: 10000 }).toBe(
+      "phong xa"
+    );
+    await expect.poll(async () => rows.count(), { timeout: 10000 }).toBeGreaterThan(0);
+    const unaccented = await rows.count();
+
     await page.getByPlaceholder(/Tìm theo tên, bài học/).fill("phóng xạ");
-    await expect.poll(async () => rows.count(), { timeout: 10000 }).toBeLessThan(total);
-    expect(await rows.count()).toBeGreaterThan(0);
+    await expect.poll(() => new URL(page.url()).searchParams.get("q"), { timeout: 10000 }).toBe(
+      "phóng xạ"
+    );
+    await expect.poll(async () => rows.count(), { timeout: 10000 }).toBe(unaccented);
   });
 
   test("search with no match shows the empty state", async ({ page }) => {
