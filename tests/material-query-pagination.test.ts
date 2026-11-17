@@ -72,9 +72,10 @@ describe("Material Query: sorting", () => {
   test("sort by title ascending", () => {
     const sorted = sortMaterialsForTest(CANONICAL_SYSTEM_MATERIALS, "title", "asc");
     for (let i = 1; i < sorted.length; i++) {
+      const cmp = sorted[i - 1].title.localeCompare(sorted[i].title, "vi", { sensitivity: "base" });
       assert.ok(
-        sorted[i - 1].title.toLowerCase() <= sorted[i].title.toLowerCase(),
-        `Title order violated at index ${i}`
+        cmp <= 0,
+        `Title order violated at index ${i}: '${sorted[i - 1].title}' should not be after '${sorted[i].title}'`
       );
     }
   });
@@ -82,9 +83,10 @@ describe("Material Query: sorting", () => {
   test("sort by title descending", () => {
     const sorted = sortMaterialsForTest(CANONICAL_SYSTEM_MATERIALS, "title", "desc");
     for (let i = 1; i < sorted.length; i++) {
+      const cmp = sorted[i - 1].title.localeCompare(sorted[i].title, "vi", { sensitivity: "base" });
       assert.ok(
-        sorted[i - 1].title.toLowerCase() >= sorted[i].title.toLowerCase(),
-        `Title order violated at index ${i}`
+        cmp >= 0,
+        `Title order violated at index ${i}: '${sorted[i - 1].title}' should not be before '${sorted[i].title}'`
       );
     }
   });

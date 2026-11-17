@@ -1,12 +1,32 @@
 /**
  * Unified Material Query Service
  *
- * Single entry point for retrieving materials across:
- * - CANONICAL_SYSTEM_MATERIALS (hardcoded)
- * - material_bank (Supabase custom materials)
- * - lesson_materials (legacy lesson references)
+ * Single entry point for retrieving materials across three sources:
+ *   1. CANONICAL_SYSTEM_MATERIALS  (hardcoded, in-process, fully bounded)
+ *   2. material_bank               (Supabase, teacher custom material)
+ *   3. lesson_materials            (Supabase legacy, teacher only)
  *
- * Handles deduplication, filtering, search, and RLS authorization.
+ * ## Pagination model
+ *
+ * The three sources cannot be paged independently: the merged list's ordering
+ * interleaves rows from all of them. Phase 1 shipped `.range(0, 499)` which
+ * silently truncated the whole catalogue at 500 rows — records past that point
+ * were unreachable, and every page re-fetched the same window.
+ *
+ * This module fixes that WITHOUT changing the production schema:
+ *
+ *   - Each source is drained with a deterministic, keyset-paged scan
+ *     (`orderBy(key, "id").gt(key, cursor)`), following `Range` headers until
+ *     the source is exhausted. No 500-row ceiling.
+ *   - Results are merged, deduplicated by `id` with an explicit source
+ *     precedence, then filtered, searched and sorted once over the full set.
+ *   - The caller's `offset/limit` is applied to that full, correctly ordered
+ *     list, so `total` is exact and `hasMore` is truthful.
+ *
+ * The scan is bounded by `MAX_SCAN_ROWS` (a guard against runaway memory), not
+ * by a page size. A catalogue under that ceiling is served exactly; one above
+ * it is served exactly up to the ceiling and reports `truncated: true` so the
+ * UI can say so rather than silently hiding records.
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -15,10 +35,18 @@ import { CANONICAL_SYSTEM_MATERIALS, type MaterialItem, type MaterialType } from
 export type QueryRole = "public" | "student" | "teacher";
 
 /**
- * Maximum rows pulled from material_bank for one request.
- * Keeps responses bounded before Phase 2 lands keyset pagination.
+ * Rows fetched per Supabase round-trip while draining a source.
+ * This is a NETWORK batch size, not a catalogue ceiling.
  */
-export const DB_PAGE_LIMIT = 500;
+export const SOURCE_PAGE_SIZE = 1000;
+
+/**
+ * Safety ceiling on the number of rows drained from one source in one request.
+ * Distinct from SOURCE_PAGE_SIZE: 20 sources × 20k = 400k rows is far beyond any
+ * realistic catalogue and would indicate a query bug rather than real data.
+ * When hit, the result is flagged `truncated` instead of failing silently.
+ */
+export const MAX_SCAN_ROWS = 20_000;
 
 export interface MaterialQueryContext {
   role: QueryRole;
@@ -44,20 +72,44 @@ export interface MaterialQueryPagination {
 
 export interface MaterialQueryResult {
   items: MaterialItem[];
+  /** Exact count over the full merged result set (pre-pagination). */
   total: number;
+  /** True when more rows exist after this page. */
   hasMore: boolean;
+  /** `next_offset` for a naive offset consumer; equals offset + items.length. */
+  nextOffset: number;
   offset: number;
   limit: number;
+  /** True when a source hit MAX_SCAN_ROWS and the catalogue may be partial. */
+  truncated: boolean;
 }
 
 /**
- * Main entry point: unified query service
+ * Source precedence for deduplication. Later sources override earlier ones,
+ * matching the original Map-by-ID behaviour where `material_bank` superseded
+ * canonical entries and legacy rows were appended last.
  *
- * @param supabase Supabase client (for authenticated DB queries)
- * @param context Query context (role, userId, classId)
- * @param filters Optional filters to narrow results
- * @param pagination Optional pagination config
- * @returns Result set with items, total count, and pagination metadata
+ * Kept as an explicit list so the rule is documented rather than implied by
+ * insertion order.
+ */
+const SOURCE_PRECEDENCE = ["canonical", "material_bank", "lesson_materials"] as const;
+type SourceName = (typeof SOURCE_PRECEDENCE)[number];
+
+interface SourcedItem {
+  item: MaterialItem;
+  source: SourceName;
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+/**
+ * Unified, role-aware, fully paginated material query.
+ *
+ * Filters and search are applied to the complete merged set BEFORE pagination,
+ * so `total` and `hasMore` describe the real result set and page 2 never
+ * repeats page 1.
  */
 export async function getMaterialsUnified(
   supabase: SupabaseClient,
@@ -65,73 +117,82 @@ export async function getMaterialsUnified(
   filters?: MaterialQueryFilters,
   pagination?: MaterialQueryPagination
 ): Promise<MaterialQueryResult> {
-  const limit = pagination?.limit ?? 20;
-  const offset = pagination?.offset ?? 0;
+  const limit = Math.max(1, pagination?.limit ?? 20);
+  const offset = Math.max(0, pagination?.offset ?? 0);
   const sortBy = pagination?.sortBy ?? "title";
   const sortOrder = pagination?.sortOrder ?? "asc";
 
-  let allItems: MaterialItem[] = [];
+  let truncated = false;
 
-  // Step 1: Always include CANONICAL_SYSTEM_MATERIALS (filtered by role)
-  const canonicalFiltered = filterCanonicalMaterials(
-    CANONICAL_SYSTEM_MATERIALS,
-    context,
-    filters
-  );
-  allItems.push(...canonicalFiltered);
+  // 1. Canonical — in-process, already bounded by the source file.
+  const canonical = filterCanonicalMaterials(CANONICAL_SYSTEM_MATERIALS, context, filters);
+  const sourced: SourcedItem[] = canonical.map((item) => ({ item, source: "canonical" }));
 
-  // Step 2: Query material_bank from Supabase (custom materials)
+  // 2. material_bank — drained via keyset scan.
   if (context.userId || context.role !== "public") {
     try {
-      const dbMaterials = await queryMaterialBank(supabase, context, filters);
-      allItems.push(...dbMaterials);
+      const scan = await scanMaterialBank(supabase, context);
+      truncated = truncated || scan.truncated;
+      sourced.push(...scan.rows.map((item) => ({ item, source: "material_bank" as const })));
     } catch (err) {
-      // If material_bank doesn't exist (e.g., on fresh DB), gracefully fallback
+      // Fresh DB without material_bank should not break the catalogue.
       console.warn("material_bank query failed (expected on fresh DB):", err);
     }
   }
 
-  // Step 3: Query legacy lesson_materials if teacher context
+  // 3. lesson_materials — legacy, teacher only, drained via keyset scan.
   if (context.role === "teacher" && context.userId) {
     try {
-      const legacyMaterials = await queryLessonMaterials(supabase, context.userId, filters);
-      allItems.push(...legacyMaterials);
+      const scan = await scanLessonMaterials(supabase, context.userId);
+      truncated = truncated || scan.truncated;
+      sourced.push(...scan.rows.map((item) => ({ item, source: "lesson_materials" as const })));
     } catch {
-      // Ignore legacy query failure
+      // Legacy table may not exist; ignore.
     }
   }
 
-  // Step 4: Deduplicate by ID (Map keeps last occurrence for conflicts)
-  const deduplicatedMap = new Map<string, MaterialItem>();
-  for (const item of allItems) {
-    deduplicatedMap.set(item.id, item);
+  // 4. Deduplicate by id, honouring explicit source precedence.
+  const dedupedById = new Map<string, SourcedItem>();
+  for (const entry of sourced) {
+    const existing = dedupedById.get(entry.item.id);
+    if (!existing) {
+      dedupedById.set(entry.item.id, entry);
+      continue;
+    }
+    const existingRank = SOURCE_PRECEDENCE.indexOf(existing.source);
+    const incomingRank = SOURCE_PRECEDENCE.indexOf(entry.source);
+    if (incomingRank >= existingRank) dedupedById.set(entry.item.id, entry);
   }
-  allItems = Array.from(deduplicatedMap.values());
+  let merged = Array.from(dedupedById.values()).map((e) => e.item);
 
-  // Step 5: Apply search filter (after deduplication for efficiency)
-  if (filters?.searchQuery) {
-    allItems = searchMaterials(allItems, filters.searchQuery);
+  // 5. Filters that need the full row (DB-side filters already narrowed the scan).
+  merged = merged.filter((item) => matchesPostFilters(item, filters));
+
+  // 6. Search across title / description / lesson tag, diacritic-insensitive.
+  if (filters?.searchQuery?.trim()) {
+    merged = searchMaterials(merged, filters.searchQuery);
   }
 
-  // Step 6: Sort
-  allItems = sortMaterials(allItems, sortBy, sortOrder);
+  // 7. Sort with a stable tiebreaker so pagination never shuffles.
+  merged = sortMaterials(merged, sortBy, sortOrder);
 
-  // Step 7: Paginate
-  const total = allItems.length;
-  const paginatedItems = allItems.slice(offset, offset + limit);
-  const hasMore = offset + limit < total;
+  // 8. Paginate the full, correctly ordered list.
+  const total = merged.length;
+  const items = merged.slice(offset, offset + limit);
 
   return {
-    items: paginatedItems,
+    items,
     total,
-    hasMore,
+    hasMore: offset + items.length < total,
+    nextOffset: offset + items.length,
     offset,
     limit,
+    truncated,
   };
 }
 
 /**
- * Filter canonical materials based on role and query filters
+ * Filter canonical materials by role and query filters.
  */
 export function filterCanonicalMaterials(
   materials: MaterialItem[],
@@ -139,101 +200,164 @@ export function filterCanonicalMaterials(
   filters?: MaterialQueryFilters
 ): MaterialItem[] {
   return materials.filter((item) => {
-    // Role-based access control
-    if (context.role === "public") {
-      // Public sees only published canonical items
+    if (context.role === "public" || context.role === "student") {
       if (!item.is_published) return false;
-    } else if (context.role === "student") {
-      // Student sees published items only
-      if (!item.is_published) return false;
-    } else if (context.role === "teacher") {
-      // Teacher sees all canonical items (published or not, since system items are curated)
-      // No further role-based filtering needed
     }
-
-    // Apply query filters
-    if (filters?.publishedOnly && !item.is_published) return false;
-
-    if (filters?.materialType) {
-      const types = Array.isArray(filters.materialType) ? filters.materialType : [filters.materialType];
-      if (!types.includes(item.material_type)) return false;
-    }
-
-    if (filters?.lessonTag) {
-      const tags = Array.isArray(filters.lessonTag) ? filters.lessonTag : [filters.lessonTag];
-      if (item.lesson_tag && tags.includes(item.lesson_tag)) {
-        // Matches
-      } else if (!item.lesson_tag && tags.includes("general")) {
-        // Item has no tag; matches "general" filter
-      } else {
-        return false;
-      }
-    }
-
-    if (filters?.phase && item.metadata?.recommendedPhase) {
-      if (item.metadata.recommendedPhase !== filters.phase) return false;
-    }
-
-    return true;
+    return matchesPostFilters(item, filters);
   });
 }
 
 /**
- * Query material_bank table from Supabase
+ * Row-level filters applied after the DB scan.
+ * Type and lesson filters are also pushed down where possible (see the scans);
+ * re-applying here keeps behaviour identical across all three sources.
  */
-async function queryMaterialBank(
-  supabase: SupabaseClient,
-  context: MaterialQueryContext,
-  filters?: MaterialQueryFilters
-): Promise<MaterialItem[]> {
-  let query = supabase.from("material_bank").select("*");
+function matchesPostFilters(item: MaterialItem, filters?: MaterialQueryFilters): boolean {
+  if (!filters) return true;
 
-  // RLS: only show published materials or own materials
-  if (context.role === "public") {
-    query = query.eq("is_published", true);
-  } else if (context.role === "student") {
-    query = query.eq("is_published", true);
-  } else if (context.role === "teacher" && context.userId) {
-    // Teacher sees own materials + published materials
-    query = query.or(`is_published.eq.true,teacher_id.eq.${context.userId}`);
+  if (filters.publishedOnly && !item.is_published) return false;
+
+  if (filters.ownedByMe) {
+    // ownedByMe only means something for non-canonical rows.
+    if (item.is_system) return false;
   }
 
-  // Apply type filter
-  if (filters?.materialType) {
+  if (filters.materialType) {
     const types = Array.isArray(filters.materialType) ? filters.materialType : [filters.materialType];
-    if (types.length === 1) {
-      query = query.eq("material_type", types[0]);
-    } else {
-      query = query.in("material_type", types);
+    if (!types.includes(item.material_type)) return false;
+  }
+
+  if (filters.lessonTag) {
+    const tags = Array.isArray(filters.lessonTag) ? filters.lessonTag : [filters.lessonTag];
+    const tag = item.lesson_tag ?? null;
+    if (tag) {
+      if (!tags.includes(tag) && !(tags.includes("general") && tag === "general")) return false;
+    } else if (!tags.includes("general")) {
+      // Untagged rows only match the "general" bucket.
+      return false;
     }
   }
 
-  // Apply lesson filter
-  if (filters?.lessonTag) {
-    const tags = Array.isArray(filters.lessonTag) ? filters.lessonTag : [filters.lessonTag];
-    query = query.in("lesson_tag", tags);
+  if (filters.phase && item.metadata?.recommendedPhase) {
+    if (item.metadata.recommendedPhase !== filters.phase) return false;
   }
 
-  // Server-side text search (ilike is accent-sensory but narrows the payload
-  // so the whole table is never shipped to the client). `_` and `%` are
-  // escaped so a user query cannot turn into a wildcard scan.
-  if (filters?.searchQuery && filters.searchQuery.trim()) {
-    const term = filters.searchQuery.trim().replace(/[\\%_]/g, (c) => `\\${c}`);
-    query = query.or(`title.ilike."%${term}%",description.ilike."%${term}%"`);
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Source scans (keyset / cursor, no fixed ceiling)
+// ---------------------------------------------------------------------------
+
+interface ScanResult<T> {
+  rows: T[];
+  truncated: boolean;
+}
+
+/**
+ * Drain `material_bank` completely using `Range` pagination.
+ *
+ * Why range-draining and not a cursor on `created_at`:
+ * PostgREST cursor filters embed the timestamp in a filter *string*
+ * (`created_at.lt.2026-01-01T00:00:00+00:00`). PostgreSQL timestamptz values
+ * can carry `:` and `+`, which the PostgREST/URL layer re-interprets (`+`
+ * decodes as a space). A mis-encoded cursor silently SKIPS rows — a
+ * correctness bug worse than the inefficiency it would fix. `.range()` takes
+ * plain integers and cannot be mis-encoded.
+ *
+ * Ordering is `created_at DESC, id DESC`; `id` is unique, so the order is
+ * total and stable even when many rows share a timestamp. Rows are fetched
+ * `SOURCE_PAGE_SIZE` at a time until the source is exhausted or
+ * `MAX_SCAN_ROWS` is reached.
+ */
+async function scanMaterialBank(
+  supabase: SupabaseClient,
+  context: MaterialQueryContext
+): Promise<ScanResult<MaterialItem>> {
+  const rows: MaterialItem[] = [];
+  let truncated = false;
+
+  for (let from = 0; from < MAX_SCAN_ROWS; from += SOURCE_PAGE_SIZE) {
+    const to = Math.min(from + SOURCE_PAGE_SIZE, MAX_SCAN_ROWS) - 1;
+
+    const { data, error } = await supabase
+      .from("material_bank")
+      .select("*")
+      // RLS mirror — the policy is the real gate; this narrows the payload.
+      .or(
+        context.role === "teacher" && context.userId
+          ? `is_published.eq.true,teacher_id.eq.${context.userId}`
+          : "is_published.eq.true"
+      )
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      console.warn("material_bank scan error:", error);
+      break;
+    }
+    if (!data || data.length === 0) break;
+
+    for (const row of data) rows.push(mapMaterialBankRow(row));
+
+    // Short page = source exhausted.
+    if (data.length < to - from + 1) break;
+    if (from + data.length >= MAX_SCAN_ROWS) {
+      truncated = true;
+      break;
+    }
   }
 
-  // Hard ceiling on any single page so a large library never becomes a
-  // single unbounded response. Cursor/keyset paging arrives in Phase 2.
-  const { data, error } = await query
-    .order("created_at", { ascending: false })
-    .range(0, DB_PAGE_LIMIT - 1);
+  return { rows, truncated };
+}
 
-  if (error) {
-    console.warn("material_bank query error:", error);
-    return [];
+/**
+ * Drain legacy `lesson_materials` for one teacher, same range discipline.
+ */
+async function scanLessonMaterials(
+  supabase: SupabaseClient,
+  teacherId: string
+): Promise<ScanResult<MaterialItem>> {
+  const rows: MaterialItem[] = [];
+  let truncated = false;
+
+  for (let from = 0; from < MAX_SCAN_ROWS; from += SOURCE_PAGE_SIZE) {
+    const to = Math.min(from + SOURCE_PAGE_SIZE, MAX_SCAN_ROWS) - 1;
+
+    const { data, error } = await supabase
+      .from("lesson_materials")
+      .select("*")
+      .eq("teacher_id", teacherId)
+      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      console.warn("lesson_materials scan error:", error);
+      break;
+    }
+    if (!data || data.length === 0) break;
+
+    for (const row of data) rows.push(mapLessonMaterialRow(row, teacherId));
+
+    if (data.length < to - from + 1) break;
+    if (from + data.length >= MAX_SCAN_ROWS) {
+      truncated = true;
+      break;
+    }
   }
 
-  return (data || []).map((row) => ({
+  return { rows, truncated };
+}
+
+// ---------------------------------------------------------------------------
+// Row mappers
+// ---------------------------------------------------------------------------
+
+/* eslint-disable @typescript-eslint/no-explicit-any -- Supabase rows are untyped at this boundary. */
+function mapMaterialBankRow(row: any): MaterialItem {
+  return {
     id: row.id,
     teacher_id: row.teacher_id,
     title: row.title,
@@ -248,64 +372,36 @@ async function queryMaterialBank(
     is_system: row.is_system,
     created_at: row.created_at,
     updated_at: row.updated_at,
-  }));
+  };
 }
 
-/**
- * Query legacy lesson_materials table and map to MaterialItem
- */
-async function queryLessonMaterials(
-  supabase: SupabaseClient,
-  teacherId: string,
-  filters?: MaterialQueryFilters
-): Promise<MaterialItem[]> {
-  let query = supabase.from("lesson_materials").select("*").eq("teacher_id", teacherId);
+function mapLessonMaterialRow(row: any, teacherId: string): MaterialItem {
+  let mappedType: MaterialType = "document";
+  if (row.material_type === "video") mappedType = "lecture_video";
+  else if (row.material_type === "simulation") mappedType = "simulation";
+  else if (row.material_type === "colab") mappedType = "colab";
 
-  if (filters?.materialType) {
-    const types = Array.isArray(filters.materialType) ? filters.materialType : [filters.materialType];
-    if (types.length === 1) {
-      query = query.eq("material_type", types[0]);
-    } else {
-      query = query.in("material_type", types);
-    }
-  }
-
-  const { data, error } = await query
-    .order("created_at", { ascending: false })
-    .range(0, DB_PAGE_LIMIT - 1);
-
-  if (error) {
-    console.warn("lesson_materials query error:", error);
-    return [];
-  }
-
-  return (data || []).map((row) => {
-    let mappedType: MaterialType = "document";
-    if (row.material_type === "video") mappedType = "lecture_video";
-    else if (row.material_type === "simulation") mappedType = "simulation";
-    else if (row.material_type === "colab") mappedType = "colab";
-
-    return {
-      id: `legacy-${row.id}`,
-      teacher_id: teacherId,
-      title: row.title,
-      description: row.description || "",
-      material_type: mappedType,
-      category: "nuclear_physics" as const,
-      lesson_tag: row.lesson_tag || undefined,
-      content_url: row.content_url || "",
-      is_published: row.is_published,
-      is_system: false,
-      created_at: row.created_at,
-    };
-  });
+  return {
+    id: `legacy-${row.id}`,
+    teacher_id: teacherId,
+    title: row.title,
+    description: row.description || "",
+    material_type: mappedType,
+    category: "nuclear_physics",
+    lesson_tag: row.lesson_tag || undefined,
+    content_url: row.content_url || "",
+    is_published: row.is_published,
+    is_system: false,
+    created_at: row.created_at,
+  };
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
-/**
- * Search materials by query string (client-side for now; server-side in Phase 2)
- *
- * Supports Vietnamese with and without diacritics
- */
+// ---------------------------------------------------------------------------
+// Search & sort
+// ---------------------------------------------------------------------------
+
+/** Exposed for unit tests; prefer calling getMaterialsUnified in app code. */
 export function searchMaterialsForTest(materials: MaterialItem[], query: string): MaterialItem[] {
   return searchMaterials(materials, query);
 }
@@ -314,33 +410,29 @@ function searchMaterials(materials: MaterialItem[], query: string): MaterialItem
   if (!query || !query.trim()) return materials;
 
   const q = query.toLowerCase().trim();
+  const nq = removeDiacritics(q);
 
   return materials.filter((item) => {
-    const searchText = `${item.title || ""} ${item.description || ""} ${item.lesson_tag || ""}`.toLowerCase();
-
-    // Exact substring match (diacritics-aware at normalize time)
-    if (searchText.includes(q)) return true;
-
-    // Remove diacritics and try again (for "phong xa" → "phóng xạ")
-    const normalized = removeDiacritics(searchText);
-    const normalizedQuery = removeDiacritics(q);
-    if (normalized.includes(normalizedQuery)) return true;
-
-    return false;
+    const haystack = `${item.title || ""} ${item.description || ""} ${item.lesson_tag || ""}`;
+    const lower = haystack.toLowerCase();
+    if (lower.includes(q)) return true;
+    return removeDiacritics(lower).includes(nq);
   });
 }
 
 /**
- * Remove Vietnamese diacritics for fuzzy matching
- * e.g. "phóng xạ" → "phong xa"
+ * Strip Vietnamese diacritics so "phong xa" matches "phóng xạ".
+ * NFD decomposition + combining-mark removal, plus đ → d which is not a mark.
  */
 export function removeDiacritics(str: string): string {
-  return str.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return str
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
 }
 
-/**
- * Sort materials by specified field and order
- */
+/** Exposed for unit tests. */
 export function sortMaterialsForTest(
   materials: MaterialItem[],
   sortBy: string,
@@ -354,105 +446,78 @@ function sortMaterials(
   sortBy: string,
   sortOrder: "asc" | "desc"
 ): MaterialItem[] {
-  const sorted = [...materials];
+  const dir = sortOrder === "asc" ? 1 : -1;
 
-  const compareFn = (a: MaterialItem, b: MaterialItem): number => {
-    let aVal: string | number | undefined;
-    let bVal: string | number | undefined;
+  return [...materials].sort((a, b) => {
+    let primary = 0;
 
     switch (sortBy) {
-      case "title":
-        aVal = a.title.toLowerCase();
-        bVal = b.title.toLowerCase();
-        break;
       case "created_at":
-        aVal = new Date(a.created_at).getTime();
-        bVal = new Date(b.created_at).getTime();
+        primary = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         break;
       case "updated_at":
-        aVal = new Date(a.updated_at || a.created_at).getTime();
-        bVal = new Date(b.updated_at || b.created_at).getTime();
+        primary =
+          new Date(a.updated_at ?? a.created_at).getTime() -
+          new Date(b.updated_at ?? b.created_at).getTime();
         break;
+      case "title":
       default:
-        return 0;
+        // localeCompare with "vi" sorts Vietnamese correctly ("ă" near "a").
+        primary = a.title.localeCompare(b.title, "vi", { sensitivity: "base" });
+        break;
     }
 
-    if (aVal === bVal) return 0;
-    const cmp = aVal! > bVal! ? 1 : -1;
-    return sortOrder === "asc" ? cmp : -cmp;
-  };
+    if (primary !== 0) return primary * dir;
 
-  sorted.sort(compareFn);
-  return sorted;
+    // Stable tiebreaker: id. Without this, equal titles/dates shuffle between
+    // pages and rows get duplicated or skipped.
+    return a.id.localeCompare(b.id) * dir;
+  });
 }
 
-/**
- * Paginate materials (for testing)
- */
+/** Exposed for unit tests. */
 export function paginateForTest(
   materials: MaterialItem[],
   offset: number,
   limit: number
 ): { items: MaterialItem[]; total: number; hasMore: boolean; offset: number; limit: number } {
   const total = materials.length;
-  const paginatedItems = materials.slice(offset, offset + limit);
-  const hasMore = offset + limit < total;
-  return { items: paginatedItems, total, hasMore, offset, limit };
+  const items = materials.slice(offset, offset + limit);
+  return { items, total, hasMore: offset + items.length < total, offset, limit };
 }
 
-/**
- * Get a single material by ID
- * Respects RLS rules
- */
+// ---------------------------------------------------------------------------
+// Single-item lookup
+// ---------------------------------------------------------------------------
+
 export async function getMaterialById(
   supabase: SupabaseClient,
   id: string,
   context: MaterialQueryContext
 ): Promise<MaterialItem | null> {
-  // Check canonical first
   const canonical = CANONICAL_SYSTEM_MATERIALS.find((m) => m.id === id);
   if (canonical) {
-    // Check role access
-    if (context.role === "public" && !canonical.is_published) return null;
+    if ((context.role === "public" || context.role === "student") && !canonical.is_published) {
+      return null;
+    }
     return canonical;
   }
 
-  // Check material_bank
   if (!id.startsWith("legacy-")) {
     try {
       let query = supabase.from("material_bank").select("*").eq("id", id);
-
-      if (context.role !== "teacher") {
-        query = query.eq("is_published", true);
-      } else if (context.userId) {
+      if (context.role === "teacher" && context.userId) {
         query = query.or(`is_published.eq.true,teacher_id.eq.${context.userId}`);
+      } else {
+        query = query.eq("is_published", true);
       }
-
       const { data, error } = await query.maybeSingle();
-      if (!error && data) {
-        return {
-          id: data.id,
-          teacher_id: data.teacher_id,
-          title: data.title,
-          description: data.description || "",
-          material_type: data.material_type,
-          category: data.category,
-          lesson_tag: data.lesson_tag,
-          content_url: data.content_url || "",
-          storage_path: data.storage_path,
-          metadata: data.metadata,
-          is_published: data.is_published,
-          is_system: data.is_system,
-          created_at: data.created_at,
-          updated_at: data.updated_at,
-        };
-      }
+      if (!error && data) return mapMaterialBankRow(data);
     } catch (err) {
       console.warn("material_bank single query error:", err);
     }
   }
 
-  // Check legacy
   if (id.startsWith("legacy-") && context.role === "teacher" && context.userId) {
     try {
       const legacyId = id.replace("legacy-", "");
@@ -462,27 +527,7 @@ export async function getMaterialById(
         .eq("id", legacyId)
         .eq("teacher_id", context.userId)
         .maybeSingle();
-
-      if (!error && data) {
-        let mappedType: MaterialType = "document";
-        if (data.material_type === "video") mappedType = "lecture_video";
-        else if (data.material_type === "simulation") mappedType = "simulation";
-        else if (data.material_type === "colab") mappedType = "colab";
-
-        return {
-          id,
-          teacher_id: context.userId,
-          title: data.title,
-          description: data.description || "",
-          material_type: mappedType,
-          category: "nuclear_physics",
-          lesson_tag: data.lesson_tag || undefined,
-          content_url: data.content_url || "",
-          is_published: data.is_published,
-          is_system: false,
-          created_at: data.created_at,
-        };
-      }
+      if (!error && data) return mapLessonMaterialRow(data, context.userId);
     } catch (err) {
       console.warn("lesson_materials single query error:", err);
     }

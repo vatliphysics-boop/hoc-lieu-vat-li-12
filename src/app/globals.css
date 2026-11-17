@@ -5272,45 +5272,108 @@ ol.rich-physics-list {
 }
 
 /* ==========================================================================
-   Material Catalog — Phase 1 (search-first, low-text, responsive)
+   Material Catalog — Phase 1.5 (search-first, server-paginated, responsive)
    ========================================================================== */
 .material-catalog{max-width:1100px;margin:0 auto;padding:0 24px 48px}
+
+/* ---- Search ---- */
 .material-catalog-search{display:flex;gap:10px;align-items:stretch;margin:0 0 14px}
-.material-catalog-search-field{flex:1 1 auto;min-width:0}
-.material-catalog-search-field input{width:100%;min-height:52px;padding:12px 18px;font-size:16px;border:1px solid var(--border-light);border-radius:10px;background:var(--bg-surface);color:var(--text-primary)}
+.material-catalog-search-field{position:relative;display:flex;align-items:center;flex:1 1 auto;min-width:0}
+.material-catalog-search-icon{position:absolute;left:16px;font-size:19px;line-height:1;color:var(--text-muted);pointer-events:none;transform:rotate(-45deg)}
+.material-catalog-search-field input{width:100%;min-height:52px;padding:12px 44px 12px 44px;font-size:16px;border:1px solid var(--border-light);border-radius:10px;background:var(--bg-surface);color:var(--text-primary);transition:border-color .15s ease,box-shadow .15s ease}
 .material-catalog-search-field input::placeholder{color:var(--text-muted)}
-.material-catalog-search-field input:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+.material-catalog-search-field input:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px;border-color:var(--color-primary)}
+.material-catalog-search-clear{position:absolute;right:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;border-radius:50%;background:transparent;color:var(--text-muted);font-size:20px;line-height:1;cursor:pointer}
+.material-catalog-search-clear:hover{background:var(--bg-canvas);color:var(--text-primary)}
+.material-catalog-search-clear:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+
+/* ---- Filters ---- */
 .material-catalog-quickfilters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px}
-.material-catalog-quickfilters select{min-height:40px;padding:8px 12px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-primary);font-size:14px}
-.material-catalog-types{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:4px;padding-top:10px;border-top:1px solid var(--border-light)}
+.material-catalog-lessonselect select{min-height:40px;padding:8px 32px 8px 12px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-primary);font-size:14px;cursor:pointer}
+.material-catalog-lessonselect select:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
+.material-catalog-types{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px;padding-top:12px;border-top:1px solid var(--border-light)}
+.material-catalog-typechip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border-light);border-radius:999px;background:var(--bg-surface);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:border-color .15s ease,color .15s ease,background-color .15s ease}
+.material-catalog-typechip:hover{border-color:var(--color-primary);color:var(--color-primary)}
+.material-catalog-typechip:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+.material-catalog-typechip.is-active{border-color:var(--color-primary);background:var(--color-primary);color:#fff}
+.material-catalog-typechip-count{font-size:11px;font-weight:700;opacity:.75}
+
+/* ---- Status ---- */
 .material-catalog-status{margin:0 0 14px;font-size:14px;color:var(--text-muted)}
+.material-catalog-status strong{color:var(--text-primary);font-weight:700}
+.form-alert-warning{border-color:#d97706;background-color:rgba(245,158,11,.12);color:var(--text-primary)}
+
+/* ---- Rows ---- */
 .material-catalog-items{display:flex;flex-direction:column;border:1px solid var(--border-light);border-radius:12px;overflow:hidden;background:var(--bg-surface)}
-.material-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border-light)}
+.material-row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border-light);transition:background-color .12s ease}
 .material-row:last-child{border-bottom:none}
-.material-row-main{display:flex;flex-direction:column;gap:4px;min-width:0;padding:0;border:none;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
-.material-row-main:hover .material-row-title{text-decoration:underline}
-.material-row-main:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:4px}
-.material-row-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+.material-row:hover{background:var(--bg-canvas)}
+.material-row.is-open{background:var(--bg-canvas)}
+.material-row-main{display:flex;flex-direction:column;gap:5px;min-width:0;padding:0;border:none;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.material-row-main:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px;border-radius:4px}
+.material-row-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;line-height:1.2}
 .material-row-type{color:var(--color-primary);font-weight:600}
-.material-row-lesson{padding:1px 7px;border-radius:999px;background:var(--color-primary-soft);color:var(--color-primary);font-weight:600}
+.material-row-type.is-simulation{color:#7c3aed}
+.material-row-type.is-assessment{color:#0f766e}
+.material-row-type.is-lecture_video,.material-row-type.is-real_video{color:#b45309}
+.material-row-lesson{padding:1px 8px;border-radius:999px;background:var(--color-primary-soft);color:var(--color-primary);font-weight:600}
+.material-row-duration{color:var(--text-muted)}
 .material-row-title{font-size:15px;line-height:1.4;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+
+/* ---- Row actions ---- */
 .material-row-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.material-row-save{min-width:34px;min-height:34px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-canvas);color:var(--text-secondary);cursor:pointer;font-size:15px;line-height:1}
+.material-row-save{min-width:34px;min-height:34px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-secondary);cursor:pointer;font-size:15px;line-height:1}
+.material-row-save:hover{border-color:var(--color-primary);color:var(--color-primary)}
+.material-row-save:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 .material-row-save[aria-pressed="true"]{color:var(--color-primary);border-color:var(--color-primary)}
-.material-row-detail{grid-column:1 / -1;padding-top:12px;margin-top:4px;border-top:1px dashed var(--border-light)}
+
+/* ---- Expanded detail ---- */
+.material-row-detail{grid-column:1 / -1;padding-top:14px;margin-top:6px;border-top:1px dashed var(--border-light)}
 .material-row-detail > p{margin:0 0 10px;font-size:14px;line-height:1.65;color:var(--text-secondary);max-width:72ch}
-.material-row-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.material-catalog-empty{padding:40px 24px;text-align:center;border:1px dashed var(--border-light);border-radius:12px;color:var(--text-muted)}
-.material-catalog-empty p{margin:0 0 12px}
+.material-row-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+
+/* ---- Empty / skeleton ---- */
+.material-catalog-empty{padding:44px 24px;text-align:center;border:1px dashed var(--border-light);border-radius:12px;color:var(--text-muted)}
+.material-catalog-empty p{margin:0 0 14px;font-size:15px}
 .material-catalog-skeleton{display:flex;flex-direction:column;gap:8px}
 .material-catalog-skeleton-row{height:58px;border-radius:10px;background:linear-gradient(90deg,var(--bg-canvas) 25%,var(--border-light) 50%,var(--bg-canvas) 75%);background-size:200% 100%;animation:catalog-shimmer 1.4s ease-in-out infinite}
 @keyframes catalog-shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
-.material-catalog-more{display:flex;justify-content:center;margin-top:16px}
+
+/* ---- Pagination ---- */
+.material-catalog-more{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin-top:20px}
+.material-catalog-pagenum{font-size:13px;font-weight:600;color:var(--text-muted);min-width:70px;text-align:center}
+
+/* ---- Lesson cards strip ---- */
 .material-catalog-lessons{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
-.material-catalog-lessons a{display:flex;align-items:baseline;gap:8px;padding:8px 14px;border:1px solid var(--border-light);border-radius:999px;font-size:13px;color:var(--text-secondary);text-decoration:none}
+.material-catalog-lessons a{display:flex;align-items:baseline;gap:8px;padding:8px 14px;border:1px solid var(--border-light);border-radius:999px;font-size:13px;color:var(--text-secondary);text-decoration:none;transition:border-color .15s ease,color .15s ease}
 .material-catalog-lessons a:hover{border-color:var(--color-primary);color:var(--color-primary)}
+.material-catalog-lessons a:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 .material-catalog-lessons span{font-weight:700}
 .material-catalog-lessons small{color:var(--text-muted)}
-@media(prefers-reduced-motion:reduce){.material-catalog-skeleton-row{animation:none}}
-@media(max-width:700px){.material-catalog{padding:0 12px 32px}.material-catalog-search{flex-wrap:wrap}.material-catalog-search-field{flex-basis:100%}.material-catalog-search-field input{min-height:48px;font-size:16px}.material-row{padding:12px;gap:8px}.material-row-title{font-size:14px}.material-row-links .btn{flex:1 1 auto}}
-@media(max-width:380px){.material-row{grid-template-columns:1fr}.material-row-actions{justify-content:flex-end}}
+
+/* ---- Teacher view switch ---- */
+.teacher-material-views{display:flex;gap:8px;margin:0 0 16px}
+
+/* ---- Responsive ---- */
+@media(prefers-reduced-motion:reduce){
+  .material-catalog-skeleton-row{animation:none}
+  .material-row,.material-catalog-typechip,.material-catalog-lessons a{transition:none}
+}
+@media(max-width:700px){
+  .material-catalog{padding:0 12px 32px}
+  .material-catalog-search{flex-wrap:wrap}
+  .material-catalog-search-field{flex-basis:100%}
+  .material-catalog-search-field input{min-height:48px;font-size:16px}
+  .material-catalog-quickfilters{gap:8px}
+  .material-catalog-lessonselect{flex:1 1 auto}
+  .material-catalog-lessonselect select{width:100%}
+  .material-row{padding:12px;gap:8px}
+  .material-row-title{font-size:14px}
+  .material-row-links .btn,.material-row-links a{flex:1 1 auto}
+  .material-catalog-more .btn{flex:1 1 auto;text-align:center}
+}
+@media(max-width:380px){
+  .material-row{grid-template-columns:1fr}
+  .material-row-actions{justify-content:flex-end}
+  .material-catalog-pagenum{width:100%;order:-1}
+}

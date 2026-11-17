@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { PortalShell } from "@/components/PortalShell";
 import { LearningLibrary } from "@/components/learning/LearningLibrary";
+import { MaterialCatalogRoute } from "@/components/learning/MaterialCatalogRoute";
+import { isUnifiedCatalogEnabled } from "@/lib/feature-flags";
 export default async function OpenLearningPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; bai?: string; resource?: string }>;
+  searchParams: Promise<{ type?: string; bai?: string; resource?: string; q?: string; page?: string }>;
 }) {
-  const { type, bai, resource } = await searchParams;
+  const { type, bai, resource, q, page } = await searchParams;
   return (
     <PortalShell
       role="student"
@@ -38,7 +40,14 @@ export default async function OpenLearningPage({
           </Link>
         </div>
       </header>
-      <LearningLibrary key={`${type}-${bai}-${resource}`} initialType={type} initialLesson={bai} initialResource={resource} />
-    </PortalShell>
+      {isUnifiedCatalogEnabled() ? (
+        <MaterialCatalogRoute
+          role="public"
+          basePath="/hoc-lieu"
+          searchParams={{ type, bai, q, page }}
+        />
+      ) : (
+        <LearningLibrary key={`${type}-${bai}-${resource}`} initialType={type} initialLesson={bai} initialResource={resource} />
+      )}    </PortalShell>
   );
 }
