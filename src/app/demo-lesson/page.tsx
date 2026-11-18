@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { PublicShell } from "@/app/PublicShell";
 import { LatexMath } from "@/components/learning/LatexMath";
@@ -221,6 +221,20 @@ const SRL_CRITERIA = [
   },
 ];
 
+/**
+ * Đọc `?giai-doan=` để mở thẳng một giai đoạn từ menu điều hướng.
+ * Không dùng useSearchParams (gây yêu cầu Suspense bao ngoài) — đọc
+ * từ window ở effect đầu tiên, sau khi đã mount.
+ */
+function phaseFromQuery(): 1 | 2 | 3 | null {
+  if (typeof window === "undefined") return null;
+  const value = new URLSearchParams(window.location.search).get("giai-doan");
+  if (value === "1") return 1;
+  if (value === "2") return 2;
+  if (value === "3") return 3;
+  return null;
+}
+
 export default function DemoLessonPage() {
   const [activePhase, setActivePhase] = useState<1 | 2 | 3>(1);
   const [selectedLesson, setSelectedLesson] = useState<string>("B23");
@@ -241,6 +255,11 @@ export default function DemoLessonPage() {
   });
   const [srlReflection, setSrlReflection] = useState<string>("");
   const [srlSaved, setSrlSaved] = useState<boolean>(false);
+
+  useEffect(() => {
+    const phase = phaseFromQuery();
+    if (phase) setActivePhase(phase);
+  }, []);
 
   const activePersona =
     ROLE_PLAY_PERSONAS.find((p) => p.id === selectedRole) || ROLE_PLAY_PERSONAS[0];
@@ -887,7 +906,7 @@ export default function DemoLessonPage() {
             </section>
 
             {/* 2.2: Bản đồ tư duy ứng dụng phóng xạ */}
-            <section style={{ borderTop: "1px solid var(--border-light)", paddingTop: "36px" }}>
+            <section id="mindmap" style={{ borderTop: "1px solid var(--border-light)", paddingTop: "36px" }}>
               <div style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text-muted)" }}>
                 Hoạt động 2.2 · Bản đồ tư duy cộng tác nhóm
               </div>
@@ -939,7 +958,7 @@ export default function DemoLessonPage() {
             </section>
 
             {/* 2.3: Tình huống đóng vai tranh biện */}
-            <section style={{ borderTop: "1px solid var(--border-light)", paddingTop: "36px" }}>
+            <section id="roleplay" style={{ borderTop: "1px solid var(--border-light)", paddingTop: "36px" }}>
               <div style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--text-muted)" }}>
                 Hoạt động 2.3 · Mô hình trò chơi đóng vai / Tình huống giả định
               </div>
