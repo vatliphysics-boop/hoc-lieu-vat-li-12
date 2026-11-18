@@ -266,9 +266,17 @@ interface ScanResult<T> {
  * plain integers and cannot be mis-encoded.
  *
  * Ordering is `created_at DESC, id DESC`; `id` is unique, so the order is
- * total and stable even when many rows share a timestamp. Rows are fetched
- * `SOURCE_PAGE_SIZE` at a time until the source is exhausted or
- * `MAX_SCAN_ROWS` is reached.
+ * total and stable even when many rows share a timestamp.
+ *
+ * CRITICAL: We advance `from` by the actual number of rows returned, not a
+ * fixed SOURCE_PAGE_SIZE. PostgREST may have a lower max-rows limit (e.g., 500)
+ * than SOURCE_PAGE_SIZE (1000). If we always advanced by SOURCE_PAGE_SIZE, we
+ * would skip rows when the server cap is lower.
+ *
+ * The loop continues until either:
+ * 1. A page returns 0 rows (end of data).
+ * 2. We reach MAX_SCAN_ROWS (guard ceiling).
+ * 3. An error occurs (partial scan, truncated=true).
  */
 async function scanMaterialBank(
   supabase: SupabaseClient,
@@ -276,14 +284,14 @@ async function scanMaterialBank(
 ): Promise<ScanResult<MaterialItem>> {
   const rows: MaterialItem[] = [];
   let truncated = false;
+  let from = 0;
 
-  for (let from = 0; from < MAX_SCAN_ROWS; from += SOURCE_PAGE_SIZE) {
-    const to = Math.min(from + SOURCE_PAGE_SIZE, MAX_SCAN_ROWS) - 1;
+  while (from < MAX_SCAN_ROWS) {
+    const to = Math.min(from + SOURCE_PAGE_SIZE - 1, MAX_SCAN_ROWS - 1);
 
     const { data, error } = await supabase
       .from("material_bank")
       .select("*")
-      // RLS mirror — the policy is the real gate; this narrows the payload.
       .or(
         context.role === "teacher" && context.userId
           ? `is_published.eq.true,teacher_id.eq.${context.userId}`
@@ -295,19 +303,21 @@ async function scanMaterialBank(
 
     if (error) {
       console.warn("material_bank scan error:", error);
-      // A partial scan must not claim to be complete: the UI shows a banner
-      // when `truncated` is true, so the user knows rows may be missing.
       truncated = true;
       break;
     }
+
     if (!data || data.length === 0) break;
 
     for (const row of data) rows.push(mapMaterialBankRow(row));
 
-    // Short page = source exhausted.
-    if (data.length < to - from + 1) break;
-    if (from + data.length >= MAX_SCAN_ROWS) {
+    // Advance by actual rows returned, not SOURCE_PAGE_SIZE.
+    from += data.length;
+
+    // Guard against exceeding MAX_SCAN_ROWS.
+    if (rows.length >= MAX_SCAN_ROWS) {
       truncated = true;
+      rows.splice(MAX_SCAN_ROWS);
       break;
     }
   }
@@ -324,9 +334,10 @@ async function scanLessonMaterials(
 ): Promise<ScanResult<MaterialItem>> {
   const rows: MaterialItem[] = [];
   let truncated = false;
+  let from = 0;
 
-  for (let from = 0; from < MAX_SCAN_ROWS; from += SOURCE_PAGE_SIZE) {
-    const to = Math.min(from + SOURCE_PAGE_SIZE, MAX_SCAN_ROWS) - 1;
+  while (from < MAX_SCAN_ROWS) {
+    const to = Math.min(from + SOURCE_PAGE_SIZE - 1, MAX_SCAN_ROWS - 1);
 
     const { data, error } = await supabase
       .from("lesson_materials")
@@ -341,13 +352,16 @@ async function scanLessonMaterials(
       truncated = true;
       break;
     }
+
     if (!data || data.length === 0) break;
 
     for (const row of data) rows.push(mapLessonMaterialRow(row, teacherId));
 
-    if (data.length < to - from + 1) break;
-    if (from + data.length >= MAX_SCAN_ROWS) {
+    from += data.length;
+
+    if (rows.length >= MAX_SCAN_ROWS) {
       truncated = true;
+      rows.splice(MAX_SCAN_ROWS);
       break;
     }
   }

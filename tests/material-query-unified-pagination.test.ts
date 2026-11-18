@@ -601,3 +601,151 @@ describe("Unified pagination: partial scan must be visible", () => {
     assert.strictEqual(page.truncated, false);
   });
 });
+
+describe("Unified pagination: Supabase API max-rows limit", () => {
+  /**
+   * If the Supabase project sets a max-rows limit below SOURCE_PAGE_SIZE,
+   * the scanner must not mistake a truncated response for end-of-data.
+   * This was the bug Opus auditor found: if cap=500 and we ask for 1000,
+   * we get 500 and thought the source was exhausted.
+   */
+
+  /**
+   * Builds a client whose underlying "table" applies the same ordering and
+   * filtering as the real query, then caps the response at `serverCap` rows
+   * (mimicking Supabase's max-rows setting). We must cap AFTER the FakeQuery
+   * has applied .order(), otherwise we slice pre-sorted data and the test
+   * observes inconsistent ordering.
+   */
+  function makeClientWithServerCap(rows: Row[], serverCap: number) {
+    return {
+      from() {
+        const q = new FakeQuery(rows);
+        const origThen = q.then.bind(q);
+        q.then = (resolve, reject) => {
+          return Promise.resolve(origThen((result) => result))
+            .then((result) => {
+              const res = result as { data: Row[] | null };
+              const data = Array.isArray(res.data) ? res.data.slice(0, serverCap) : res.data;
+              return { ...res, data };
+            })
+            .then(resolve, reject);
+        };
+        return q;
+      },
+    } as unknown as Parameters<typeof getMaterialsUnified>[0];
+  }
+
+  test("server cap=300 with 1200-row dataset", async () => {
+    const rows = buildBankRows(1200);
+    const client = makeClientWithServerCap(rows, 300);
+    const page = await getMaterialsUnified(client, TEACHER, undefined, { limit: 100, offset: 0 });
+    // With cap=300 and SOURCE_PAGE_SIZE=1000, each request returns 300.
+    // Scanner should iterate: 0–299, 300–599, 600–899, 900–1199, then empty.
+    // Total in merged result: 1200 fixture + canonical.
+    const fixtureInPage = page.items.filter((i) => i.id.startsWith("mb-")).length;
+    assert.ok(fixtureInPage > 0, "should have fixture items on first page");
+    // Full scan must reach all 1200.
+    const full = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: MAX_SCAN_ROWS,
+      offset: 0,
+    });
+    const fixtureTotal = full.items.filter((i) => i.id.startsWith("mb-")).length;
+    assert.strictEqual(fixtureTotal, 1200, "server cap=300 should not hide rows");
+  });
+
+  test("server cap=500 with 1000-row dataset", async () => {
+    const rows = buildBankRows(1000);
+    const client = makeClientWithServerCap(rows, 500);
+    const full = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: MAX_SCAN_ROWS,
+      offset: 0,
+    });
+    const fixtureTotal = full.items.filter((i) => i.id.startsWith("mb-")).length;
+    assert.strictEqual(fixtureTotal, 1000, "server cap=500 should fetch 1000-row dataset in 2 pages");
+  });
+
+  test("server cap=1000 (matches SOURCE_PAGE_SIZE)", async () => {
+    const rows = buildBankRows(2500);
+    const client = makeClientWithServerCap(rows, 1000);
+    const full = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: MAX_SCAN_ROWS,
+      offset: 0,
+    });
+    const fixtureTotal = full.items.filter((i) => i.id.startsWith("mb-")).length;
+    assert.strictEqual(fixtureTotal, 2500, "server cap=1000 should scan 2500-row dataset");
+  });
+
+  test("server cap equals dataset size (1200)", async () => {
+    const rows = buildBankRows(1200);
+    const client = makeClientWithServerCap(rows, 1200);
+    const full = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: MAX_SCAN_ROWS,
+      offset: 0,
+    });
+    const fixtureTotal = full.items.filter((i) => i.id.startsWith("mb-")).length;
+    assert.strictEqual(fixtureTotal, 1200);
+  });
+
+  test("dataset vượt MAX_SCAN_ROWS báo truncated=true", async () => {
+    const rows = buildBankRows(21000);
+    const client = makeClientWithServerCap(rows, 1000);
+    const page = await getMaterialsUnified(client, TEACHER, undefined, { limit: 100, offset: 0 });
+    assert.strictEqual(page.truncated, true, "exceeding MAX_SCAN_ROWS must set truncated");
+    // Verify we got exactly MAX_SCAN_ROWS, not more.
+    const fixtureCount = page.items.filter((i) => i.id.startsWith("mb-")).length;
+    assert.ok(
+      fixtureCount <= MAX_SCAN_ROWS,
+      `fixture count ${fixtureCount} must not exceed MAX_SCAN_ROWS ${MAX_SCAN_ROWS}`
+    );
+  });
+
+  test("không bỏ sót ID khi server cap khác", async () => {
+    // Generate 150 rows with IDs `mb-00001` to `mb-00150`.
+    const rows = buildBankRows(150);
+    const client = makeClientWithServerCap(rows, 50); // server returns 50 per page.
+    const full = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: MAX_SCAN_ROWS,
+      offset: 0,
+    });
+    const ids = new Set(full.items.filter((i) => i.id.startsWith("mb-")).map((i) => i.id));
+    // All 150 fixture IDs must appear exactly once.
+    for (let i = 1; i <= 150; i++) {
+      const id = `mb-${String(i).padStart(5, "0")}`;
+      assert.ok(ids.has(id), `ID ${id} must be present`);
+    }
+    assert.strictEqual(ids.size, 150, "no duplicates or missing IDs");
+  });
+
+  test("scan lỗi giữa chừng vẫn báo truncated", async () => {
+    const rows = buildBankRows(500);
+    let callCount = 0;
+    const client = {
+      from() {
+        const q = new FakeQuery(rows);
+        const origRange = q.range.bind(q);
+        q.range = ((from: number, to: number) => {
+          callCount++;
+          if (callCount === 2) {
+            // Fail on second request.
+            return {
+              order() {
+                return this;
+              },
+              then(resolve: (v: unknown) => unknown) {
+                return Promise.resolve({ data: null, error: { message: "simulated error" } }).then(resolve);
+              },
+            };
+          }
+          return origRange(from, to);
+        }) as typeof q.range;
+        return q;
+      },
+    } as unknown as Parameters<typeof getMaterialsUnified>[0];
+    const page = await getMaterialsUnified(client, TEACHER, undefined, {
+      limit: 100,
+      offset: 0,
+    });
+    assert.strictEqual(page.truncated, true, "error mid-scan must set truncated=true");
+  });
+});

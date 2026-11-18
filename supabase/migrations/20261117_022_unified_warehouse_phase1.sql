@@ -15,6 +15,22 @@
 --   [ ] RLS policies verified against expected behavior
 --   [ ] Rollback plan prepared (drop indexes, drop tables in reverse order)
 --
+-- HOW TO APPLY — READ THIS FIRST:
+--   Section 2–4 use CREATE INDEX CONCURRENTLY on the live material_bank table
+--   so that reads and writes are not blocked while the indexes build.
+--   CONCURRENTLY CANNOT run inside a transaction block. Applying this file
+--   through a tool that wraps migrations in BEGIN/COMMIT will fail with
+--   "CREATE INDEX CONCURRENTLY cannot run inside a transaction block".
+--   Apply it either:
+--     psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f 20261117_022_unified_warehouse_phase1.sql
+--   or, in the Supabase SQL Editor, by running sections 1–4 as their own
+--   statement per click (Supabase runs each submitted statement outside an
+--   explicit transaction when it is submitted alone).
+--   If a CONCURRENTLY build is interrupted it leaves an INVALID index behind;
+--   drop it (DROP INDEX CONCURRENTLY <name>) and re-run that statement.
+--   The new tables in sections 5–9 are empty, so their indexes stay plain
+--   CREATE INDEX — CONCURRENTLY there would only add build time and failure modes.
+--
 -- Rollback (reverse this migration):
 --   DROP INDEX IF EXISTS idx_material_bank_fts;
 --   DROP INDEX IF EXISTS idx_material_bank_trgm_title;
@@ -37,7 +53,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 --    Covers Vietnamese text with unaccent normalization
 -- ---------------------------------------------------------------------------
 
-CREATE INDEX IF NOT EXISTS idx_material_bank_fts
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_material_bank_fts
   ON material_bank
   USING gin(
     to_tsvector(
@@ -51,7 +67,7 @@ CREATE INDEX IF NOT EXISTS idx_material_bank_fts
 --    Allows queries like: WHERE title % 'phong xa' (matches "phóng xạ")
 -- ---------------------------------------------------------------------------
 
-CREATE INDEX IF NOT EXISTS idx_material_bank_trgm_title
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_material_bank_trgm_title
   ON material_bank
   USING gin(title gin_trgm_ops);
 
@@ -59,18 +75,18 @@ CREATE INDEX IF NOT EXISTS idx_material_bank_trgm_title
 -- 4. Performance indexes for common filter patterns
 -- ---------------------------------------------------------------------------
 
-CREATE INDEX IF NOT EXISTS idx_material_bank_lesson_tag
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_material_bank_lesson_tag
   ON material_bank(lesson_tag)
   WHERE lesson_tag IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS idx_material_bank_type
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_material_bank_type
   ON material_bank(material_type);
 
-CREATE INDEX IF NOT EXISTS idx_material_bank_teacher
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_material_bank_teacher
   ON material_bank(teacher_id)
   WHERE teacher_id IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS idx_material_bank_published
+CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_material_bank_published
   ON material_bank(is_published)
   WHERE is_published = true;
 

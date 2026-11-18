@@ -5283,16 +5283,16 @@ ol.rich-physics-list {
 .material-catalog-search-field input{width:100%;min-height:52px;padding:12px 44px 12px 44px;font-size:16px;border:1px solid var(--border-light);border-radius:10px;background:var(--bg-surface);color:var(--text-primary);transition:border-color .15s ease,box-shadow .15s ease}
 .material-catalog-search-field input::placeholder{color:var(--text-muted)}
 .material-catalog-search-field input:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px;border-color:var(--color-primary)}
-.material-catalog-search-clear{position:absolute;right:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;border-radius:50%;background:transparent;color:var(--text-muted);font-size:20px;line-height:1;cursor:pointer}
+.material-catalog-search-clear{position:absolute;right:4px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:none;border-radius:50%;background:transparent;color:var(--text-muted);font-size:20px;line-height:1;cursor:pointer}
 .material-catalog-search-clear:hover{background:var(--bg-canvas);color:var(--text-primary)}
 .material-catalog-search-clear:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
 
 /* ---- Filters ---- */
 .material-catalog-quickfilters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 16px}
-.material-catalog-lessonselect select{min-height:40px;padding:8px 32px 8px 12px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-primary);font-size:14px;cursor:pointer}
+.material-catalog-lessonselect select{min-height:44px;padding:8px 32px 8px 12px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-primary);font-size:14px;cursor:pointer}
 .material-catalog-lessonselect select:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px}
 .material-catalog-types{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 18px;padding-top:12px;border-top:1px solid var(--border-light)}
-.material-catalog-typechip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border-light);border-radius:999px;background:var(--bg-surface);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:border-color .15s ease,color .15s ease,background-color .15s ease}
+.material-catalog-typechip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:6px 14px;border:1px solid var(--border-light);border-radius:999px;background:var(--bg-surface);color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;transition:border-color .15s ease,color .15s ease,background-color .15s ease}
 .material-catalog-typechip:hover{border-color:var(--color-primary);color:var(--color-primary)}
 .material-catalog-typechip:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 .material-catalog-typechip.is-active{border-color:var(--color-primary);background:var(--color-primary);color:#fff}
@@ -5309,7 +5309,7 @@ ol.rich-physics-list {
 .material-row:last-child{border-bottom:none}
 .material-row:hover{background:var(--bg-canvas)}
 .material-row.is-open{background:var(--bg-canvas)}
-.material-row-main{display:flex;flex-direction:column;gap:5px;min-width:0;padding:0;border:none;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.material-row-main{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;min-height:44px;padding:0;border:none;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
 .material-row-main:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px;border-radius:4px}
 .material-row-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;line-height:1.2}
 .material-row-type{color:var(--color-primary);font-weight:600}
@@ -5322,7 +5322,7 @@ ol.rich-physics-list {
 
 /* ---- Row actions ---- */
 .material-row-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.material-row-save{min-width:34px;min-height:34px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-secondary);cursor:pointer;font-size:15px;line-height:1}
+.material-row-save{min-width:44px;min-height:44px;border:1px solid var(--border-light);border-radius:8px;background:var(--bg-surface);color:var(--text-secondary);cursor:pointer;font-size:15px;line-height:1}
 .material-row-save:hover{border-color:var(--color-primary);color:var(--color-primary)}
 .material-row-save:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 .material-row-save[aria-pressed="true"]{color:var(--color-primary);border-color:var(--color-primary)}
@@ -5345,11 +5345,14 @@ ol.rich-physics-list {
 
 /* ---- Lesson cards strip ---- */
 .material-catalog-lessons{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
-.material-catalog-lessons a{display:flex;align-items:baseline;gap:8px;padding:8px 14px;border:1px solid var(--border-light);border-radius:999px;font-size:13px;color:var(--text-secondary);text-decoration:none;transition:border-color .15s ease,color .15s ease}
+.material-catalog-lessons a{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border:1px solid var(--border-light);border-radius:999px;font-size:13px;color:var(--text-secondary);text-decoration:none;transition:border-color .15s ease,color .15s ease}
 .material-catalog-lessons a:hover{border-color:var(--color-primary);color:var(--color-primary)}
 .material-catalog-lessons a:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
 .material-catalog-lessons span{font-weight:700}
 .material-catalog-lessons small{color:var(--text-muted)}
+
+/* ---- Tap targets: every interactive control in the catalogue is >= 44px (WCAG 2.5.5 / Apple HIG) ---- */
+.material-catalog .btn,.material-catalog .btn.small,.teacher-material-views .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
 
 /* ---- Teacher view switch ---- */
 .teacher-material-views{display:flex;gap:8px;margin:0 0 16px}
