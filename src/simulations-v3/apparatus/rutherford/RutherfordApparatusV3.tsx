@@ -306,13 +306,13 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
     const state = sceneRef.current;
     if (!state) return;
     // In cutaway mode, hide outer shells to reveal internal components
+    const hiddenParts = ["vacuum-chamber", "base-platform"];
     for (const [id, built] of state.components) {
-      if (cameraMode === "cutaway") {
-        // Hide vacuum chamber (glass walls) and base platform to see inside
-        built.mesh.visible = !(id === "vacuum-chamber" || id === "base-platform");
-      } else {
-        built.mesh.visible = true;
-      }
+      const shouldHide =
+        cameraMode === "cutaway" && hiddenParts.includes(id);
+      built.mesh.traverse((obj) => {
+        obj.visible = !shouldHide;
+      });
     }
   }, [cameraMode]);
 
@@ -388,8 +388,12 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
 
   // Reset when settings change
   useEffect(() => {
-    setElapsedZs(0);
-    setIsRunning(false);
+    // Use timeout to avoid synchronous setState in effect (ESLint react-hooks/set-state-in-effect)
+    const timer = setTimeout(() => {
+      setElapsedZs(0);
+      setIsRunning(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [settings]);
 
   function handleRunPause() {

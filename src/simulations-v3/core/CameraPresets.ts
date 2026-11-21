@@ -5,6 +5,9 @@
 
 import type { CameraMode } from "./types";
 
+// Re-export for downstream consumers
+export type { CameraMode };
+
 /** Camera configuration for a preset */
 export interface CameraPreset {
   readonly mode: CameraMode;
