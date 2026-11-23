@@ -8,6 +8,7 @@ import {
   EMPTY_STUDENT_NOTEBOOK,
   SGK_B21_MASS_CONSTANTS,
   SGK_TABLE_21_1,
+  SGK_TABLE_23_1,
   convertLessonDraftToTeachingPlan,
   createDraftFromSample,
   getChapter4Lesson,
@@ -103,7 +104,72 @@ test("Bảng 21.1 và hằng số khối lượng Bài 21 khớp chính xác 100
   assert.ok(SGK_B21_MASS_CONSTANTS.amuKg.includes("1,66054"));
 });
 
-test("Đầy đủ SectionTeacherGuide cho cả 6 mục B21 và toàn bộ các mục B22–B25", () => {
+test("Cả 5 bài B21–B25 đều có tổng thời lượng Trong giờ học đúng 45 phút (1 tiết) và đủ lessonGoals", () => {
+  for (const lesson of CHAPTER4_LESSONS) {
+    assert.ok(
+      lesson.lessonGoals?.knowledge.trim().length,
+      `Bài ${lesson.code} phải có mục tiêu kiến thức`
+    );
+    assert.ok(
+      lesson.lessonGoals?.competence.trim().length,
+      `Bài ${lesson.code} phải có mục tiêu năng lực`
+    );
+    assert.ok(
+      lesson.lessonGoals?.quality.trim().length,
+      `Bài ${lesson.code} phải có mục tiêu phẩm chất`
+    );
+
+    const inClassTotal = lesson.sections
+      .filter((s) => s.phase === "in_class")
+      .reduce((sum, s) => sum + s.minutes, 0);
+    assert.equal(
+      inClassTotal,
+      45,
+      `Tổng thời lượng Trong giờ học của ${lesson.code} phải đúng 45 phút`
+    );
+  }
+});
+
+test("Bài 22 chuẩn hóa kí hiệu Eₗₖ, Eₗₖᵣ (không còn Wₗₖ) và Bài 23 Bảng 23.1 đúng số liệu [1, 3, 2, 0, 3, 1]", () => {
+  const b22 = getChapter4Lesson("B22");
+  const b22Bind = b22.sections.find((s) => s.id === "b22-binding-energy");
+  assert.ok(b22Bind);
+  assert.ok(b22Bind.title.includes("Eₗₖ"));
+  assert.ok(b22Bind.title.includes("Eₗₖᵣ"));
+  for (const sec of b22.sections) {
+    assert.ok(!sec.title.includes("Wₗₖ") && !sec.shortTocTitle.includes("Wlk"));
+    assert.ok(!sec.phenomenonPrompt.includes("Wₗₖ") && !sec.evidencePrompt.includes("Wₗₖ"));
+  }
+
+  assert.deepEqual(
+    SGK_TABLE_23_1.map((r) => [r.windowSeconds, r.counts]),
+    [
+      ["0 – 5", 1],
+      ["5 – 10", 3],
+      ["10 – 15", 2],
+      ["15 – 20", 0],
+      ["20 – 25", 3],
+      ["25 – 30", 1],
+    ]
+  );
+  assert.equal(
+    SGK_TABLE_23_1.reduce((sum, r) => sum + r.counts, 0),
+    10
+  );
+
+  const b24 = getChapter4Lesson("B24");
+  assert.ok(b24.sections[0]?.title.includes("Bộ phận nào thực sự làm quay tua-bin"));
+
+  const b25 = getChapter4Lesson("B25");
+  const b25TableSec = b25.sections.find((s) => s.id === "b25-table-25-1");
+  assert.ok(b25TableSec);
+  assert.ok(
+    !b25TableSec.evidencePrompt.includes("39,5"),
+    "evidencePrompt của Bảng 25.1 không được tiết lộ sẵn đáp án T ≈ 39,5 s cho học sinh"
+  );
+});
+
+test("Đầy đủ SectionTeacherGuide cho toàn bộ các mục của cả 5 bài B21–B25", () => {
   for (const lesson of CHAPTER4_LESSONS) {
     for (const sec of lesson.sections) {
       assert.ok(sec.teacherGuide, `Mục ${sec.id} phải có teacherGuide`);

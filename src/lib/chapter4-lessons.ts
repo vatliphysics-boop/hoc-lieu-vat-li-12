@@ -108,6 +108,30 @@ export const SGK_TABLE_21_1: readonly SgkTable21Row[] = [
   { elementName: "Uranium", symbol: "U", z: 92, massNumberA: 238, atomicRadius10m10: "1,9", nuclearRadius10m15: "5,9", formulaRadius10m15: "7,4" },
 ] as const;
 
+export interface SgkTable23GeigerRow {
+  readonly windowSeconds: string;
+  readonly counts: number;
+}
+
+/** Bảng 23.1 SGK Vật lí 12 KNTT tr. 105 — Số xung đếm được trong 6 khoảng 5 giây liên tiếp (tổng 10 xung / 30 s) */
+export const SGK_TABLE_23_1: readonly SgkTable23GeigerRow[] = [
+  { windowSeconds: "0 – 5", counts: 1 },
+  { windowSeconds: "5 – 10", counts: 3 },
+  { windowSeconds: "10 – 15", counts: 2 },
+  { windowSeconds: "15 – 20", counts: 0 },
+  { windowSeconds: "20 – 25", counts: 3 },
+  { windowSeconds: "25 – 30", counts: 1 },
+] as const;
+
+export const SGK_TABLE_23_2_SAMPLES = [
+  { sym: "I", a: 131, z: 53, name: "Iodine-131", halfLife: "8,0 ngày", radiation: "β⁻, γ (y học hạt nhân)" },
+  { sym: "Po", a: 210, z: 84, name: "Polonium-210", halfLife: "138 ngày", radiation: "α" },
+  { sym: "Co", a: 60, z: 27, name: "Cobalt-60", halfLife: "5,27 năm", radiation: "β⁻, γ (xạ trị & công nghiệp)" },
+  { sym: "H", a: 3, z: 1, name: "Tritium (³₁H)", halfLife: "12,3 năm", radiation: "β⁻" },
+  { sym: "C", a: 14, z: 6, name: "Carbon-14", halfLife: "5 730 năm", radiation: "β⁻ (định tuổi khảo cổ)" },
+  { sym: "U", a: 238, z: 92, name: "Uranium-238", halfLife: "4,47 tỉ năm", radiation: "α" },
+] as const;
+
 export interface Chapter4SectionSpec {
   readonly id: string;
   readonly kind: Chapter4SectionKind;
@@ -388,7 +412,15 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
     guidingQuestion:
       "Vì sao vết sương trong buồng Blackett tách làm hai nhánh và phần khối lượng hụt đi của hạt nhân chuyển thành gì?",
     hubHighlight:
-      "Vết phân nhánh buồng sương Blackett, bảo toàn A và Z, độ hụt khối Δm, đồ thị năng lượng liên kết riêng, phân hạch và nhiệt hạch.",
+      "Vết phân nhánh buồng sương Blackett, bảo toàn A và Z, độ hụt khối Δm, đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A, phân hạch và nhiệt hạch.",
+    lessonGoals: {
+      knowledge:
+        "Phân biệt được phản ứng hạt nhân tự phát và phản ứng hạt nhân kích thích qua thí nghiệm buồng sương Blackett; phát biểu định luật bảo toàn số khối (số nucleon) A và điện tích Z; nêu được độ hụt khối Δm, năng lượng liên kết Eₗₖ = Δm·c², năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A, cơ chế phân hạch và tổng hợp hạt nhân (SGK tr. 96–103).",
+      competence:
+        "Nhận diện được 4 chi tiết trên vết phân nhánh chữ Y của Blackett và đối chiếu với tán xạ Rutherford (B21); cân bằng phương trình hạt nhân; đọc đồ thị Eₗₖᵣ theo số khối A (Hình 22.3) để giải thích chiều tỏa năng lượng của cả phân hạch lẫn nhiệt hạch.",
+      quality:
+        "Trung thực lưu giữ dự đoán ban đầu trước giờ học; cẩn trọng kiểm tra bảo toàn A, Z và quy đổi đơn vị amu – MeV/c² – MeV.",
+    },
     sections: [
       {
         id: "b22-blackett-track",
@@ -397,13 +429,29 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         title: "Vết phân nhánh trong thí nghiệm buồng sương Blackett",
         shortTocTitle: "Vết phân nhánh Blackett",
         sgkPages: "tr. 96–97",
-        minutes: 10,
+        minutes: 12,
         phenomenonPrompt:
-          "Quan sát bức ảnh lịch sử trong buồng sương chứa khí Nitrogen: một vệt hạt α biến mất tại điểm va chạm và tách thành hai nhánh mới.",
+          "Quan sát Hình 22.1–22.2 (buồng sương chứa khí Nitrogen): giữa hàng chục nghìn vệt hạt α đi thẳng, có một vệt biến mất tại đỉnh rẽ nhánh chữ Y tạo vệt mảnh dài (¹₁H) và vệt đậm ngắn (¹⁷₈O).",
         evidencePrompt:
-          "Dự đoán hai hạt tạo ra sau điểm phân nhánh từ phương trình ⁴₂He + ¹⁴₇N → ¹⁷₈O + ¹₁H.",
+          "Khóa dự đoán ban đầu kèm lí do, ghép đúng 4 chi tiết vết chữ Y, đối chiếu với tán xạ Rutherford B21 và trả lời câu tự kiểm tra Pha 1.",
         teacherTip:
-          "Khơi gợi sự khác biệt giữa phản ứng hóa học (bảo toàn nguyên tố) và phản ứng hạt nhân (nguyên tố Nitrogen biến đổi thành Oxygen).",
+          "Giao trước giờ học (12 phút). Đầu giờ đối chiếu ngay câu trả lời của học sinh: ở B21 hạt α chỉ bật lệch còn ở B22 vệt α biến mất hoàn toàn để biến Nitrogen thành Oxygen.",
+        teacherGuide: {
+          learningObjective:
+            "Nhận diện được dấu hiệu thực nghiệm của phản ứng hạt nhân kích thích đầu tiên (⁴₂He + ¹⁴₇N → ¹⁷₈O + ¹₁H) trên ảnh buồng sương Blackett và phân biệt với sự tán xạ đàn hồi hạt α ở Bài 21.",
+          projectorStrategy:
+            "Chiếu sơ đồ vết chữ Y nền tối, che chú thích và gọi học sinh chỉ rõ vì sao không có nhánh thứ 3 của hạt α đi tiếp sau điểm va chạm.",
+          openQuestions: [
+            "Nếu hạt α chỉ va chạm rồi nảy ra như trong thí nghiệm lá vàng Bài 21 thì sau điểm va chạm trong buồng sương phải có mấy vệt?",
+            "Dựa vào độ dày và chiều dài hai nhánh sau điểm va chạm, nhánh nào là proton nhẹ, nhánh nào là hạt nhân Oxygen giật lùi?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ nghĩ phản ứng hạt nhân cũng bảo toàn nguyên tố hóa học như phản ứng hóa học, hoặc nhầm nhánh đậm ngắn là hạt α đi tiếp. Cách gỡ: Đếm số vệt sau đỉnh chữ Y (chỉ có 2 vệt) và kiểm tra Z: 2 + 7 = 8 (Oxygen) + 1 (Hydrogen).",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn Pha 1 bằng sơ đồ vết buồng sương Blackett (Hình 22.1–22.2), bảng đối chiếu B21–B22 và thao tác ghép 4 chi tiết ngay trên trang.",
+          completionCriteriaNote:
+            "Chỉ ghi nhận hoàn thành khi học sinh đã khóa dự đoán + lí do, ghép đúng 4/4 chi tiết vết chữ Y và trả lời đúng câu tự kiểm tra Pha 1.",
+        },
       },
       {
         id: "b22-conservation",
@@ -412,30 +460,62 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         title: "Bảo toàn số khối A và điện tích Z trong phản ứng hạt nhân",
         shortTocTitle: "Bảo toàn số khối & điện tích",
         sgkPages: "tr. 97–98",
-        minutes: 12,
+        minutes: 10,
         phenomenonPrompt:
-          "Kiểm tra tổng số nucleon A và tổng điện tích Z trước – sau các phản ứng hạt nhân kích thích và tự phát.",
+          "Phân biệt phản ứng hạt nhân tự phát với phản ứng hạt nhân kích thích; kiểm tra tổng số nucleon A và tổng điện tích Z trước – sau phản ứng.",
         evidencePrompt:
-          "Cân bằng đúng ít nhất hai phương trình phản ứng hạt nhân và ghi rõ hạt còn thiếu.",
+          "Đối chiếu Sản phẩm Pha 1, phân biệt hai loại phản ứng hạt nhân và cân bằng đúng các phương trình hạt nhân.",
         activityKey: "nuclear_reaction_balancer",
         teacherTip:
-          "Lưu ý học sinh neutron (¹₀n) có Z = 0 nhưng A = 1, còn electron (⁰₋₁e) có Z = −1 và A = 0.",
+          "Dành 10 phút trên lớp: nhắc rõ neutron (¹₀n) có Z = 0, A = 1 và electron (⁰₋₁e) có Z = −1, A = 0; nhấn mạnh khối lượng nghỉ KHÔNG bảo toàn.",
+        teacherGuide: {
+          learningObjective:
+            "Phân loại được phản ứng hạt nhân tự phát và kích thích; vận dụng định luật bảo toàn số nucleon A và bảo toàn điện tích Z để xác định hạt nhân chưa biết.",
+          projectorStrategy:
+            "Mở hộp Sản phẩm Pha 1 đã lưu để chuyển từ phương trình Blackett sang quy tắc tổng quát A₁ + A₂ = A₃ + A₄ và Z₁ + Z₂ = Z₃ + Z₄ trên mô phỏng cân bằng.",
+          openQuestions: [
+            "Trong phản ứng hạt nhân, số proton riêng lẻ và số neutron riêng lẻ có nhất thiết bảo toàn không, hay chỉ tổng số nucleon A bảo toàn?",
+            "Điểm khác nhau cốt lõi giữa sự phân rã tự phát của ²³⁸₉₂U và phản ứng bắn phá ¹⁴₇N bằng hạt α là gì?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay áp dụng nhầm “định luật bảo toàn khối lượng” cho khối lượng nghỉ của các hạt nhân hoặc quên điện tích âm Z = −1 của hạt β⁻ (⁰₋₁e). Cách gỡ: Chỉ bảo toàn năng lượng toàn phần, số nucleon A và điện tích Z.",
+          noVideoFallback:
+            "Sử dụng bảng đối chiếu 2 loại phản ứng hạt nhân và bộ cân bằng phương trình tương tác trực tiếp trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thực hành quan sát và cân bằng chính xác các phương trình phản ứng hạt nhân trong mô phỏng.",
+        },
       },
       {
         id: "b22-binding-energy",
         kind: "b22_binding_energy",
         phase: "in_class",
-        title: "Độ hụt khối Δm và đồ thị năng lượng liên kết riêng",
-        shortTocTitle: "Độ hụt khối & đồ thị Wlk/A",
+        title: "Độ hụt khối Δm, năng lượng liên kết Eₗₖ và đồ thị năng lượng liên kết riêng Eₗₖᵣ",
+        shortTocTitle: "Độ hụt khối & đồ thị Eₗₖᵣ",
         sgkPages: "tr. 99–101",
-        minutes: 18,
+        minutes: 15,
         phenomenonPrompt:
-          "So sánh tổng khối lượng các nucleon rời rạc với khối lượng hạt nhân thực tế và khảo sát đường cong Wₗₖ/A theo số khối A.",
+          "So sánh tổng khối lượng các nucleon rời rạc với khối lượng hạt nhân thực tế (Hình 22.5) và khảo sát đường cong năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A theo số khối A (Hình 22.3).",
         evidencePrompt:
-          "Tính Δm, Wₗₖ, Wₗₖ/A và chỉ ra vùng số khối bền vững nhất (quanh ⁵⁶₂₆Fe ≈ 8,8 MeV/nucleon).",
+          "Tính Δm, Eₗₖ, Eₗₖᵣ = Eₗₖ/A và chỉ ra vùng số khối bền vững nhất (50 < A < 95, đỉnh quanh ⁵⁶₂₆Fe – ⁸⁹₃₉Y ≈ 8,8 MeV/nucleon).",
         activityKey: "binding_energy_lab",
         teacherTip:
-          "Dùng đồ thị Wₗₖ/A làm trục xương sống để giải thích vì sao hạt nhân rất nặng dễ phân hạch còn hạt nhân rất nhẹ có thể tổng hợp.",
+          "Dành 15 phút trọng tâm: thống nhất kí hiệu chuẩn SGK KNTT là Eₗₖ và Eₗₖᵣ = Eₗₖ/A; dùng Hình 22.3 giải thích cả phân hạch lẫn nhiệt hạch.",
+        teacherGuide: {
+          learningObjective:
+            "Tính được độ hụt khối Δm = [Z·m_p + (A − Z)·m_n] − m_X, năng lượng liên kết Eₗₖ = Δm·c² và dùng năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A để so sánh mức độ bền vững giữa các hạt nhân.",
+          projectorStrategy:
+            "Chiếu đồ thị Hình 22.3 SGK (trục tung Eₗₖᵣ = Eₗₖ/A, trục hoành số khối A) cạnh sơ đồ cân khối lượng nucleon rời vs hạt nhân tạo thành để học sinh thấy trực quan nguồn gốc Eₗₖ.",
+          openQuestions: [
+            "Hạt nhân ²³⁸₉₂U có năng lượng liên kết Eₗₖ rất lớn (~1800 MeV), vì sao nó lại kém bền hơn hạt nhân ⁵⁶₂₆Fe (Eₗₖ ≈ 492 MeV)?",
+            "Muốn tách một hạt nhân bền thành các proton và neutron riêng rẽ như Hình 22.5, hệ phải thu vào hay tỏa ra năng lượng tối thiểu bằng bao nhiêu?",
+          ],
+          commonMisconceptions:
+            "Học sinh thường đánh giá độ bền hạt nhân dựa vào Eₗₖ thay vì tính trên một nucleon Eₗₖᵣ = Eₗₖ/A, hoặc nhầm dấu trong công thức Δm. Cách gỡ: Luôn lấy tổng khối lượng các nucleon tự do trừ khối lượng hạt nhân thực tế (Δm > 0).",
+          noVideoFallback:
+            "Dùng trực tiếp đồ thị SVG Hình 22.3 chuẩn kí hiệu Eₗₖᵣ, sơ đồ đối chiếu Hình 22.5 và phòng thí nghiệm tính Eₗₖ, Eₗₖᵣ ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh khảo sát và hoàn tất bài toán tính Δm, Eₗₖ, Eₗₖᵣ trên phòng thí nghiệm năng lượng liên kết.",
+        },
       },
       {
         id: "b22-fission",
@@ -446,12 +526,28 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 101–102",
         minutes: 12,
         phenomenonPrompt:
-          "Theo dõi một neutron chậm kích thích hạt nhân ²³⁵₉₂U vỡ thành hai mảnh trung bình kèm các neutron thứ cấp.",
+          "Theo dõi một neutron chậm bị ²³⁵₉₂U bắt giữ tạo trạng thái kích thích ²³⁶₉₂U* không bền rồi vỡ thành hai mảnh trung bình kèm 2–3 neutron thứ cấp và tỏa ~200 MeV.",
         evidencePrompt:
-          "Ghi lại điều kiện để các neutron thứ cấp duy trì phản ứng dây chuyền.",
+          "Ghi lại vai trò của neutron kích thích, trung gian ²³⁶₉₂U* và điều kiện hệ số nhân neutron k để duy trì phản ứng dây chuyền.",
         activityKey: "nuclear_fission",
         teacherTip:
-          "Đối chiếu số neutron sinh ra sau mỗi phân hạch (2–3 hạt) với vai trò kiểm soát mật độ neutron.",
+          "Dành 12 phút: cho học sinh phân biệt 1 phân hạch đơn lẻ với phản ứng phân hạch dây chuyền qua hệ số nhân neutron k.",
+        teacherGuide: {
+          learningObjective:
+            "Mô tả được cơ chế phân hạch hạt nhân nặng (²³⁵₉₂U, ²³⁹₉₄Pu) khi hấp thụ neutron chậm và phân tích được 3 chế độ phản ứng dây chuyền (k < 1, k = 1, k > 1).",
+          projectorStrategy:
+            "Chiếu mô phỏng phân hạch từng bước (neutron tới → ²³⁶₉₂U* → hai hạt nhân trung bình + k neutron) và đối chiếu năng lượng tỏa ra với sự tăng Eₗₖᵣ từ ~7,6 MeV lên ~8,5 MeV/nucleon.",
+          openQuestions: [
+            "Vì sao phân hạch ²³⁵₉₂U là phản ứng hạt nhân kích thích nhưng vẫn có thể tự duy trì thành dây chuyền sau lần kích thích đầu tiên?",
+            "Điều gì xảy ra với công suất tỏa nhiệt nếu hệ số nhân neutron giữ ở k = 1 so với k > 1?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay nhầm phân hạch ²³⁵₉₂U với phóng xạ tự phát, hoặc quên cộng neutron tới vào vế trái khi cân bằng phương trình phân hạch. Cách gỡ: Kiểm tra tổng A vế trái luôn là 1 + 235 = 236.",
+          noVideoFallback:
+            "Sử dụng phòng thí nghiệm phân hạch có hướng dẫn tương tác trực tiếp ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thực hiện trọn vẹn các bước khảo sát trên phòng thí nghiệm phân hạch.",
+        },
       },
       {
         id: "b22-fusion",
@@ -460,29 +556,61 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         title: "Phản ứng tổng hợp hạt nhân (nhiệt hạch)",
         shortTocTitle: "Tổng hợp hạt nhân",
         sgkPages: "tr. 102–103",
-        minutes: 10,
+        minutes: 8,
         phenomenonPrompt:
-          "Khảo sát điều kiện nhiệt độ hàng chục triệu độ để hai hạt nhân nhẹ ²₁H và ³₁H vượt lực đẩy tĩnh điện kết hợp thành ⁴₂He.",
+          "Tìm hiểu thí nghiệm Oliphant 1934 (²₁H + ²₁H → ³₂He + ¹₀n) và điều kiện nhiệt độ 10⁷ – 10⁸ K kèm mật độ × thời gian giam giữ để hai hạt nhân nhẹ kết hợp thành hạt nhân nặng hơn.",
         evidencePrompt:
-          "So sánh năng lượng tỏa ra tính trên một đơn vị khối lượng nhiên liệu giữa nhiệt hạch và phân hạch.",
+          "Nêu điều kiện thực hiện phản ứng nhiệt hạch (trạng thái plasma, nhiệt độ cực cao, mật độ và thời gian giam giữ) và liên hệ năng lượng của Mặt Trời.",
         activityKey: "nuclear_fusion",
         teacherTip:
-          "Liên hệ trực tiếp với nguồn năng lượng của Mặt Trời và các ngôi sao.",
+          "Dành 8 phút cuối tiết trên lớp: nhấn mạnh vì sao gọi là phản ứng “nhiệt hạch” (cần động năng nhiệt cực lớn để thắng lực đẩy Coulomb giữa hai hạt nhân dương).",
+        teacherGuide: {
+          learningObjective:
+            "Nêu được bản chất phản ứng tổng hợp hạt nhân (ví dụ ²₁H + ²₁H và ²₁H + ³₁H), các điều kiện khắc nghiệt về nhiệt độ (hàng chục đến hàng trăm triệu độ K), mật độ hạt nhân và thời gian duy trì plasma.",
+          projectorStrategy:
+            "Chiếu thẻ phản ứng lịch sử Oliphant (1934) và mô phỏng hai hạt nhân Hydrogen tiến lại gần nhau ở nhiệt độ thấp (bật ra do lực đẩy tĩnh điện) so với ở 10⁸ K (vượt rào Coulomb hợp nhất).",
+          openQuestions: [
+            "Vì sao để phản ứng phân hạch xảy ra người ta dùng neutron (không mang điện), còn phản ứng tổng hợp hai hạt nhân nhẹ lại cần nhiệt độ tới hàng chục triệu độ Kelvin?",
+            "Tính trên cùng 1 gam nhiên liệu, vì sao nhiệt hạch tỏa năng lượng lớn gấp nhiều lần phân hạch?",
+          ],
+          commonMisconceptions:
+            "Học sinh tưởng chỉ cần đun nóng thoáng qua là duy trì được nhiệt hạch. Cách gỡ: Chỉ rõ phải đồng thời đạt 3 điều kiện (nhiệt độ 10⁷–10⁸ K chuyển sang plasma, mật độ hạt nhân đủ lớn và thời gian giam giữ đủ lâu).",
+          noVideoFallback:
+            "Dùng thẻ dữ kiện Oliphant 1934 + điều kiện plasma SGK tr. 102–103 kết hợp mô phỏng tổng hợp hạt nhân trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh hoàn tất khảo sát điều kiện nhiệt hạch và câu hỏi kiểm tra trên mô phỏng.",
+        },
       },
       {
         id: "b22-after-transfer",
         kind: "b22_after_transfer",
         phase: "after",
-        title: "Kiểm tra, đánh giá: Đọc đồ thị Wₗₖ/A để dự đoán chiều tỏa năng lượng",
-        shortTocTitle: "Kiểm tra, đánh giá",
+        title: "Kiểm tra, đánh giá: Đọc đồ thị Eₗₖᵣ và vận dụng định luật bảo toàn",
+        shortTocTitle: "Kiểm tra, đánh giá (Eₗₖᵣ)",
         sgkPages: "tr. 103 · Vận dụng",
         minutes: 12,
         phenomenonPrompt:
-          "Vận dụng đồ thị năng lượng liên kết riêng để xét hai quá trình hạt nhân mới.",
+          "Vận dụng đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A và định luật bảo toàn A, Z để giải thích chiều tỏa năng lượng và đối chiếu lại dự đoán Pha 1.",
         evidencePrompt:
-          "Giải thích vì sao cả sự phân hạch của hạt nhân rất nặng lẫn sự tổng hợp của hạt nhân rất nhẹ đều tiến về vùng đỉnh bền vững và tỏa năng lượng.",
+          "Xác định số neutron sinh ra trong một kênh phân hạch ²³⁵₉₂U, chọn đúng lập luận từ đồ thị Eₗₖᵣ và viết câu giải thích lưu vào sổ học tập.",
         teacherTip:
-          "Đánh giá năng lực lập luận từ đồ thị thay vì chỉ thay số vào công thức.",
+          "Giao về nhà sau tiết học (12 phút) để đánh giá đồng thời kĩ năng bảo toàn số khối/điện tích và lập luận vật lí từ đồ thị Eₗₖᵣ.",
+        teacherGuide: {
+          learningObjective:
+            "Vận dụng kết hợp định luật bảo toàn A, Z và đồ thị năng lượng liên kết riêng Eₗₖᵣ để giải bài toán phản ứng hạt nhân và giải thích cơ chế tỏa năng lượng.",
+          projectorStrategy:
+            "Dùng làm phiếu kiểm tra nhanh đầu tiết sau; chiếu một vài câu giải thích ngắn của học sinh để rèn cách diễn đạt chuẩn thuật ngữ Eₗₖᵣ.",
+          openQuestions: [
+            "Vì sao tổng số khối A trước và sau phản ứng bằng nhau nhưng tổng khối lượng nghỉ của các hạt sau phản ứng tỏa năng lượng lại nhỏ hơn trước phản ứng?",
+            "Trên đồ thị Hình 22.3, cả phân hạch lẫn tổng hợp hạt nhân đều dẫn các hạt nhân dịch chuyển về vùng nào?",
+          ],
+          commonMisconceptions:
+            "Học sinh viết nhầm “số khối A hụt đi biến thành năng lượng”. Cách gỡ: Khẳng định A là tổng số hạt nucleon (luôn nguyên và bảo toàn), còn Δm là độ chênh lệch khối lượng nghỉ.",
+          noVideoFallback:
+            "Phiếu đánh giá tương tác có phản hồi tức thì và lưu bền vững vào localStorage, không phụ thuộc video.",
+          completionCriteriaNote:
+            "Chỉ hoàn thành khi học sinh tính đúng số hạt trong phương trình, chọn đúng giải thích theo Eₗₖᵣ và viết lí do ngắn gọn.",
+        },
       },
     ],
   },
@@ -494,23 +622,47 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
     guidingQuestion:
       "Không biết lúc nào một hạt nhân riêng lẻ phân rã, làm sao ta vẫn dự đoán chính xác độ phóng xạ của cả mẫu theo thời gian?",
     hubHighlight:
-      "Vết tia trong buồng sương, số đếm Geiger mỗi 5 giây, độ đâm xuyên α–β–γ, đồ thị bán rã H(t) và nguyên tắc an toàn bức xạ.",
+      "Ống đếm Geiger–Müller & Bảng 23.1 chuẩn SGK, bản chất tia α–β–γ, đồ thị bán rã N(t)–H(t) và biển cảnh báo phóng xạ Hình 23.8.",
+    lessonGoals: {
+      knowledge:
+        "Nêu được định nghĩa và đặc điểm tự phát, ngẫu nhiên của hiện tượng phóng xạ qua số liệu ống đếm Geiger–Müller (Bảng 23.1); phân biệt bản chất, khả năng ion hóa và đâm xuyên của tia α, β⁻, β⁺, γ; viết và vận dụng công thức N(t) = N₀·2^(−t/T) = N₀·e^(−λt), độ phóng xạ H(t) = λN(t), biển cảnh báo (Hình 23.8) và 3 nguyên tắc an toàn bức xạ (SGK tr. 104–113).",
+      competence:
+        "Phân tích được tính ngẫu nhiên từ Bảng 23.1 (có khoảng 5 s đếm 3 xung, có khoảng 5 s đếm 0 xung); phân biệt rõ N(t) với H(t); vận dụng định tuổi bằng ¹⁴₆C và đề xuất biện pháp giảm liều chiếu xạ.",
+      quality:
+        "Tôn trọng dữ liệu thực nghiệm trung thực (phân biệt số liệu thật Bảng 23.1 với lượt mô phỏng); có ý thức tuân thủ biển cảnh báo và quy tắc an toàn bức xạ.",
+    },
     sections: [
       {
         id: "b23-cloud-geiger",
         kind: "b23_cloud_geiger",
         phase: "before",
-        title: "Vết buồng sương và số đếm Geiger theo từng khoảng 5 giây",
-        shortTocTitle: "Buồng sương & số đếm Geiger",
+        title: "Ống đếm Geiger–Müller và Bảng 23.1 số xung trong từng khoảng 5 giây",
+        shortTocTitle: "Ống Geiger & Bảng 23.1",
         sgkPages: "tr. 104–105",
         minutes: 12,
         phenomenonPrompt:
-          "Quan sát hình dạng vết sương của các tia phóng xạ và chuỗi số đếm ống Geiger–Müller trong các khoảng 5 giây liên tiếp.",
+          "Tìm hiểu nguyên lí tạo xung điện trong ống đếm Geiger–Müller (Hình 23.2), vết tia trong buồng sương và đọc Bảng 23.1 số liệu thực nghiệm SGK tr. 105 (1, 3, 2, 0, 3, 1 xung).",
         evidencePrompt:
-          "Nhận xét vì sao số đếm trong từng khoảng 5 giây dao động ngẫu nhiên không hệt nhau dù nguồn không đổi điều kiện ngoài.",
+          "Khóa dự đoán ban đầu kèm lí do, đọc chính xác số xung ở khoảng 5–10 s và 15–20 s trên Bảng 23.1 và trả lời câu tự kiểm tra về tính ngẫu nhiên.",
         activityKey: "geiger_random_decay",
         teacherTip:
-          "Giúp học sinh nhận ra bản chất ngẫu nhiên ở mức vi mô trước khi học quy luật thống kê hàm mũ ở mức vĩ mô.",
+          "Giao trước giờ học (12 phút). Nhấn mạnh khoảng 15–20 s trên Bảng 23.1 có số xung bằng 0 dù nguồn phóng xạ vẫn ở nguyên vị trí.",
+        teacherGuide: {
+          learningObjective:
+            "Giải thích được sơ lược cách ống đếm Geiger–Müller (Hình 23.2) biến mỗi hạt phóng xạ bay vào thành một xung điện đếm được, và rút ra bản chất ngẫu nhiên của phân rã phóng xạ từ Bảng 23.1 SGK tr. 105.",
+          projectorStrategy:
+            "Chiếu Bảng 23.1 (0–5 s: 1; 5–10 s: 3; 10–15 s: 2; 15–20 s: 0; 20–25 s: 3; 25–30 s: 1) và hỏi cả lớp vì sao khoảng 15–20 s máy ghi 0 xung không phải do máy hỏng hay hết chất phóng xạ.",
+          openQuestions: [
+            "Trên Bảng 23.1, hai khoảng thời gian 5–10 s và 15–20 s đều dài đúng 5 giây như nhau, vì sao số xung lại chênh từ 3 xung xuống 0 xung?",
+            "Trong ống đếm Geiger–Müller (Hình 23.2), tác dụng nào của tia phóng xạ lên chất khí trong ống giúp tạo ra xung dòng điện tới bộ đếm?",
+          ],
+          commonMisconceptions:
+            "Học sinh thường nghĩ nguồn phóng xạ phát hạt đều đặn theo nhịp đồng hồ (mỗi 5 giây phải ra số hạt bằng nhau) hoặc nhầm số liệu mô phỏng với Bảng 23.1 thực nghiệm. Cách gỡ: Tách bạch nhãn Bảng 23.1 SGK (tổng 10 xung/30 s) và chỉ thẳng vào ô 15–20 s có 0 xung.",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn Pha 1 bằng sơ đồ ống đếm Geiger–Müller Hình 23.2, vết buồng sương và Bảng 23.1 chuẩn SGK tr. 105 ngay trên trang.",
+          completionCriteriaNote:
+            "Chỉ ghi nhận hoàn thành khi học sinh đã khóa dự đoán + lí do, nhập đúng cặp số xung Bảng 23.1 (3 xung và 0 xung) và trả lời đúng câu tự kiểm tra Pha 1.",
+        },
       },
       {
         id: "b23-radiation-types",
@@ -521,12 +673,28 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 105–107",
         minutes: 15,
         phenomenonPrompt:
-          "Thử đặt tờ giấy, tấm nhôm vài mm và khối chì dày chắn trước các chùm tia α, β⁻, β⁺, γ đồng thời quan sát độ lệch trong điện trường.",
+          "Thử đặt tờ giấy, tấm nhôm vài mm và khối chì dày chắn trước các chùm tia α, β⁻, β⁺, γ đồng thời quan sát độ lệch trong điện trường và từ trường.",
         evidencePrompt:
-          "Lập bảng so sánh bản chất hạt, điện tích, khả năng ion hóa và vật liệu chắn tối thiểu của ba loại tia.",
+          "Lập bảng so sánh bản chất hạt, điện tích, khả năng ion hóa và vật liệu chắn tối thiểu của tia α, β⁻, β⁺, γ.",
         activityKey: "radiation_properties",
         teacherTip:
-          "Lưu ý độ cong quỹ đạo của hạt α nhỏ hơn nhiều so với tia β trong cùng từ trường vì khối lượng hạt α lớn gấp ~7300 lần electron.",
+          "Dành 15 phút trên lớp: lưu ý độ cong quỹ đạo của hạt α nhỏ hơn nhiều so với tia β vì khối lượng hạt α lớn gấp ~7300 lần electron.",
+        teacherGuide: {
+          learningObjective:
+            "Phân biệt được bản chất, phương trình phân rã, khả năng ion hóa không khí, độ đâm xuyên và hướng lệch trong điện từ trường của 3 loại tia phóng xạ α, β (β⁻, β⁺) và γ.",
+          projectorStrategy:
+            "Chiếu thí nghiệm đặt lần lượt tờ giấy, lá nhôm, tấm chì chắn trước nguồn và yêu cầu học sinh liên hệ nghịch đảo giữa khả năng ion hóa mạnh (mất năng lượng nhanh → quãng đi ngắn của α) với khả năng đâm xuyên.",
+          openQuestions: [
+            "Vì sao tia α mang điện tích +2e lớn gấp đôi độ lớn điện tích tia β⁻ nhưng trong điện trường lại lệch ít hơn tia β⁻?",
+            "Trong phân rã phóng xạ γ đi kèm sau phân rã α hoặc β, số khối A và điện tích Z của hạt nhân có thay đổi thêm không?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ tưởng tia γ làm biến đổi hạt nhân sang nguyên tố khác hoặc tưởng tia α đâm xuyên mạnh nhất vì hạt α nặng nhất. Cách gỡ: Hạt α nặng và mang điện +2e nên ion hóa rất mạnh, mất hết năng lượng chỉ sau vài cm không khí hoặc 1 tờ giấy.",
+          noVideoFallback:
+            "Sử dụng trực tiếp mô phỏng độ đâm xuyên và độ lệch điện trường của các tia α, β, γ ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh khảo sát đủ các vật liệu che chắn và hoàn tất câu hỏi kiểm tra trên mô phỏng.",
+        },
       },
       {
         id: "b23-half-life",
@@ -537,28 +705,60 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 108–111",
         minutes: 18,
         phenomenonPrompt:
-          "Khảo sát đường cong giảm theo quy luật hàm mũ qua từng chu kì bán rã T, 2T, 3T và mối liên hệ H(t) = λN(t).",
+          "Đối chiếu Sản phẩm Pha 1 (tính ngẫu nhiên khi số hạt ít) với quy luật hàm mũ khi số hạt rất lớn; phân biệt rõ N(t) với độ phóng xạ H(t) = λN(t) và đọc Bảng 23.2.",
         evidencePrompt:
-          "Xác định chu kì bán rã T trên đồ thị và giải thích vì sao sau 2T số hạt nhân mẹ còn N₀/4 chứ không về 0.",
+          "Phân biệt ý nghĩa, đơn vị của N(t) và H(t); xác định chu kì bán rã T trên đồ thị và giải thích vì sao sau 2T mẫu còn N₀/4.",
         activityKey: "radioactive_decay_half_life",
         teacherTip:
-          "Kết nối trực tiếp đơn vị độ phóng xạ Becquerel (1 Bq = 1 phân rã/giây) với số đếm thực nghiệm.",
+          "Dành 18 phút trọng tâm: đối chiếu lại Bảng 23.1 ở Pha 1 để học sinh hiểu vì sao mẫu vĩ mô (~10²⁰ hạt) lại tuân theo đường cong hàm mũ mượt.",
+        teacherGuide: {
+          learningObjective:
+            "Phân biệt rạch ròi số hạt nhân chưa phân rã N(t) với độ phóng xạ H(t) = λN(t) = (ln 2 / T)·N(t); đọc được đồ thị hàm mũ qua các mốc T, 2T, 3T và tra cứu Bảng 23.2.",
+          projectorStrategy:
+            "Chiếu hộp Sản phẩm Pha 1 ở đầu mục để nối mạch “vi mô ngẫu nhiên → vĩ mô thống kê hàm mũ”, sau đó chiếu bảng so sánh N(t) và H(t) trước khi cho học sinh đo trên đồ thị.",
+          openQuestions: [
+            "Hai mẫu đồng vị ¹³¹I (T = 8 ngày) và ²³⁸U (T = 4,47 tỉ năm) có cùng số hạt nhân N₀ như nhau thì mẫu nào có độ phóng xạ H lớn hơn?",
+            "Vì sao sau 1 chu kì bán rã T mất đi một nửa số hạt nhân mẹ, thì sau chu kì T tiếp theo mẫu không mất nốt nửa còn lại để về 0?",
+          ],
+          commonMisconceptions:
+            "Học sinh rất hay đánh đồng N(t) và H(t) là một đại lượng hoặc quên đổi chu kì bán rã T ra giây (s) khi tính H = (ln 2 / T)·N theo đơn vị Becquerel (Bq). Cách gỡ: Đóng khung cảnh báo T phải tính bằng giây khi nhân với N để ra Bq.",
+          noVideoFallback:
+            "Dùng bảng đối chiếu N(t) – H(t), trích lục Bảng 23.2 SGK tr. 108 và mô phỏng đồ thị bán rã tương tác ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thực hiện khảo sát đồ thị bán rã và trả lời đúng phiếu câu hỏi của hoạt động.",
+        },
       },
       {
         id: "b23-safety",
         kind: "b23_safety",
         phase: "in_class",
-        title: "Ba nguyên tắc an toàn bức xạ và biển cảnh báo",
-        shortTocTitle: "Nguyên tắc an toàn bức xạ",
+        title: "Biển cảnh báo phóng xạ (Hình 23.8) và ba nguyên tắc an toàn bức xạ",
+        shortTocTitle: "Biển cảnh báo & an toàn bức xạ",
         sgkPages: "tr. 111–113",
-        minutes: 10,
+        minutes: 12,
         phenomenonPrompt:
-          "Thử nghiệm tác động của việc giảm thời gian tiếp xúc, tăng khoảng cách và chọn vách che chắn phù hợp đối với liều chiếu xạ.",
+          "Nhận diện hai biển cảnh báo phóng xạ chuẩn SGK tr. 111–112 (Hình 23.8a cánh quạt nền vàng & Hình 23.8b biển bổ sung nền đỏ nguồn nguy hiểm) và thử nghiệm 3 nguyên tắc Thời gian – Khoảng cách – Che chắn.",
         evidencePrompt:
-          "Ghi rõ 3 nguyên tắc vàng (Thời gian – Khoảng cách – Che chắn) cho một tình huống làm việc với nguồn γ.",
+          "Phân biệt ý nghĩa Hình 23.8a với Hình 23.8b và vận dụng 3 nguyên tắc an toàn bức xạ cho tình huống thực tế.",
         activityKey: "radiation_safety",
         teacherTip:
-          "Phân biệt rõ chiếu xạ ngoài (nguồn ở xa cơ thể) và nhiễm xạ trong (hít/nuốt bụi phóng xạ, nơi tia α rất nguy hiểm).",
+          "Dành 12 phút cuối tiết: chiếu rõ 2 biển cảnh báo Hình 23.8a–23.8b và phân biệt chiếu xạ ngoài với nhiễm xạ trong.",
+        teacherGuide: {
+          learningObjective:
+            "Nhận biết đúng biển cảnh báo khu vực có phóng xạ (Hình 23.8a) và biển cảnh báo bổ sung nguồn phóng xạ nguy hiểm chết người cần tránh xa ngay (Hình 23.8b); áp dụng 3 nguyên tắc giảm liều chiếu xạ.",
+          projectorStrategy:
+            "Chiếu song song Hình 23.8a và Hình 23.8b, yêu cầu học sinh đọc thông điệp của 3 biểu tượng bên trong biển đỏ ISO (tia bức xạ, đầu lâu xương chéo, người chạy rời xa nguồn).",
+          openQuestions: [
+            "Khi bắt gặp một vật kim loại lạ rơi vãi có gắn biểu tượng Hình 23.8b, hành động đúng nhất của em là gì?",
+            "Vì sao nguồn phát tia α đặt ngoài xa cơ thể ít nguy hiểm hơn tia γ, nhưng nếu hít phải bụi phóng xạ α vào phổi thì lại cực kì nguy hiểm?",
+          ],
+          commonMisconceptions:
+            "Học sinh tưởng mặc áo mưa thông thường chắn được tia γ hoặc tưởng đứng gần nguồn γ chỉ vài phút thì không cần che chắn. Cách gỡ: Thử nghiệm trực tiếp khoảng cách (tỉ lệ nghịch bình phương) và độ dày chì trên mô phỏng.",
+          noVideoFallback:
+            "Dùng sơ đồ trực quan Hình 23.8a & Hình 23.8b chuẩn SGK tr. 111–112 và mô phỏng an toàn bức xạ ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh khảo sát đủ 3 yếu tố an toàn bức xạ và hoàn tất câu hỏi kiểm tra.",
+        },
       },
       {
         id: "b23-carbon14",
@@ -569,12 +769,28 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 113 · Vận dụng",
         minutes: 15,
         phenomenonPrompt:
-          "Đo độ phóng xạ ¹⁴₆C của mẫu gỗ khảo cổ so với mẫu gỗ đang sống cùng khối lượng (T ≈ 5730 năm).",
+          "Đo độ phóng xạ ¹⁴₆C của mẫu gỗ khảo cổ so với mẫu gỗ đang sống cùng khối lượng (T ≈ 5 730 năm).",
         evidencePrompt:
-          "Tính tuổi gần đúng của mẫu cổ vật từ tỉ số H/H₀ và nêu giả thiết của phương pháp.",
+          "Tính tuổi gần đúng của mẫu cổ vật từ tỉ số H/H₀ và nêu giả thiết cơ sở của phương pháp định tuổi ¹⁴₆C.",
         activityKey: "carbon14_dating",
         teacherTip:
-          "Học sinh vận dụng trọn vẹn công thức H(t) = H₀·2^(−t/T) vào bài toán khảo cổ thực tế.",
+          "Giao sau giờ học (15 phút): học sinh vận dụng trọn vẹn công thức H(t) = H₀·2^(−t/T) vào bài toán khảo cổ thực tế.",
+        teacherGuide: {
+          learningObjective:
+            "Vận dụng định luật phóng xạ H(t) = H₀·2^(−t/T) để xác định niên đại mẫu vật hữu cơ cổ bằng đồng vị ¹⁴₆C (T ≈ 5 730 năm).",
+          projectorStrategy:
+            "Dùng làm nhiệm vụ vận dụng sau giờ học; lưu ý học sinh chỉ so sánh độ phóng xạ trên cùng một khối lượng carbon của mẫu cổ và mẫu sinh vật đang sống.",
+          openQuestions: [
+            "Vì sao khi cây còn sống tỉ lệ ¹⁴C/¹²C giữ gần không đổi, nhưng ngay khi cây chết thì lượng ¹⁴C bắt đầu giảm theo quy luật bán rã?",
+            "Có thể dùng đồng vị ¹⁴₆C (T ≈ 5 730 năm) để đo tuổi một tảng đá hình thành cách đây hàng tỉ năm không? Vì sao?",
+          ],
+          commonMisconceptions:
+            "Học sinh dùng nhầm H₀ của một mẫu gỗ có khối lượng khác mà không quy về cùng khối lượng carbon. Cách gỡ: Luôn kiểm tra điều kiện “cùng khối lượng” giữa mẫu cổ và mẫu đối chứng.",
+          noVideoFallback:
+            "Sử dụng phòng thí nghiệm định tuổi Carbon-14 tương tác trực tiếp ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thực hành đo và xác định đúng tuổi mẫu khảo cổ trên mô phỏng.",
+        },
       },
     ],
   },
@@ -586,23 +802,47 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
     guidingQuestion:
       "Năng lượng phân hạch trong lò phản ứng đi qua những vòng truyền nào để phát điện và đồng vị phóng xạ phục vụ y học, nông nghiệp ra sao?",
     hubHighlight:
-      "Chuỗi truyền năng lượng qua nhà máy điện hạt nhân, thanh điều khiển lò phản ứng, y học hạt nhân, công nghệ sinh học và bảo quản thực phẩm.",
+      "Sơ đồ 3 vòng lưu chất Hình 24.1, điều khiển lò phản ứng, y học hạt nhân, công nghệ sinh học và bảo quản thực phẩm Hình 24.5.",
+    lessonGoals: {
+      knowledge:
+        "Trình bày được nguyên lí chuyển hóa năng lượng và thiết kế an toàn 3 vòng lưu chất tách biệt trong nhà máy điện hạt nhân (Hình 24.1), vai trò thanh điều khiển và lưu trữ nhiên liệu đã qua sử dụng (Hình 24.2); nêu được ứng dụng phóng xạ trong y học hạt nhân, công nghệ sinh học – nông nghiệp (³²P) và chiếu xạ bảo quản thực phẩm (Hình 24.5, SGK tr. 114–118).",
+      competence:
+        "Chỉ rõ được bộ phận thực sự làm quay tua-bin (hơi nước áp suất cao ở vòng thứ cấp); giải thích cơ chế giữ hệ số nhân neutron k = 1; lập luận bằng bằng chứng cụ thể vì sao thực phẩm chiếu xạ giữ tươi lâu mà không bị nhiễm phóng xạ.",
+      quality:
+        "Nhìn nhận khách quan, khoa học về lợi ích kinh tế – y tế của công nghệ hạt nhân gắn liền với quy trình kiểm soát an toàn bức xạ nghiêm ngặt.",
+    },
     sections: [
       {
         id: "b24-energy-chain",
         kind: "b24_energy_chain",
         phase: "before",
-        title: "Lần theo đường truyền năng lượng qua nhà máy điện hạt nhân",
-        shortTocTitle: "Đường truyền năng lượng",
+        title: "Bộ phận nào thực sự làm quay tua-bin trong nhà máy điện hạt nhân?",
+        shortTocTitle: "Đường truyền năng lượng (Hình 24.1)",
         sgkPages: "tr. 114–115",
         minutes: 12,
         phenomenonPrompt:
-          "Theo dõi dòng chuyển hóa năng lượng từ tâm lò phản ứng qua vòng tải nhiệt sơ cấp, bình sinh hơi thứ cấp, tua-bin đến máy phát điện.",
+          "Quan sát mặt cắt Hình 24.1 SGK: lần theo đường ống từ bình sinh hơi đến tua-bin và phân biệt rõ 3 dòng lưu chất tách biệt (vòng tải nhiệt sơ cấp khép kín, vòng hơi nước – nước ngưng thứ cấp, và nguồn nước làm mát bên ngoài).",
         evidencePrompt:
-          "Viết sơ đồ 4 bước chuyển hóa năng lượng và giải thích vì sao vòng nước sơ cấp qua tâm lò phải tách kín với vòng hơi chạy tua-bin.",
+          "Khóa dự đoán ban đầu về bộ phận làm quay tua-bin, ghép đúng vai trò 3 vòng lưu chất trên Hình 24.1 và trả lời câu tự kiểm tra Pha 1.",
         activityKey: "nuclear_power_energy_flow",
         teacherTip:
-          "Câu hỏi tách biệt hai vòng tuần hoàn giúp học sinh hiểu ngay thiết kế an toàn bức xạ cơ bản của nhà máy điện hạt nhân PWR.",
+          "Giao trước giờ học (12 phút). Đầu giờ dùng ngay câu hỏi “Bộ phận nào thực sự làm quay tua-bin?” để gỡ hiểu nhầm tia phóng xạ hay nước nhiễm xạ đập trực tiếp vào tua-bin.",
+        teacherGuide: {
+          learningObjective:
+            "Xác định chính xác hơi nước áp suất cao ở vòng thứ cấp là tác nhân trực tiếp làm quay tua-bin, và giải thích lí do an toàn bức xạ khi tách kín 3 dòng lưu chất trên Hình 24.1.",
+          projectorStrategy:
+            "Chiếu mặt cắt màu Hình 24.1 và gọi học sinh chỉ tay theo 3 màu đường ống: (1) vòng sơ cấp cam/đỏ khép kín qua lò phản ứng, (2) vòng thứ cấp lam nhạt sinh hơi quay tua-bin, (3) nước làm mát lục lam từ sông/biển qua bình ngưng.",
+          openQuestions: [
+            "Bộ phận nào thực sự làm quay tua-bin để kéo máy phát điện trên Hình 24.1?",
+            "Điều gì sẽ xảy ra về mặt an toàn phóng xạ nếu dẫn thẳng chất tải nhiệt từ tâm lò phản ứng ra tua-bin và xả thẳng ra sông, biển?",
+          ],
+          commonMisconceptions:
+            "Học sinh thường tưởng “tia phóng xạ đẩy cánh tua-bin quay” hoặc tưởng nước sông/biển bơm thẳng vào tâm lò phản ứng. Cách gỡ: Đối chiếu bảng chú giải 3 màu lưu chất trên Hình 24.1 — ba dòng chỉ trao đổi nhiệt qua thành ống kín, không bao giờ trộn lẫn.",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn Pha 1 bằng sơ đồ mặt cắt màu Hình 24.1 có chú giải 3 dòng lưu chất, thao tác ghép vai trò và mô phỏng dòng năng lượng trên trang.",
+          completionCriteriaNote:
+            "Chỉ ghi nhận hoàn thành khi học sinh đã khóa dự đoán + lí do, ghép đúng 3 vòng lưu chất & tác nhân quay tua-bin, và trả lời đúng câu tự kiểm tra Pha 1.",
+        },
       },
       {
         id: "b24-reactor-control",
@@ -611,14 +851,30 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         title: "Điều khiển phản ứng dây chuyền bằng thanh hấp thụ neutron",
         shortTocTitle: "Điều khiển lò phản ứng",
         sgkPages: "tr. 115–116",
-        minutes: 15,
+        minutes: 16,
         phenomenonPrompt:
-          "Điều chỉnh độ ngập của thanh điều khiển (Boron/Cadmium) và quan sát hệ số nhân neutron k ở các chế độ k < 1, k = 1, k > 1.",
+          "Đối chiếu Sản phẩm Pha 1; điều chỉnh độ ngập thanh điều khiển (Boron/Cadmium) để giữ k = 1 và tìm hiểu bể nước lưu trữ thanh nhiên liệu đã qua sử dụng (Hình 24.2).",
         evidencePrompt:
-          "Giải thích cơ chế giữ k = 1 để lò vận hành ổn định và vai trò của chất làm chậm neutron.",
+          "Giải thích cơ chế giữ k = 1, vai trò chất làm chậm và lí do thanh nhiên liệu đã qua sử dụng phải ngâm sâu trong bể nước che chắn.",
         activityKey: "reactor_control_concept",
         teacherTip:
-          "Cho học sinh thử tình huống công suất tăng để tự rút ra thao tác hạ thanh điều khiển hấp thụ neutron.",
+          "Dành 16 phút trên lớp: kết nối vòng sơ cấp ở Pha 1 với tâm lò phản ứng và giải thích thêm Hình 24.2 (quản lí chất thải hạt nhân an toàn).",
+        teacherGuide: {
+          learningObjective:
+            "Giải thích được cơ chế điều chỉnh hệ số nhân neutron k quanh giá trị k = 1 bằng thanh điều khiển hấp thụ neutron và nguyên tắc lưu trữ an toàn thanh nhiên liệu đã qua sử dụng (Hình 24.2).",
+          projectorStrategy:
+            "Mở hộp Sản phẩm Pha 1 để nối từ vòng sơ cấp vào tâm lò, sau đó cho học sinh kéo thanh điều khiển xử lí tình huống công suất tăng vọt và quan sát chú thích bể chứa nhiên liệu Hình 24.2.",
+          openQuestions: [
+            "Khi muốn giảm công suất lò phản ứng hoặc dừng lò khẩn cấp, hệ thống tự động phải nâng lên hay hạ sâu các thanh Boron/Cadmium vào vùng tâm lò?",
+            "Vì sao thanh nhiên liệu lấy ra khỏi lò (Hình 24.2) không còn duy trì phân hạch dây chuyền nhưng vẫn tỏa nhiệt và phát bức xạ mạnh cần ngâm dưới bể nước sâu?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay nhầm thanh điều khiển dùng để “làm chậm neutron” hoặc tưởng nhiên liệu dùng xong là hết sạch tính phóng xạ. Cách gỡ: Chất làm chậm là nước nhẹ/nước nặng/than chì, còn thanh điều khiển hấp thụ bớt neutron; các mảnh phân hạch trong thanh nhiên liệu cũ vẫn đang phóng xạ β, γ.",
+          noVideoFallback:
+            "Sử dụng thẻ thông tin Hình 24.2 SGK tr. 115 và mô phỏng điều khiển lò phản ứng ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh vận hành ổn định lò phản ứng và hoàn tất câu hỏi kiểm tra trên mô phỏng.",
+        },
       },
       {
         id: "b24-medicine",
@@ -627,30 +883,62 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         title: "Ứng dụng trong y học hạt nhân: Chẩn đoán hình ảnh và xạ trị",
         shortTocTitle: "Y học hạt nhân",
         sgkPages: "tr. 116–117",
-        minutes: 14,
+        minutes: 15,
         phenomenonPrompt:
-          "Khảo sát cách chọn đồng vị đánh dấu (như ¹³¹₅₃I, ⁹⁹ᵐ₄₃Tc, ¹⁸₉F) có chu kì bán rã ngắn để ghi hình chức năng hoặc tiêu diệt tế bào khối u.",
+          "Khảo sát cách chọn đồng vị đánh dấu (như ¹³¹₅₃I, ⁹⁹ᵐ₄₃Tc, ¹⁸₉F) có chu kì bán rã ngắn để ghi hình chức năng (SPECT, PET) hoặc tiêu diệt tế bào khối u.",
         evidencePrompt:
-          "Giải thích vì sao dược chất phóng xạ chẩn đoán cần có chu kì bán rã ngắn và phát tia thoát ra ngoài cơ thể để máy thu nhận được.",
+          "Giải thích tiêu chí chọn đồng vị chẩn đoán (chu kì bán rã ngắn, phát tia xuyên thoát ra ngoài cơ thể) khác với đồng vị xạ trị tại chỗ.",
         activityKey: "nuclear_medicine",
         teacherTip:
-          "Kết nối trực tiếp kiến thức chu kì bán rã ở Bài 23 với tiêu chí đào thải nhanh khỏi cơ thể bệnh nhân.",
+          "Dành 15 phút: kết nối trực tiếp chu kì bán rã T ở Bài 23 với bài toán giảm liều tồn lưu cho bệnh nhân.",
+        teacherGuide: {
+          learningObjective:
+            "Phân biệt được nguyên lí dùng đồng vị phóng xạ đánh dấu để chẩn đoán chức năng cơ quan (cần tia γ thoát ra ngoài để đầu thu ghi hình) và dùng bức xạ tiêu diệt tế bào ung thư trong xạ trị.",
+          projectorStrategy:
+            "Chiếu mô phỏng y học hạt nhân và cho học sinh chọn thử hai nguồn có đặc tính trái ngược để thấy ngay vì sao chẩn đoán không dùng nguồn phát thuần α chu kì dài.",
+          openQuestions: [
+            "Vì sao chụp X-quang chủ yếu cho ảnh cấu trúc xương/mô đặc, còn đưa dược chất phóng xạ như ¹³¹I hay ¹⁸F-FDG vào cơ thể lại cho biết hoạt động chuyển hóa của tuyến giáp hay khối u?",
+            "Vì sao dược chất phóng xạ đưa vào người bệnh bắt buộc phải có chu kì bán rã ngắn (vài giờ đến vài ngày)?",
+          ],
+          commonMisconceptions:
+            "Học sinh sợ mọi liều phóng xạ y học đều gây hại lâu dài vĩnh viễn. Cách gỡ: Nhấn mạnh liều chẩn đoán rất nhỏ và chu kì bán rã ngắn (ví dụ ¹⁸F chỉ 110 phút) kết hợp đào thải sinh học giúp hoạt độ giảm nhanh về mức nền.",
+          noVideoFallback:
+            "Sử dụng trực tiếp mô phỏng y học hạt nhân và bảng hồ sơ đồng vị ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh hoàn tất khảo sát chọn đồng vị chẩn đoán/xạ trị trên mô phỏng.",
+        },
       },
       {
         id: "b24-bio-food",
         kind: "b24_bio_food",
         phase: "in_class",
         title: "Ứng dụng trong công nghệ sinh học, nông nghiệp và bảo quản thực phẩm",
-        shortTocTitle: "Sinh học & bảo quản thực phẩm",
+        shortTocTitle: "Sinh học & bảo quản thực phẩm (Hình 24.5)",
         sgkPages: "tr. 117–118",
-        minutes: 12,
+        minutes: 14,
         phenomenonPrompt:
-          "Tìm hiểu chiếu xạ tạo giống cây trồng đột biến có lợi, kiểm dịch nông sản và ức chế vi sinh vật/nảy mầm trong bảo quản thực phẩm.",
+          "Đối chiếu Hình 24.5 SGK tr. 118 (trái cây không chiếu xạ bị mốc hỏng vs trái cây đã chiếu xạ vẫn tươi), tìm hiểu đồng vị đánh dấu ³²P trong nông nghiệp và chọn giống đột biến.",
         evidencePrompt:
-          "Phân biệt chiếu xạ thực phẩm bằng chùm tia γ/electron (không làm thực phẩm nhiễm phóng xạ) với sự nhiễm bẩn chất phóng xạ.",
+          "Viết câu trả lời ngắn nêu bằng chứng cụ thể giải thích vì sao chiếu xạ giữ thực phẩm tươi lâu mà không làm thực phẩm nhiễm phóng xạ.",
         activityKey: "radiation_applications",
         teacherTip:
-          "Giải tỏa hiểu lầm phổ biến của học sinh: chiếu tia γ qua trái cây giống như chiếu ánh sáng hay tia X, không để lại hạt nhân phóng xạ trong thực phẩm.",
+          "Dành 14 phút cuối tiết: yêu cầu học sinh trích dẫn rõ cơ chế chiếu tia từ ngoài (không trộn nguồn phóng xạ vào thực phẩm) trong câu tự luận ngắn.",
+        teacherGuide: {
+          learningObjective:
+            "Trình bày được ứng dụng đồng vị đánh dấu (như ³²P theo dõi hấp thụ phân bón), chiếu xạ tạo giống đột biến và giải thích khoa học vì sao thực phẩm chiếu xạ (Hình 24.5) an toàn, không mang tính phóng xạ.",
+          projectorStrategy:
+            "Chiếu khung đối chiếu trực quan Hình 24.5 (vải thiều sau 7 ngày bảo quản: mẫu đối chứng thâm mốc vs mẫu chiếu xạ tươi đỏ), sau đó cho học sinh viết 1–2 câu lập luận bằng chứng ngay trên phiếu.",
+          openQuestions: [
+            "Trên Hình 24.5, tác nhân nào trên vỏ quả vải đã bị chùm tia γ/electron tiêu diệt hoặc ức chế để quả không bị thối mốc nhanh?",
+            "Chiếu tia γ xuyên qua thùng trái cây giống với việc chiếu ánh sáng/tia X đi qua hay giống việc rắc bụi phóng xạ lên trái cây?",
+          ],
+          commonMisconceptions:
+            "Hiểu nhầm phổ biến nhất ngoài đời sống: “ăn trái cây chiếu xạ sẽ bị nhiễm phóng xạ”. Cách gỡ: Thực phẩm đi qua chùm tia bức xạ năng lượng kiểm soát (không kích hoạt hạt nhân thực phẩm và tuyệt đối không tiếp xúc với chất phóng xạ).",
+          noVideoFallback:
+            "Dùng sơ đồ đối chiếu Hình 24.5 SGK tr. 118, câu hỏi tự luận lưu localStorage và mô phỏng ứng dụng bức xạ trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh lưu câu giải thích có bằng chứng cụ thể hoặc hoàn tất hoạt động mô phỏng ứng dụng bức xạ.",
+        },
       },
       {
         id: "b24-after-transfer",
@@ -661,11 +949,27 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 118 · Vận dụng",
         minutes: 12,
         phenomenonPrompt:
-          "Đánh giá ba hồ sơ ứng dụng thực tế (kiểm tra khuyết tật mối hàn công nghiệp, chẩn đoán tuyến giáp, bảo quản nông sản xuất khẩu).",
+          "Đánh giá hồ sơ ứng dụng thực tế (chẩn đoán tuyến giáp, kiểm tra khuyết tật mối hàn công nghiệp, chiếu xạ nông sản xuất khẩu) và đối chiếu lại dự đoán Pha 1.",
         evidencePrompt:
-          "Chọn loại bức xạ phù hợp cho từng hồ sơ và nêu lí do vật lí dựa trên khả năng đâm xuyên và chu kì bán rã.",
+          "Chọn giải pháp bức xạ phù hợp dựa trên khả năng đâm xuyên, chu kì bán rã và an toàn bức xạ.",
         teacherTip:
-          "Tổng hợp kiến thức liên bài B23–B24 để đánh giá năng lực vận dụng.",
+          "Giao sau giờ học (12 phút) để tổng hợp kiến thức liên bài B23–B24.",
+        teacherGuide: {
+          learningObjective:
+            "Lựa chọn đúng loại bức xạ và chu kì bán rã phù hợp cho từng bài toán công nghiệp, y tế, nông nghiệp thực tiễn.",
+          projectorStrategy:
+            "Dùng làm nhiệm vụ đánh giá sau giờ học; rà soát mức độ học sinh vận dụng liên thông đặc tính tia α, β, γ sang ứng dụng thực tế.",
+          openQuestions: [
+            "Để chụp ảnh kiểm tra vết nứt bên trong mối hàn ống thép dày ở công trường, ta cần nguồn phát tia α, β hay γ? Vì sao?",
+            "Sau bài học hôm nay, em giải thích thế nào với người thân về sự an toàn của vòng hơi quay tua-bin điện hạt nhân và trái cây chiếu xạ?",
+          ],
+          commonMisconceptions:
+            "Học sinh chọn tia α để soi mối hàn kim loại hoặc chọn đồng vị chu kì hàng trăm năm để tiêm chẩn đoán. Cách gỡ: Đối chiếu độ đâm xuyên và liều tích lũy sinh học.",
+          noVideoFallback:
+            "Phiếu đánh giá tương tác có phản hồi giải thích chi tiết và lưu localStorage.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh trả lời chính xác câu hỏi tình huống vận dụng thực tiễn.",
+        },
       },
     ],
   },
@@ -677,68 +981,140 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
     guidingQuestion:
       "Từ hiện tượng tĩnh điện kế phóng điện và Bảng 25.1 đo độ phóng xạ theo thời gian, ta xác định chu kì bán rã và giải bài toán hạt nhân thế nào?",
     hubHighlight:
-      "Hiện tượng tĩnh điện kế (Hình 25.1), phương trình phản ứng và Bảng 25.1 đối chiếu cặp số liệu (t, H) kèm đồ thị phân rã.",
+      "Tĩnh điện kế kim chỉ Hình 25.1, tự ước lượng T từ Bảng 25.1, cân bằng phương trình – năng lượng liên kết Eₗₖᵣ và liều dược chất ¹⁸F-FDG.",
+    lessonGoals: {
+      knowledge:
+        "Hệ thống hóa và vận dụng tổng hợp kiến thức toàn Chương IV: cơ chế ion hóa không khí làm tĩnh điện kế mất điện tích (Hình 25.1), định luật bảo toàn A và Z, công thức độ hụt khối Δm, năng lượng liên kết Eₗₖ, năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A và định luật phóng xạ H(t) = H₀·2^(−t/T) (SGK tr. 119–122).",
+      competence:
+        "Bác bỏ được giả thuyết sai về sự phóng điện của tĩnh điện kế Hình 25.1; tự đọc Bảng 25.1 để tìm khoảng kẹp H₀/2 và ước lượng chu kì bán rã T trước khi đối chiếu đường cong; giải được bài toán thực tiễn liều dược chất phóng xạ ¹³¹I và ¹⁸F-FDG (Bài 6 tr. 122).",
+      quality:
+        "Trung thực khi tự ước lượng số liệu thực nghiệm trước khi xem lời giải; cẩn thận với chữ số có nghĩa và đơn vị đo.",
+    },
     sections: [
       {
         id: "b25-electroscope",
         kind: "b25_electroscope",
         phase: "before",
         title: "Hiện tượng tĩnh điện kế phóng điện khi đưa nguồn phóng xạ lại gần",
-        shortTocTitle: "Hiện tượng tĩnh điện kế",
+        shortTocTitle: "Tĩnh điện kế (Hình 25.1)",
         sgkPages: "tr. 119 · Hình 25.1",
-        minutes: 10,
+        minutes: 12,
         phenomenonPrompt:
-          "Quan sát tĩnh điện kế đã tích điện làm hai lá kim loại xòe ra; khi đưa nguồn phóng xạ lại gần quả cầu kim loại, góc xòe của hai lá giảm dần.",
+          "Quan sát Hình 25.1 SGK gồm nguồn phóng xạ (1), bản góp điện tích (2) và kim tĩnh điện kế (3): khi đưa nguồn (1) lại gần bản góp (2) của tĩnh điện kế đã tích điện, góc lệch của kim (3) giảm dần về 0.",
         evidencePrompt:
-          "Giải thích vai trò ion hóa không khí của tia phóng xạ làm tĩnh điện kế mất điện tích và dự đoán hiện tượng khi chắn bằng một tờ giấy.",
+          "Khóa dự đoán ban đầu, nhận diện đúng 3 bộ phận (1)–(2)–(3) trên Hình 25.1, giải thích bằng sự ion hóa không khí và dự đoán hiện tượng khi chắn tờ giấy.",
         teacherTip:
-          "Mở đầu tiết bài tập bằng hiện tượng định tính (Bài 25.1 SGK tr. 119) trước khi sang bài toán bảng số liệu.",
+          "Giao trước giờ học (12 phút). Mở đầu tiết bài tập bằng câu hỏi phản biện: nếu nguồn chỉ phát 1 loại hạt mang điện thì điều gì xảy ra khi đổi dấu điện tích tĩnh điện kế?",
+        teacherGuide: {
+          learningObjective:
+            "Giải thích đúng hiện tượng Bài 25.1 (Hình 25.1 SGK tr. 119): tia phóng xạ ion hóa không khí tạo cả ion dương và ion âm/electron tự do nên tĩnh điện kế tích điện dương hay âm đều bị trung hòa làm kim (3) trở về 0.",
+          projectorStrategy:
+            "Chiếu Hình 25.1 với đúng 3 kí hiệu (1) nguồn phóng xạ, (2) bản góp, (3) kim tĩnh điện kế; đặt câu hỏi phản biện bác bỏ giả thuyết “hạt mang điện từ nguồn bay trực tiếp sang trung hòa bản góp”.",
+          openQuestions: [
+            "Nếu giải thích sai rằng “nguồn (1) chỉ phát hạt mang điện dương bay tới trung hòa bản góp (2) đang tích điện âm”, thì khi tích điện DƯƠNG cho bản góp (2), kim (3) lẽ ra phải lệch tăng hay giảm?",
+            "Thực nghiệm cho thấy dù bản góp (2) tích điện dương hay âm thì kim (3) đều giảm về 0; điều đó chứng tỏ tia phóng xạ đã tác dụng gì lên lớp không khí quanh bản góp (2)?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay tưởng bản thân điện tích của hạt α hay β từ nguồn bay vào trung hòa trực tiếp quả cầu/bản góp. Cách gỡ: Số hạt trực tiếp rất ít và chỉ mang 1 dấu điện; chính hàng vạn cặp ion (+ / −) sinh ra do ion hóa không khí mới trung hòa bản góp ở cả hai dấu điện tích.",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn Pha 1 bằng sơ đồ tĩnh điện kế kim chỉ Hình 25.1 đúng kí hiệu (1)–(2)–(3), thao tác nhận diện và câu hỏi phản hồi trên trang.",
+          completionCriteriaNote:
+            "Chỉ ghi nhận hoàn thành khi học sinh đã khóa dự đoán + lí do, ghép đúng 3 kí hiệu (1)–(2)–(3) trên Hình 25.1 và trả lời đúng câu tự kiểm tra Pha 1.",
+        },
       },
       {
         id: "b25-table-25-1",
         kind: "b25_table_25_1",
         phase: "in_class",
-        title: "Phân tích Bảng 25.1 và đồ thị độ phóng xạ H(t) theo thời gian",
+        title: "Phân tích Bảng 25.1 và tự ước lượng chu kì bán rã từ đồ thị H(t)",
         shortTocTitle: "Bảng 25.1 & đồ thị H(t)",
         sgkPages: "tr. 121 · Bảng 25.1",
-        minutes: 20,
+        minutes: 25,
         phenomenonPrompt:
-          "Đọc các cặp thời gian t (s) và độ phóng xạ H (Bq) trong Bảng 25.1 (từ t = 0 s, H₀ = 151 Bq đến t = 360 s, H = 9 Bq) và dựng đường cong phân rã.",
+          "Đối chiếu Sản phẩm Pha 1; đọc 8 cặp số liệu thực nghiệm (t, H) trong Bảng 25.1 SGK tr. 121 (từ t = 0 s, H₀ = 151 Bq đến t = 360 s, H = 9 Bq) để tự tìm khoảng kẹp H₀/2 và ước lượng chu kì bán rã T.",
         evidencePrompt:
-          "Tìm mức H₀/2 = 75,5 Bq nằm giữa hai mốc thời gian nào của Bảng 25.1, ước lượng chu kì bán rã T và đối chiếu với đường cong lí thuyết.",
+          "Tự tính giá trị H₀/2 kèm đơn vị Bq, xác định hai mốc thời gian kẹp H₀/2 trên Bảng 25.1, nhập giá trị ước lượng T (s) và viết câu giải thích cách ước lượng.",
         activityKey: "nuclear_physics_practice_lab",
         teacherTip:
-          "Cho học sinh đọc trực tiếp từng cặp (t, H) trên bảng số liệu trước khi nhìn đồ thị; nhấn mạnh sai số thống kê thực nghiệm.",
+          "Dành 25 phút trên lớp: để học sinh ở chế độ Học sinh tự tính H₀/2 và ước lượng T trước; chỉ mở khung Lời giải chi tiết trong Chế độ Giáo viên sau khi cả lớp đã chốt số ước lượng.",
+        teacherGuide: {
+          learningObjective:
+            "Đọc thành thạo bảng số liệu thực nghiệm (t, H), tự xác định mức một nửa hoạt độ ban đầu H₀/2, kẹp khoảng thời gian và ước lượng chu kì bán rã T có tính đến thăng giáng thống kê thực nghiệm.",
+          projectorStrategy:
+            "Khi học sinh đang làm việc, bật “Xem như học sinh” để màn chiếu KHÔNG lộ sẵn con số T ≈ 39,5 s; sau 10 phút thu kết quả ước lượng của các nhóm rồi quay lại Chế độ Giáo viên mở khung Hướng dẫn giải chi tiết để chốt.",
+          openQuestions: [
+            "Tại t = 0 s, H₀ = 151 Bq thì một nửa độ phóng xạ ban đầu bằng bao nhiêu Bq và nằm giữa hai cột mốc thời gian nào của Bảng 25.1?",
+            "Vì sao nếu kiểm tra tiếp từ 60 s (55 Bq) đến 120 s (31 Bq) thì khoảng giảm một nửa lại xấp xỉ 60 s chứ không đúng bằng 40 s như đoạn đầu?",
+          ],
+          commonMisconceptions:
+            "Học sinh coi số đo thực nghiệm phải nằm khít tuyệt đối trên đường cong lí thuyết nên lúng túng khi tỉ số giữa các mốc không đều nhau. Cách gỡ: Nhắc lại Bảng 23.1 — phân rã có thăng giáng thống kê nên cần vẽ đường cong trơn đi gần đều qua toàn bộ 8 điểm đo.",
+          noVideoFallback:
+            "Dùng trực tiếp Bảng 25.1 chuẩn SGK tr. 121, phiếu tự ước lượng lưu localStorage và phòng thực hành vẽ đồ thị phân rã ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh tự nhập đúng H₀/2 = 75,5 Bq, chọn đúng khoảng 30 s – 60 s, nhập ước lượng T hợp lí kèm giải thích hoặc hoàn tất phòng thực hành đồ thị.",
+        },
       },
       {
         id: "b25-equations-energy",
         kind: "b25_equations_energy",
         phase: "in_class",
-        title: "Luyện tập phương trình phản ứng hạt nhân và năng lượng liên kết",
+        title: "Luyện tập phương trình phản ứng hạt nhân và năng lượng liên kết Eₗₖ, Eₗₖᵣ",
         shortTocTitle: "Phương trình & năng lượng liên kết",
         sgkPages: "tr. 119–120",
-        minutes: 15,
+        minutes: 20,
         phenomenonPrompt:
-          "Vận dụng định luật bảo toàn số khối A, điện tích Z và công thức độ hụt khối Δm để giải hệ bài tập định lượng.",
+          "Vận dụng định luật bảo toàn số khối A, điện tích Z và công thức độ hụt khối Δm, năng lượng liên kết Eₗₖ, năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A để giải hệ bài tập định lượng.",
         evidencePrompt:
           "Hoàn thành cân bằng các phương trình phân rã α, β⁻, β⁺ và tính năng lượng liên kết riêng cho tối thiểu ba hạt nhân.",
         teacherTip:
-          "Rèn kĩ năng kiểm tra đơn vị (amu, MeV/c², MeV, Bq, s) ở từng bước biến đổi.",
+          "Dành 20 phút còn lại trên lớp: rèn kĩ năng kiểm tra đơn vị (amu, MeV/c², MeV) và mở khung Hướng dẫn giải Giáo viên khi chữa bài trên bảng.",
+        teacherGuide: {
+          learningObjective:
+            "Giải chính xác chuỗi bài tập cân bằng phương trình phóng xạ/phản ứng hạt nhân và tính Δm, Eₗₖ, Eₗₖᵣ = Eₗₖ/A với quy đổi 1 amu·c² ≈ 931,5 MeV.",
+          projectorStrategy:
+            "Chia lớp làm nhanh Phần A (phương trình) trong 8 phút và Phần B (năng lượng liên kết) trong 12 phút; bật Chế độ Giáo viên để đối chiếu từng bước thay số khi chốt đáp án.",
+          openQuestions: [
+            "Khi đề bài cho khối lượng nguyên tử trung hòa thay vì khối lượng hạt nhân trần, ở trường hợp nào số khối lượng electron ở hai vế tự triệt tiêu?",
+            "Một hạt nhân có Δm tính ra âm nghĩa là ta đã nhầm ở bước nào của công thức?",
+          ],
+          commonMisconceptions:
+            "Học sinh quên nhân c² hoặc quên nhân 931,5 MeV/amu khi đổi từ độ hụt khối Δm (amu) sang năng lượng liên kết Eₗₖ (MeV). Cách gỡ: Viết rõ hệ số 1 amu·c² = 931,5 MeV ngay trong dòng biến đổi.",
+          noVideoFallback:
+            "Sử dụng trực tiếp hai mô-đun luyện tập tương tác cân bằng phương trình và tính năng lượng liên kết trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh giải đúng cả Phần A (cân bằng phương trình) và Phần B (tính năng lượng liên kết).",
+        },
       },
       {
         id: "b25-after-transfer",
         kind: "b25_after_transfer",
         phase: "after",
-        title: "Kiểm tra, đánh giá: Bài toán tổng hợp hoạt độ nguồn y học và định tuổi",
-        shortTocTitle: "Kiểm tra, đánh giá",
+        title: "Kiểm tra, đánh giá: Bài toán dược chất phóng xạ ¹³¹₅₃I và ¹⁸₉F-FDG (Bài 6 tr. 122)",
+        shortTocTitle: "Kiểm tra, đánh giá (¹³¹I & ¹⁸F)",
         sgkPages: "tr. 121–122",
         minutes: 15,
         phenomenonPrompt:
-          "Giải quyết bài toán thực tiễn: tính thời gian để độ phóng xạ giảm xuống mức an toàn và xác định khối lượng hạt nhân con tạo thành.",
+          "Giải quyết hai bài toán y học hạt nhân thực tiễn: (1) thời gian giảm hoạt độ mẫu ¹³¹₅₃I (T = 8,0 ngày) và (2) tỉ số liều chuẩn bị dược chất ¹⁸₉F-FDG chụp PET (T = 110 phút, Bài 6 SGK tr. 122) cho hai bệnh nhân tiêm cách nhau 60 phút.",
         evidencePrompt:
-          "Trình bày lời giải gồm công thức gốc, đổi đơn vị thống nhất và kiểm tra tính hợp lí của đáp số.",
+          "Tính đúng thời gian t = 24 ngày cho mẫu ¹³¹₅₃I và tỉ số hoạt độ ban đầu cần chuẩn bị cho bệnh nhân tiêm muộn hơn 60 phút với ¹⁸₉F-FDG.",
         teacherTip:
-          "Tổng kết toàn Chương IV trước kiểm tra định kì.",
+          "Giao sau giờ học (15 phút) để khép lại toàn Chương IV bằng bài toán thực tế bệnh viện rất hay của SGK tr. 122.",
+        teacherGuide: {
+          learningObjective:
+            "Vận dụng linh hoạt công thức H(t) = H₀·2^(−t/T) cho cả bài toán xuôi (tìm thời gian giảm hoạt độ ¹³¹I) và bài toán ngược chuẩn bị liều tiêm ¹⁸F-FDG theo giờ hẹn bệnh nhân (Bài 6 SGK tr. 122).",
+          projectorStrategy:
+            "Khi chữa bài, bật Chế độ Giáo viên để chiếu sơ đồ trục thời gian điều chế thuốc lúc 0 phút → tiêm bệnh nhân A → tiêm bệnh nhân B muộn hơn Δt = 60 phút, giúp học sinh hiểu vì sao lọ thuốc của người B lúc đầu phải lấy nhiều gấp 2^(60/110) ≈ 1,46 lần.",
+          openQuestions: [
+            "Hai bệnh nhân A và B có cùng cân nặng và cần nhận cùng một độ phóng xạ H như nhau ngay lúc tiêm; vì sao lọ thuốc chuẩn bị sẵn từ sáng cho bệnh nhân B (tiêm muộn hơn 60 phút) lại phải có hoạt độ ban đầu lớn hơn lọ của A?",
+            "Với T = 110 phút của ¹⁸F, sau Δt = 60 phút hoạt độ đã giảm đi theo hệ số 2^(−60/110); vậy lúc pha chế cần lấy gấp bao nhiêu lần?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay lấy nhầm 2^(−60/110) ≈ 0,685 (lấy ít thuốc hơn cho người tiêm muộn!) thay vì giải H_0B · 2^(−60/110) = H_0A ⇒ H_0B / H_0A = 2^(60/110) ≈ 1,46. Cách gỡ: Kiểm tra tính hợp lí vật lí — để lâu thuốc bị phân rã bớt nên lúc đầu phải lấy nhiều hơn.",
+          noVideoFallback:
+            "Phiếu bài tập định lượng tương tác có lưu localStorage và khung lời giải chi tiết cho giáo viên.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh giải đúng cả câu ¹³¹I (24 ngày) và câu ¹⁸F-FDG Bài 6 SGK tr. 122 (~1,46 lần).",
+        },
       },
     ],
   },
@@ -1094,8 +1470,24 @@ export interface PreClassWorkData {
   readonly apparatusRoles?: Readonly<Partial<Record<B21ApparatusPartCode, string>>>;
   readonly selfCheckChoice?: string;
   readonly bringToClassQuestion?: string;
+  readonly b22TrackRoles?: Readonly<Partial<Record<"alpha" | "vertex" | "proton" | "oxygen", string>>>;
   readonly b22BlackettChoice?: string;
+  readonly b23Count5to10?: string;
+  readonly b23Count15to20?: string;
+  readonly b24LoopRoles?: Readonly<Partial<Record<"primary" | "secondary" | "cooling", string>>>;
+  readonly b25PartRoles?: Readonly<Partial<Record<"p1" | "p2" | "p3", string>>>;
+  readonly b25PaperChoice?: string;
   readonly [key: string]: unknown;
+}
+
+export interface InClassWorkData {
+  readonly b24FoodEvidenceEssay?: string;
+  readonly b24FoodChecked?: boolean;
+  readonly b25HalfH0Input?: string;
+  readonly b25BracketChoice?: string;
+  readonly b25EstimatedTInput?: string;
+  readonly b25EstimateMethodNote?: string;
+  readonly b25TableChecked?: boolean;
 }
 
 export interface StructureSizeWorkData {
@@ -1120,9 +1512,14 @@ export interface AfterClassWorkData {
   readonly predictionReflection?: string;
   readonly checked?: boolean;
   readonly b22AfterChoice?: string;
+  readonly b22NeutronCount?: string;
+  readonly b22ReasonNote?: string;
+  readonly b22Checked?: boolean;
   readonly b24AfterChoice?: string;
   readonly b25ElecChoice?: string;
   readonly b25AfterDays?: string;
+  readonly b25F18RatioInput?: string;
+  readonly b25AfterChecked?: boolean;
 }
 
 export interface StudentLessonNotebook {
@@ -1132,13 +1529,15 @@ export interface StudentLessonNotebook {
   /** Dự đoán chốt lần đầu tiên — khóa giữ nguyên kể cả khi đoán sai để đối chiếu ở Pha 2 & Pha 3 */
   readonly initialPredictionChoice?: string;
   readonly initialPredictionReason?: string;
-  /** Kết quả thao tác nhận diện bộ phận Hình 21.2, câu tự kiểm tra và câu hỏi mang vào lớp ở Pha 1 */
+  /** Kết quả thao tác nhỏ, câu tự kiểm tra và câu hỏi mang vào lớp ở Pha 1 (B21–B25) */
   readonly preClassWork?: PreClassWorkData;
+  /** Kết quả bài tập đọc bảng / tự luận ngắn trong giờ học (B24 Hình 24.5, B25 Bảng 25.1) */
+  readonly inClassWork?: InClassWorkData;
   /** Kết quả bài tập đọc Bảng 21.1 & giải thích tỉ lệ phóng đại ở mục Cấu tạo – kích thước */
   readonly structureSizeWork?: StructureSizeWorkData;
   /** Kết quả bài tập nhanh N = A − Z & khối lượng riêng đồng vị ở mục Kí hiệu – đồng vị */
   readonly symbolIsotopeWork?: SymbolIsotopeWorkData;
-  /** Kết quả bài tập vận dụng Pha 3 (²⁷₁₃Al & phản tư dự đoán Pha 1) */
+  /** Kết quả bài tập vận dụng Pha 3 (B21–B25) */
   readonly afterClassWork?: AfterClassWorkData;
   /** Ghi chú bằng chứng của từng mục theo section.id */
   readonly sectionNotes: Readonly<Record<string, string>>;
@@ -1213,6 +1612,7 @@ export function loadStudentNotebook(code: NuclearPhysicsLessonCode): StudentLess
       initialPredictionChoice: initChoice,
       initialPredictionReason: initReason,
       preClassWork: asCleanObject<PreClassWorkData>(parsed.preClassWork),
+      inClassWork: asCleanObject<InClassWorkData>(parsed.inClassWork),
       structureSizeWork: asCleanObject<StructureSizeWorkData>(parsed.structureSizeWork),
       symbolIsotopeWork: asCleanObject<SymbolIsotopeWorkData>(parsed.symbolIsotopeWork),
       afterClassWork: asCleanObject<AfterClassWorkData>(parsed.afterClassWork),

@@ -25,8 +25,8 @@
 - **Tổng thời lượng:** `36 giây` (4 cảnh)
 - **Phụ đề đối chiếu:** [`public/videos/nuclear-openers/b21.vi.vtt`](../../public/videos/nuclear-openers/b21.vi.vtt)
 - **Ảnh tham chiếu thực tế từ kho học liệu:**
-  - Thiết bị 3D Rutherford V3: [`public/illustrations/rutherford-v3-apparatus.png`](../../public/illustrations/rutherford-v3-apparatus.png)
-  - Giao diện mô phỏng quỹ đạo tán xạ B21: [`docs/previews/physics-process/b21-rutherford-1366.png`](../previews/physics-process/b21-rutherford-1366.png)
+  - Thiết bị 3D Rutherford V3: [`public/illustrations/rutherford-v3-apparatus.png`](../../public/illustrations/rutherford-v3-apparatus.png) và [`public/videos/nuclear-openers/refs/b21-rutherford-v3-3d.png`](../../public/videos/nuclear-openers/refs/b21-rutherford-v3-3d.png)
+  - Giao diện đối chiếu mô hình nguyên tử & đám mây electron B21: [`public/videos/nuclear-openers/refs/b21-atomic-thomson-rutherford.png`](../../public/videos/nuclear-openers/refs/b21-atomic-thomson-rutherford.png) và [`public/videos/nuclear-openers/refs/b21-atomic-electron-cloud.png`](../../public/videos/nuclear-openers/refs/b21-atomic-electron-cloud.png)
   - Khung tổng quan bài B21: [`public/videos/nuclear-lessons-v2/b21.jpg`](../../public/videos/nuclear-lessons-v2/b21.jpg)
 - **Điểm nối sang Pha 1:** Dẫn trực tiếp vào câu hỏi dự đoán mở đầu của `B21Hero` và nhiệm vụ dự đoán góc lệch theo tham số va chạm $b$ tại `/hoc-lieu/truc-quan?bai=B21#khoi-dong`.
 
@@ -94,7 +94,7 @@
 - **Phụ đề đối chiếu:** [`public/videos/nuclear-openers/b22.vi.vtt`](../../public/videos/nuclear-openers/b22.vi.vtt)
 - **Ảnh tham chiếu thực tế từ kho học liệu:**
   - Sơ đồ vết phân nhánh buồng sương B22: [`public/illustrations/B22-diagram.png`](../../public/illustrations/B22-diagram.png)
-  - Mô phỏng phân hạch B22: [`docs/previews/physics-process/b22-fission-1366.png`](../previews/physics-process/b22-fission-1366.png)
+  - Mô phỏng độ hụt khối & đồ thị E_lkr / phân hạch B22: [`public/videos/nuclear-openers/refs/b22-binding-energy-sim.png`](../../public/videos/nuclear-openers/refs/b22-binding-energy-sim.png) và [`docs/previews/physics-process/b22-fission-1366.png`](../previews/physics-process/b22-fission-1366.png)
   - Khung tổng quan bài B22: [`public/videos/nuclear-lessons-v2/b22.jpg`](../../public/videos/nuclear-lessons-v2/b22.jpg)
 - **Điểm nối sang Pha 1:** Dẫn trực tiếp vào nhiệm vụ nhận diện vết tới, điểm tương tác, hai vết đi ra và dự đoán hai hạt sau phân nhánh tại mục Pha 1 `b22-blackett-track` (`/hoc-lieu/truc-quan?bai=B22`).
 
@@ -161,7 +161,7 @@
 - **Tổng thời lượng:** `38 giây` (4 cảnh)
 - **Phụ đề đối chiếu:** [`public/videos/nuclear-openers/b23.vi.vtt`](../../public/videos/nuclear-openers/b23.vi.vtt)
 - **Ảnh tham chiếu thực tế từ kho học liệu:**
-  - Mô phỏng quá trình phân rã B23: [`docs/previews/physics-process/b23-process-1366.png`](../previews/physics-process/b23-process-1366.png)
+  - Mô phỏng quá trình phân rã 3 biểu diễn B23: [`public/videos/nuclear-openers/refs/b23-decay-halflife-sim.png`](../../public/videos/nuclear-openers/refs/b23-decay-halflife-sim.png) và [`docs/previews/physics-process/b23-process-1366.png`](../previews/physics-process/b23-process-1366.png)
   - Sơ đồ B23: [`public/illustrations/B23-diagram.png`](../../public/illustrations/B23-diagram.png)
   - Khung tổng quan bài B23: [`public/videos/nuclear-lessons-v2/b23.jpg`](../../public/videos/nuclear-lessons-v2/b23.jpg)
 - **Điểm nối sang Pha 1:** Dẫn trực tiếp vào bảng số liệu **Bảng 23.1 SGK (`1, 3, 2, 0, 3, 1` xung mỗi 5 giây)** và hoạt động bấm đếm xung 5 giây của học sinh tại mục Pha 1 `b23-cloud-geiger` (`/hoc-lieu/truc-quan?bai=B23`).
@@ -228,7 +228,7 @@
 - **Tổng thời lượng:** `38 giây` (4 cảnh)
 - **Phụ đề đối chiếu:** [`public/videos/nuclear-openers/b24.vi.vtt`](../../public/videos/nuclear-openers/b24.vi.vtt)
 - **Ảnh tham chiếu thực tế từ kho học liệu:**
-  - Sơ đồ lò phản ứng nước áp lực B24: [`docs/previews/physics-process/b24-reactor-1366.png`](../previews/physics-process/b24-reactor-1366.png)
+  - Sơ đồ lò phản ứng nước áp lực B24: [`public/videos/nuclear-openers/refs/b24-reactor-control-sim.png`](../../public/videos/nuclear-openers/refs/b24-reactor-control-sim.png) và [`docs/previews/physics-process/b24-reactor-1366.png`](../previews/physics-process/b24-reactor-1366.png)
   - Sơ đồ truyền năng lượng B24: [`public/illustrations/B24-diagram.png`](../../public/illustrations/B24-diagram.png)
   - Khung tổng quan bài B24: [`public/videos/nuclear-lessons-v2/b24.jpg`](../../public/videos/nuclear-lessons-v2/b24.jpg)
 - **Điểm nối sang Pha 1:** Dẫn trực tiếp vào câu hỏi mở đầu *“Bộ phận nào thực sự làm quay tua-bin?”* và thao tác lần theo đường truyền năng lượng qua 3 chu trình của Hình 24.1 SGK tại mục Pha 1 `b24-energy-chain` (`/hoc-lieu/truc-quan?bai=B24`).
@@ -295,7 +295,7 @@
 - **Tổng thời lượng:** `37 giây` (4 cảnh)
 - **Phụ đề đối chiếu:** [`public/videos/nuclear-openers/b25.vi.vtt`](../../public/videos/nuclear-openers/b25.vi.vtt)
 - **Ảnh tham chiếu thực tế từ kho học liệu:**
-  - Phòng xử lí đồ thị Bảng 25.1 SGK: [`docs/previews/physics-process/b25-process-1366.png`](../previews/physics-process/b25-process-1366.png)
+  - Phòng xử lí đồ thị Bảng 25.1 SGK: [`public/videos/nuclear-openers/refs/b25-decay-table-sim.png`](../../public/videos/nuclear-openers/refs/b25-decay-table-sim.png) và [`docs/previews/physics-process/b25-process-1366.png`](../previews/physics-process/b25-process-1366.png)
   - Sơ đồ Bài 25: [`public/illustrations/B25-diagram.png`](../../public/illustrations/B25-diagram.png)
   - Khung tổng quan bài B25: [`public/videos/nuclear-lessons-v2/b25.jpg`](../../public/videos/nuclear-lessons-v2/b25.jpg)
 - **Điểm nối sang Pha 1:** Kết nối trực tiếp hiện tượng tĩnh điện kế phóng điện (Hình 25.1 SGK tr. 119) và nhiệm vụ ước lượng chu kì bán rã từ **8 cặp số liệu Bảng 25.1 SGK tr. 121** tại `/hoc-lieu/truc-quan?bai=B25`.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { B25Hero } from "./B25Hero";
 import { B25DataProcessLab } from "./B25DataProcessLab";
 import { BindingEnergyCalculator, NuclearEquationBalancer } from "./B25Activities";
@@ -20,23 +20,23 @@ const TOC = [
 const FORMULAS = [
   {
     title: "Định luật phóng xạ",
-    math: String.raw`N=N_0\,2^{-t/T}\qquad H=\lambda N`,
+    math: String.raw`N=N_0\,2^{-t/T}\qquad H=\lambda N=H_0\,2^{-t/T}`,
     note: "N là số hạt nhân còn lại, T là chu kì bán rã, H là độ phóng xạ (Bq = 1 phân rã/giây).",
   },
   {
     title: "Bảo toàn trong phương trình hạt nhân",
     math: String.raw`\textstyle\sum A_{\text{trước}}=\sum A_{\text{sau}}\quad \sum Z_{\text{trước}}=\sum Z_{\text{sau}}`,
-    note: "Số khối A và điện tích Z bảo toàn. Với phân rã β phải kể thêm electron/positron và neutrino.",
+    note: "Số khối A và điện tích Z bảo toàn. Với phân rã β hoặc phân hạch phải tính đủ các hạt phát ra.",
   },
   {
     title: "Độ hụt khối và năng lượng liên kết",
-    math: String.raw`\Delta m=Z m_{\mathrm{H}}+N m_n-m_{\text{nhân}}\qquad E_{lk}=\Delta m\,c^2`,
-    note: "Dùng 1 u·c² ≈ 931,5 MeV. Năng lượng liên kết riêng Elk/A so sánh độ bền giữa các hạt nhân.",
+    math: String.raw`\Delta m=Z m_{\mathrm{H}}+N m_n-m_{\text{nguyên tử}}\qquad E_{\mathrm{lk}}=\Delta m\,c^2`,
+    note: "Dùng 1 u·c² ≈ 931,5 MeV. Năng lượng liên kết riêng Elk/A dùng để so sánh độ bền hạt nhân.",
   },
   {
     title: "Hệ số nhân neutron",
     math: String.raw`k=\frac{\text{số neutron thế hệ sau}}{\text{số neutron thế hệ trước}}`,
-    note: "k = 1 duy trì phản ứng dây chuyền có kiểm soát; k < 1 tắt dần; k > 1 tăng theo cấp số nhân.",
+    note: "k = 1 duy trì phản ứng dây chuyền ổn định; k < 1 tắt dần; k > 1 tăng theo cấp số nhân.",
   },
 ] as const;
 
@@ -45,17 +45,10 @@ export function B25Lesson() {
   const set = useCallback((key: keyof typeof done, value: boolean) => {
     setDone((prev) => (prev[key] === value ? prev : { ...prev, [key]: value }));
   }, []);
-  const allDone = done.graph && done.balance && done.energy;
-  const reported = useRef(false);
-
-  useEffect(() => {
-    if (reported.current === allDone) return;
-    reported.current = allDone;
-  }, [allDone]);
 
   const steps = [
-    { key: "graph" as const, label: "Đọc đồ thị H(t) và ước lượng chu kì bán rã" },
-    { key: "balance" as const, label: "Cân bằng ít nhất hai phương trình hạt nhân" },
+    { key: "graph" as const, label: "Đánh dấu Bảng 25.1, tự ước lượng chu kì bán rã T và đối chiếu" },
+    { key: "balance" as const, label: "Tự nhập A, Z và cân bằng đúng ít nhất hai phương trình hạt nhân" },
     { key: "energy" as const, label: "Tính Elk cho ít nhất ba hạt nhân và trả lời câu hỏi" },
   ];
 
@@ -98,8 +91,8 @@ export function B25Lesson() {
         <section id="muc-2" className={styles.section}>
           <h2>II. Đọc đồ thị H(t) — Bảng 25.1</h2>
           <p className={styles.lead}>
-            Tám mốc đo của SGK giữ nguyên, không thay bằng số sinh ngẫu nhiên. Chọn một chu kì giả thuyết, hiện
-            đường lí thuyết, rồi đối chiếu với từng điểm đo để thấy mô hình khớp tới đâu.
+            Tám mốc đo của SGK giữ nguyên, không thay bằng số sinh ngẫu nhiên. Hãy tự đánh dấu mốc kẹp H₀/2,
+            nhập chu kì bán rã T ước lượng và lời giải thích của riêng em trước khi mở nhận xét đối chiếu.
           </p>
           <B25DataProcessLab onSubDone={(v) => set("graph", v)} />
         </section>
@@ -107,8 +100,8 @@ export function B25Lesson() {
         <section id="muc-3" className={styles.section}>
           <h2>III. Cân bằng phương trình hạt nhân</h2>
           <p className={styles.lead}>
-            Mỗi ví dụ cho một hạt nhân mẹ và tia phát ra. Điền số khối A và số proton Z của hạt nhân con, rồi
-            kiểm tra. Giải đúng ít nhất hai ví dụ để hoàn thành mục này.
+            Mỗi bài cho phương trình phân rã hoặc phân hạch còn khuyết một hạt nhân. Tự nhập số khối A và số
+            proton Z vào hai ô trống rồi kiểm tra. Giải đúng ít nhất hai phương trình để hoàn thành mục này.
           </p>
           <NuclearEquationBalancer onSubDone={(v) => set("balance", v)} />
         </section>
@@ -126,7 +119,7 @@ export function B25Lesson() {
           <h2>V. Sáu bài tập SGK</h2>
           <p className={styles.lead}>
             Sáu bài tập trang 121–122. Mỗi bài có gợi ý hướng giải trong phần mở rộng — chỉ mở sau khi em đã
-            tự thử.
+            tự thử tính trên giấy.
           </p>
 
           <div className={styles.exercise}>
@@ -134,46 +127,50 @@ export function B25Lesson() {
               <span className={styles.exerciseBadge}>Bài 1</span>
               <strong>Lực nào làm lệch hạt α trong lá vàng?</strong>
             </div>
-            <p>Trong thí nghiệm tán xạ alpha của Rutherford, hạt α bay gần hạt nhân vàng thì bị lệch.</p>
+            <p>Trong thí nghiệm tán xạ alpha của Rutherford, hạt α bay gần hạt nhân vàng thì bị lệch hướng mạnh.</p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Hạt α mang điện tích +2e, hạt nhân vàng mang +79e. Lực đẩy tĩnh điện Coulomb giữa hai điện tích dương làm hạt α lệch khỏi phương ban đầu. Lực hấp dẫn nhỏ hơn nhiều bậc nên không phải nguyên nhân.</p>
+              <p>Hạt α mang điện tích dương +2e, hạt nhân vàng mang điện tích dương +79e. Lực đẩy tĩnh điện Coulomb giữa hai điện tích cùng dấu làm hạt α lệch khỏi phương ban đầu. Lực hấp dẫn nhỏ hơn rất nhiều bậc độ lớn nên bỏ qua.</p>
             </details>
           </div>
 
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge}>Bài 2</span>
-              <strong>Vẽ đồ thị H(t) và ước lượng chu kì bán rã</strong>
+              <strong>Vẽ đồ thị H(t) và ước lượng chu kì bán rã từ Bảng 25.1</strong>
             </div>
-            <p>Dùng Bảng 25.1. Từ 151 Bq xuống 9 Bq trong 360 s, ước lượng chu kì bán rã của mẫu.</p>
+            <p>Dùng Bảng 25.1 SGK trang 121 (từ t = 0 s, H₀ = 151 Bq xuống t = 360 s, H = 9 Bq), ước lượng chu kì bán rã của mẫu.</p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Mức nửa ban đầu là 75,5 Bq, nằm giữa 85 Bq (t = 30 s) và 55 Bq (t = 60 s). Nội suy thẳng hai mốc cho ≈ 39,5 s. Khớp toàn bộ tám điểm bằng hàm mũ cho T ≈ 40–45 s. Hai cách cho kết quả cùng bậc, đều khoảng 40 s.</p>
+              <p>Mức một nửa ban đầu là H₀/2 = 75,5 Bq, nằm giữa hai mốc đo (30 s; 85 Bq) và (60 s; 55 Bq). Nội suy tuyến tính giữa hai mốc này cho T ≈ 39,5 s; khớp hàm mũ trên toàn bộ tám điểm đo cho T ≈ 40–45 s (cỡ khoảng 40 s).</p>
             </details>
           </div>
 
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge}>Bài 3</span>
-              <strong>Định tuổi mẫu gỗ bằng carbon-14</strong>
+              <strong>Định tuổi mẫu gỗ cổ bằng đồng vị carbon-14</strong>
             </div>
-            <p>Mẫu gỗ cổ có 240 phân rã/phút, T(¹⁴C) = 5730 năm, 25 g carbon gồm ¹²C và ¹⁴C. Tỉ lệ số nguyên tử ¹²C : ¹⁴C khi sinh vật còn sống là 10¹² : 1.</p>
+            <p>Mẫu gỗ cổ chứa 25 g carbon có độ phóng xạ 240 phân rã/phút (4,0 Bq); T(¹⁴C) = 5730 năm. Tỉ lệ số nguyên tử ¹²C : ¹⁴C khi sinh vật còn sống là 10¹² : 1.</p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Tính độ phóng xạ riêng của mẫu sống từ tỉ lệ ¹²C : ¹⁴C và khối lượng carbon, rồi so sánh với 240 phân rã/phút để suy ra tỉ số H/H₀. Từ đó t = T·log₂(H₀/H). Cần giữ đơn vị phút và năm nhất quán. Đây là bài vận dụng toàn bộ định luật phóng xạ, không có một công thức riêng.</p>
+              <p>Số nguyên tử ¹²C trong 25 g carbon là N(¹²C) ≈ (25/12)·6,022·10²³ ≈ 1,255·10²⁴ hạt ⇒ lúc còn sống mẫu có N₀(¹⁴C) ≈ 1,255·10¹² hạt. Độ phóng xạ ban đầu H₀ = (ln 2 / T)·N₀ ≈ 4,81 Bq (≈ 289 phân rã/phút). So với H = 4,0 Bq hiện tại: t = T·log₂(H₀/H) ≈ 5730 · log₂(289/240) ≈ 1,5·10³ năm.</p>
             </details>
           </div>
 
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge} data-level="vận dụng">Bài 4</span>
-              <strong>Nhiên liệu cho nhà máy điện hạt nhân</strong>
+              <strong>Nhiên liệu U-235 cho nhà máy điện hạt nhân trong 1 ngày, 1 năm và đối chiếu than đá</strong>
             </div>
-            <p>Nhà máy công suất 1400 MW, hiệu suất 36 %, mỗi phân hạch tỏa 200 MeV. Tính khối lượng U-235 cần mỗi ngày.</p>
+            <p>Nhà máy điện hạt nhân có công suất phát điện 1400 MW, hiệu suất 36 %, mỗi phân hạch ²³⁵U tỏa năng lượng trung bình 200 MeV. Tính khối lượng ²³⁵U tiêu thụ trong 1 ngày, trong 1 năm hoạt động (365 ngày) và đối chiếu với khối lượng than đá (năng suất tỏa nhiệt khoảng 30 MJ/kg, cùng hiệu suất 36 %).</p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Công suất nhiệt cần = 1400/0,36 ≈ 3889 MW. Năng lượng mỗi ngày = 3889·10⁶ · 86400 ≈ 3,36·10¹⁴ J. Số phân hạch = năng lượng / (200 MeV · 1,6·10⁻¹³ J/MeV). Mỗi phân hạch tiêu thụ một hạt U-235 khối lượng 235 u ≈ 3,9·10⁻²⁵ kg. Kết quả cỡ vài kg U-235 mỗi ngày — nhỏ hơn rất nhiều so với than đá cùng công suất.</p>
+              <p>
+                • <strong>Trong 1 ngày (86 400 s):</strong> Điện năng sản xuất A<sub>điện</sub> = 1400·10⁶ · 86 400 ≈ 1,21·10¹⁴ J. Nhiệt lượng phân hạch cần cung cấp Q<sub>ngày</sub> = A<sub>điện</sub> / 0,36 ≈ 3,36·10¹⁴ J. Mỗi phân hạch tỏa E₁ = 200 MeV = 3,2·10⁻¹¹ J ⇒ số hạt phân hạch N<sub>ngày</sub> = 3,36·10¹⁴ / 3,2·10⁻¹¹ = 1,05·10²⁵ hạt. Khối lượng ²³⁵U cần mỗi ngày: m<sub>U, ngày</sub> = (1,05·10²⁵ / 6,022·10²³) · 0,235 kg ≈ <strong>4,10 kg/ngày</strong>.
+                <br />• <strong>Trong 1 năm (365 ngày):</strong> Nhiệt lượng phân hạch Q<sub>năm</sub> = 365 · 3,36·10¹⁴ ≈ 1,226·10¹⁷ J; khối lượng ²³⁵U tiêu thụ cả năm: m<sub>U, năm</sub> = 365 · 4,10 kg ≈ <strong>1,50·10³ kg ≈ 1,5 tấn/năm</strong>.
+                <br />• <strong>Đối chiếu than đá (q ≈ 30 MJ/kg = 3,0·10⁷ J/kg):</strong> Để sinh cùng nhiệt lượng trên cần m<sub>than, ngày</sub> = 3,36·10¹⁴ / 3,0·10⁷ ≈ <strong>11 200 tấn than/ngày</strong> và trong 1 năm cần m<sub>than, năm</sub> ≈ <strong>4,09 triệu tấn than đá/năm</strong> — lớn gấp khoảng 2,7 triệu lần khối lượng ²³⁵U!
+              </p>
             </details>
           </div>
 
@@ -182,22 +179,41 @@ export function B25Lesson() {
               <span className={styles.exerciseBadge} data-level="vận dụng">Bài 5</span>
               <strong>Thời gian chiếu xạ tăng dần theo tuổi nguồn Co-60</strong>
             </div>
-            <p>Nguồn ⁶⁰Co có T = 5,3 năm. Tháng 1/2022 cần chiếu 150 phút để đạt cùng liều. Tính thời gian cần vào tháng 6/2024 (khoảng 29 tháng sau).</p>
+            <p>Nguồn ⁶⁰Co có T = 5,3 năm. Tháng 1/2022 cần chiếu 150 phút để đạt liều quy định. Tính thời gian chiếu cần thiết vào tháng 6/2024 (sau 29 tháng) để đạt cùng liều đó.</p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Giả thiết tốc độ chiếu tỉ lệ với độ phóng xạ, nên thời gian tỉ lệ nghịch với H: t<sub>mới</sub> = t<sub>cũ</sub> · H₀/H<sub>mới</sub> = 150 · 2<sup>29/(12·5,3)</sup> ≈ 206 phút. Đây là lí do các trung tâm chiếu xạ phải định kì tính lại thời gian chiếu hoặc thay nguồn.</p>
+              <p>Với khoảng thời gian chiếu ngắn hơn rất nhiều so với T = 5,3 năm, liều chiếu xấp xỉ tỉ lệ với H · Δt. Do độ phóng xạ giảm còn H = H₀ · 2<sup>−29/(12·5,3)</sup>, thời gian chiếu phải tăng tỉ lệ nghịch với H: Δt<sub>mới</sub> = 150 · 2<sup>29/63,6</sup> ≈ <strong>206 phút</strong>.</p>
             </details>
           </div>
 
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge} data-level="vận dụng">Bài 6</span>
-              <strong>Hai bệnh nhân PET — ai cần nhiều FDG hơn?</strong>
+              <strong>Điều chế ¹⁸F và phân liều thuốc ¹⁸F-FDG cho hai bệnh nhân PET (SGK tr. 122)</strong>
             </div>
-            <p>¹⁸F có T = 110 phút. Hai bệnh nhân cùng cân nặng, cần liều 0,1 mCi/kg tại thời điểm tiêm. Người A tiêm trước, người B tiêm sau 60 phút. Ai cần chuẩn bị nhiều thuốc hơn?</p>
+            <p>
+              a) Viết phương trình hạt nhân điều chế ¹⁸₉F khi bắn phá bia nước giàu đồng vị ¹⁸₈O bằng chùm proton ¹₁p (kèm phát tia γ).
+              <br />
+              b) Đồng vị ¹⁸F trong dược chất FDG có T = 110 phút. Cùng một mẻ thuốc chuẩn bị lúc ban đầu (t = 0) được chia liều cho hai bệnh nhân A và B có cùng cân nặng; người B được tiêm <strong>muộn hơn người A 60 phút</strong>. Để <strong>tại thời điểm tiêm của mỗi người</strong> cả hai đều nhận cùng hoạt độ điều trị (0,1 mCi/kg), lúc chuẩn bị ban đầu cần lấy lượng thuốc cho ai nhiều hơn và gấp bao nhiêu lần?
+            </p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Liều tại thời điểm tiêm là như nhau với cả hai. Nhưng thuốc phải được chuẩn bị sớm hơn cho người A, nên tại lúc sản xuất lượng FDG cần nhiều hơn: H<sub>sản xuất</sub> = H<sub>tiêm</sub> · 2<sup>t/T</sup>. Với người B chỉ chờ thêm 60 phút kể từ A, lượng cần lúc sản xuất ít hơn khoảng 2<sup>60/110</sup> ≈ 1,46 lần. Vậy người A (hoặc lượt tiêm sớm hơn) cần chuẩn bị nhiều FDG hơn.</p>
+              <div>
+                <p>
+                  <strong>a) Phương trình hạt nhân điều chế ¹⁸₉F</strong> (bảo toàn số khối A: 18 + 1 = 18 + 1 + 0 = 19; bảo toàn điện tích Z: 8 + 1 = 9 + 0 + 0 = 9):
+                </p>
+                <LatexMath block math={String.raw`{}^{18}_{8}\mathrm{O}+{}^{1}_{1}\mathrm{p}\rightarrow{}^{18}_{9}\mathrm{F}+{}^{1}_{0}\mathrm{n}+\gamma`} />
+                <p>
+                  <strong>b) So sánh liều chuẩn bị lúc ban đầu (t = 0):</strong> Giả sử người A tiêm tại thời điểm t<sub>A</sub>, còn người B tiêm muộn hơn 60 phút tại t<sub>B</sub> = t<sub>A</sub> + 60 (phút). Để tại đúng lúc tiêm mỗi người đều nhận cùng hoạt độ H<sub>tiêm</sub> (vì cùng cân nặng và cùng liều 0,1 mCi/kg), hoạt độ cần lấy từ mẻ thuốc lúc chuẩn bị ban đầu (t = 0) cho từng người phải bù phần phân rã trong thời gian chờ:
+                </p>
+                <LatexMath
+                  block
+                  math={String.raw`H_{0\mathrm{A}}=H_{\text{tiêm}}\cdot 2^{\frac{t_{\mathrm{A}}}{110}},\qquad H_{0\mathrm{B}}=H_{\text{tiêm}}\cdot 2^{\frac{t_{\mathrm{A}}+60}{110}}\implies\frac{H_{0\mathrm{B}}}{H_{0\mathrm{A}}}=2^{\frac{60}{110}}=2^{\frac{6}{11}}\approx 1{,}46`}
+                />
+                <p>
+                  <strong>Kết luận:</strong> Phần thuốc của <strong>bệnh nhân B (tiêm muộn hơn 60 phút)</strong> bị phân rã lâu hơn trước khi tiêm, nên lúc chuẩn bị ban đầu phải lấy cho <strong>bệnh nhân B lượng hoạt độ (thể tích thuốc ¹⁸F-FDG) LỚN HƠN bệnh nhân A gấp 2<sup>60/110</sup> ≈ 1,46 lần (tức nhiều hơn khoảng 46 %)</strong>.
+                </p>
+              </div>
             </details>
           </div>
         </section>
@@ -207,7 +223,9 @@ export function B25Lesson() {
           <p className={styles.lead}>Hướng dẫn đọc Bảng 25.1 và đối chiếu đường lí thuyết với số liệu SGK.</p>
           <div className={styles.videoCard}>
             <h3 className={styles.videoTitle}>Bài 25 – Bài tập về vật lí hạt nhân</h3>
-            <p className={styles.videoMeta}>Thời lượng 1:16 · Phụ đề tiếng Việt · Nguồn: giáo viên bộ môn</p>
+            <p className={styles.videoMeta}>
+              Thời lượng 1:16 · Phụ đề tiếng Việt · Thuyết minh tổng hợp tiếng Việt (VieNeu-TTS · Kim Thanh)
+            </p>
             <video className={styles.video} controls preload="metadata" poster="/videos/nuclear-lessons-v2/b25.jpg">
               <source src="/videos/nuclear-lessons-v2/b25.mp4" type="video/mp4" />
               <track kind="subtitles" srcLang="vi" src="/videos/nuclear-lessons-v2/b25.vi.vtt" label="Tiếng Việt" default />

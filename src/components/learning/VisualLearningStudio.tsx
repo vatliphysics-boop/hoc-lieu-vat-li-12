@@ -1163,6 +1163,7 @@ export function VisualLearningStudio({
                   lessonCode={sampleLesson.code}
                   section={sec}
                   notebook={notebook}
+                  showTeacherSolutions={showTeacherControls}
                   onSavePreClassPrediction={handleSavePreClassPrediction}
                   onPatchNotebook={handlePatchNotebook}
                   onMarkSectionComplete={handleMarkSectionComplete}
