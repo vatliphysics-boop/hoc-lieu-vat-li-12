@@ -32,10 +32,10 @@ export function B22Lesson() {
   }, []);
 
   const steps = [
-    { key: "balancer" as const, label: "Cân bằng phương trình phản ứng Rutherford 1919" },
-    { key: "binding" as const, label: "Đọc đồ thị Elkr và giải thích phân hạch" },
-    { key: "fission" as const, label: "Quan sát phân hạch U-235 và đếm neutron" },
-    { key: "fusion" as const, label: "So sánh tán xạ và nhiệt hạch D+T" },
+    { key: "balancer" as const, label: "Cân bằng và phân loại phản ứng hạt nhân (tự phát / kích thích)" },
+    { key: "binding" as const, label: "Khảo sát độ hụt khối Δm, đọc đồ thị E_lkr và so sánh 2 hạt nhân" },
+    { key: "fission" as const, label: "Quan sát phân hạch U-235, đếm neutron và khảo sát dây chuyền theo k" },
+    { key: "fusion" as const, label: "So sánh tán xạ và nhiệt hạch D+T, D+D (Oliphant 1934)" },
   ];
 
   return (
@@ -52,7 +52,8 @@ export function B22Lesson() {
           <p className={styles.lead}>
             Năm 1919, Rutherford cho hạt alpha bắn qua khí nitrogen và quan sát thấy proton bật ra.
             Blackett dùng buồng sương chụp lại vết hình chữ Y: đây là bằng chứng trực tiếp của phản ứng
-            hạt nhân nhân tạo đầu tiên. Điền A và Z của oxygen-17 và proton để cân bằng phương trình.
+            hạt nhân nhân tạo đầu tiên. Khảo sát định luật bảo toàn số khối A, điện tích Z và phân biệt
+            phản ứng hạt nhân tự phát với phản ứng hạt nhân kích thích.
           </p>
           <NuclearReactionBalancer onProgress={(v) => set("balancer", v)} />
         </section>
@@ -80,9 +81,8 @@ export function B22Lesson() {
         <section id="muc-4" className={styles.section}>
           <h2>IV. Nhiệt hạch</h2>
           <p className={styles.lead}>
-            Ở nhiệt độ hàng triệu độ, deuteri (²H) và triti (³H) tới đủ gần nhau để xảy ra phản ứng
-            tổng hợp thành heli-4 và một neutron. Lực đẩy Coulomb giữa hai hạt nhân dương chỉ bị thắng
-            khi hạt có động năng đủ lớn.
+            Ở nhiệt độ siêu cao 10⁷ – 10⁸ K, các hạt nhân nhẹ như deuterium (²H) và tritium (³H) tới đủ
+            gần nhau để thắng lực đẩy tĩnh điện Coulomb và tổng hợp thành hạt nhân nặng hơn, tỏa năng lượng lớn.
           </p>
           <NuclearFusion onProgress={(v) => set("fusion", v)} />
         </section>
@@ -108,7 +108,7 @@ export function B22Lesson() {
           </p>
           <div className={styles.videoCard}>
             <h3 className={styles.videoTitle}>Bài 22 – Phản ứng hạt nhân và năng lượng liên kết</h3>
-            <p className={styles.videoMeta}>Thời lượng 1:15 · Phụ đề tiếng Việt · Nguồn: giáo viên bộ môn</p>
+            <p className={styles.videoMeta}>Thời lượng 1:15 · Phụ đề tiếng Việt · Thuyết minh tổng hợp tiếng Việt (VieNeu-TTS · Kim Thanh)</p>
             <video className={styles.video} controls preload="metadata" poster="/videos/nuclear-lessons-v2/b22.jpg">
               <source src="/videos/nuclear-lessons-v2/b22.mp4" type="video/mp4" />
               <track kind="subtitles" srcLang="vi" src="/videos/nuclear-lessons-v2/b22.vi.vtt" label="Tiếng Việt" default />
