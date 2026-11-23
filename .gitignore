@@ -56,6 +56,7 @@ next-env.d.ts
 # Source book scans, OCR drafts and extracted figures stay on the local server
 /data/book-bank/
 /output/book-bank/
+/public/learning/SGK-*.pdf
 
 # Reproducible local speech models, virtual environments and render intermediates
 /tmp/nuclear-voice/

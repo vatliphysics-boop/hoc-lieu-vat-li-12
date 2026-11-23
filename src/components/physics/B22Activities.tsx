@@ -915,9 +915,9 @@ function MassDefectScale({ nuclide }: { nuclide: LabNuclideSpec }) {
         <text x="108" y="48" textAnchor="middle" fill="#334155" fontSize="11">
           {nuclide.z}p + {nCount}n ({nuclide.a} nucleon)
         </text>
-        <rect x="30" y="186" width="156" height="24" rx="6" fill="#fee2e2" stroke="#fca5a5" />
-        <text x="108" y="202" textAnchor="middle" fill="#991b1b" fontSize="11" fontWeight="700">
-          Z·m_p + N·m_n = {formatVi(freeMass, 6)} amu
+        <rect x="24" y="186" width="168" height="24" rx="6" fill="#fee2e2" stroke="#fca5a5" />
+        <text x="108" y="202" textAnchor="middle" fill="#991b1b" fontSize="10.5" fontWeight="700">
+          Z·m(¹H) + N·m_n = {formatVi(freeMass, 6)} amu
         </text>
 
         {/* Right Pan (lighter -> higher!) */}
@@ -1560,10 +1560,10 @@ function parseFusionState(raw: unknown, fallback: FusionPersistedState): FusionP
 const FUSION_CHANNELS = {
   dt: {
     id: "dt" as const,
-    buttonLabel: "²₁H + ³₁H → ⁴₂He + ¹₀n (17,6 MeV)",
-    title: "Tổng hợp Deuterium – Tritium (²₁H + ³₁H → ⁴₂He + ¹₀n)",
+    buttonLabel: "[Ví dụ mở rộng] ²₁H + ³₁H → ⁴₂He + ¹₀n (17,6 MeV)",
+    title: "[Ví dụ mở rộng] Tổng hợp Deuterium – Tritium (²₁H + ³₁H → ⁴₂He + ¹₀n)",
     latex: String.raw`{}^{2}_{1}\mathrm{H} + {}^{3}_{1}\mathrm{H} \rightarrow {}^{4}_{2}\mathrm{He} + {}^{1}_{0}\mathrm{n} + 17{,}6\,\mathrm{MeV}`,
-    conservationNote: "Bảo toàn hai vế: ∑A = 2 + 3 = 4 + 1 = 5; ∑Z = 1 + 1 = 2 + 0 = 2. Tỏa năng lượng 17,6 MeV (~3,52 MeV/nucleon).",
+    conservationNote: "[Ví dụ mở rộng ngoài SGK KNTT]: ∑A = 2 + 3 = 4 + 1 = 5; ∑Z = 1 + 1 = 2 + 0 = 2. Tỏa năng lượng 17,6 MeV (~3,52 MeV/nucleon).",
     leftLabel: "²₁H",
     leftName: "Deuterium",
     leftR: 14,
@@ -1578,10 +1578,10 @@ const FUSION_CHANNELS = {
   },
   dd: {
     id: "dd" as const,
-    buttonLabel: "Oliphant 1934: ²₁H + ²₁H → ³₂He + ¹₀n (~4,0 MeV)",
-    title: "Thí nghiệm Oliphant 1934 (²₁H + ²₁H → ³₂He + ¹₀n)",
+    buttonLabel: "Chuẩn SGK tr. 102 (Oliphant): ²₁H + ²₁H → ³₂He + ¹₀n (~4,0 MeV)",
+    title: "Thí nghiệm Oliphant — SGK tr. 102 (²₁H + ²₁H → ³₂He + ¹₀n)",
     latex: String.raw`{}^{2}_{1}\mathrm{H} + {}^{2}_{1}\mathrm{H} \rightarrow {}^{3}_{2}\mathrm{He} + {}^{1}_{0}\mathrm{n} \quad (\sim 4{,}0\,\mathrm{MeV})`,
-    conservationNote: "Thí nghiệm Oliphant, Harteck & Rutherford (1934, SGK tr. 102): ∑A = 2 + 2 = 3 + 1 = 4; ∑Z = 1 + 1 = 2 + 0 = 2 (tỏa ~3,3 – 4,0 MeV).",
+    conservationNote: "Ví dụ mạch chính SGK tr. 102 (bản in SGK ghi năm 1927; tư liệu lịch sử vật lí ghi nhận thí nghiệm D–D của Oliphant, Harteck & Rutherford công bố năm 1934): ∑A = 2 + 2 = 3 + 1 = 4; ∑Z = 1 + 1 = 2 + 0 = 2 (tỏa ~4,0 MeV).",
     leftLabel: "²₁H",
     leftName: "Deuterium",
     leftR: 14,

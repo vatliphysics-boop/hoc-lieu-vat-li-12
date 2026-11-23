@@ -111,11 +111,11 @@ test("B24 & B25 V3: separate 3-loop energy flow, exact 8-point SGK Table 25.1, P
     "B25Lesson.tsx must not contain the inverted Problem 6b conclusion"
   );
   assert.ok(
-    b25LessonSrc.includes("1,46") && b25LessonSrc.includes("¹⁸₈O"),
-    "B25Lesson.tsx must include Problem 6a (18O + p -> 18F + n) and 1,46 ratio for Patient B"
+    (b25LessonSrc.includes("1{,}459") || b25LessonSrc.includes("46 %")) && b25LessonSrc.includes("¹⁸₈O"),
+    "B25Lesson.tsx must include Problem 6a (18O + p -> 18F + n) and ~46% / 1,459 ratio for Patient 2"
   );
 
-  // Verify all 5 WEBVTT caption files and storyboard doc exist
+  // Verify all 5 WEBVTT caption files exist
   for (const code of ["b21", "b22", "b23", "b24", "b25"]) {
     const vttPath = path.join(ROOT, `public/videos/nuclear-openers/${code}.vi.vtt`);
     assert.ok(fs.existsSync(vttPath), `Missing caption file ${code}.vi.vtt`);
@@ -123,3 +123,92 @@ test("B24 & B25 V3: separate 3-loop energy flow, exact 8-point SGK Table 25.1, P
     assert.ok(vtt.startsWith("WEBVTT"), `${code}.vi.vtt must be valid WEBVTT`);
   }
 });
+
+test("SGK page-by-page alignment & copyright guard: no public SGK PDF, exact 7-row Bảng 23.2, Hình 24.2 dry cask, Hình 24.5 (a)/(b), and B25 46% FDG", async () => {
+  const { SGK_TABLE_23_2_SAMPLES, getChapter4Lesson } = await import("@/lib/chapter4-lessons");
+  const { indexedBookAssetFiles } = await import("@/lib/book-bank");
+
+  // 1. Copyright guard: no scanned chapter PDF in public/ and no full-page scan exposure in indexedBookAssetFiles
+  assert.equal(
+    fs.existsSync(path.join(ROOT, "public/learning/SGK-chuong-IV.pdf")),
+    false,
+    "Full scanned Chapter IV PDF must not be publicly served from public/learning/"
+  );
+  const allowedAssets = indexedBookAssetFiles({
+    books: [{ id: "sgk-kntt", title: "Test", pageCount: 1, sha256: "00" }],
+    questions: [],
+    equations: [],
+    figures: [
+      {
+        id: "f1",
+        book: "sgk-kntt",
+        page: 91,
+        label: "Hình 21.2",
+        image: { file: "sgk-kntt/verified-figures/f1.png", width: 100, height: 100, page: 91 },
+        status: "ok",
+        colorStatus: "ok",
+      },
+    ],
+    pages: [
+      {
+        book: "sgk-kntt",
+        page: 91,
+        file: "sgk-kntt/pages/page-091.png",
+        width: 800,
+        height: 1100,
+        text: "",
+        role: "body",
+      },
+    ],
+    coverage: { sourcePages: 1, ocrPages: 1, embeddedImages: 1, questionsReviewed: 0 },
+    counts: {},
+  });
+  assert.equal(
+    allowedAssets.has("sgk-kntt/pages/page-091.png"),
+    false,
+    "indexedBookAssetFiles must never expose full-page textbook scans"
+  );
+  assert.equal(allowedAssets.has("sgk-kntt/verified-figures/f1.png"), true);
+
+  // 2. Exact 7 isotopes of Bảng 23.2 (SGK tr. 108)
+  assert.equal(SGK_TABLE_23_2_SAMPLES.length, 7);
+  assert.deepEqual(
+    SGK_TABLE_23_2_SAMPLES.map((item) => `${item.sym}-${item.a}`),
+    ["C-14", "I-131", "O-15", "Po-210", "Ra-226", "Rn-219", "U-235"]
+  );
+
+  // 3. B24 Hình 24.2 dry storage cask & Hình 24.5 (a) irradiated on left
+  const b24 = getChapter4Lesson("B24");
+  const b24Control = b24.sections.find((s) => s.id === "b24-reactor-control");
+  assert.ok(b24Control);
+  assert.ok(
+    !b24Control.teacherGuide.commonMisconceptions.includes("ngâm sâu hàng mét dưới bể nước"),
+    "Hình 24.2 must describe the dry storage cask (thép mạ nickel & than chì), not a water pool"
+  );
+  const b24ActSrc = fs.readFileSync(
+    path.join(ROOT, "src/components/physics/B24Activities.tsx"),
+    "utf8"
+  );
+  const idxA = b24ActSrc.indexOf("(a) Đã chiếu xạ tia γ");
+  const idxB = b24ActSrc.indexOf("(b) Vải thiều thường");
+  assert.ok(idxA > 0 && idxB > idxA, "Hình 24.5 must place (a) irradiated lychee before (b) untreated lychee");
+
+  // 4. B25 DataProcessLab unspoiled T check & Problem 6b ~46%
+  const b25LabSrc = fs.readFileSync(
+    path.join(ROOT, "src/components/physics/B25DataProcessLab.tsx"),
+    "utf8"
+  );
+  assert.ok(
+    b25LabSrc.includes("halfLife >= 38 && halfLife <= 46") && b25LabSrc.includes("data-traced"),
+    "B25DataProcessLab must validate T in [38, 46] s and support bidirectional table-graph tracing"
+  );
+  const b25BodySrc = fs.readFileSync(
+    path.join(ROOT, "src/components/learning/Chapter4SectionBody.tsx"),
+    "utf8"
+  );
+  assert.ok(
+    b25BodySrc.includes("46%") && b25BodySrc.includes("t₁ + 60"),
+    "Chapter4SectionBody B25 Problem 6b must ask for ~46% and explain general t1, t2 = t1 + 60 min injection times"
+  );
+});
+

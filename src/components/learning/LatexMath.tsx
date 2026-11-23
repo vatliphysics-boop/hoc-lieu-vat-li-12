@@ -32,6 +32,7 @@ export function LatexMath({
           padding: "4px 0",
           ...style,
         }}
+        suppressHydrationWarning
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
@@ -41,6 +42,7 @@ export function LatexMath({
     <span
       className={`latex-math-inline ${className}`}
       style={style}
+      suppressHydrationWarning
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

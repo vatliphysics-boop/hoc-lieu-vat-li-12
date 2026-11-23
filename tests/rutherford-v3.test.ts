@@ -461,9 +461,13 @@ test("Rutherford V3 SGK Hình 21.2 upgrades: parts, 3D geometry, raycast, observ
     "../src/simulations-v3/apparatus/rutherford/inquiry"
   );
 
-  await t.test("parts.ts includes SGK Hình 21.2 symbols R, P, D, S, M, G and 5 core buttons", () => {
+  const { sampleEqualTimeFlashCount } = await import(
+    "../src/simulations-v3/apparatus/rutherford/parts"
+  );
+
+  await t.test("parts.ts includes SGK Hình 21.2 symbols R, P (base stand), D, S, M, G and 5 core buttons", () => {
     assert.ok(getRutherfordComponent("alpha-source")?.role.includes("R"));
-    assert.ok(getRutherfordComponent("collimator")?.role.includes("P"));
+    assert.ok(getRutherfordComponent("base-platform")?.role.includes("P"));
     assert.ok(getRutherfordComponent("gold-foil")?.role.includes("D"));
     assert.ok(getRutherfordComponent("scintillation-screen")?.role.includes("S"));
     assert.ok(getRutherfordComponent("rotating-microscope")?.role.includes("M"));
@@ -472,6 +476,27 @@ test("Rutherford V3 SGK Hình 21.2 upgrades: parts, 3D geometry, raycast, observ
     assert.strictEqual(CORE_SGK_21_2_PARTS.length, 5);
     const symbols = CORE_SGK_21_2_PARTS.map((p) => p.sgkSymbol);
     assert.deepStrictEqual(symbols, ["R", "D", "S", "M", "G"]);
+  });
+
+  await t.test("sampleEqualTimeFlashCount enforces equal 10s duration, repeatability per seed, and ~10⁻⁴ statistical trend", () => {
+    const pos1Seed1 = sampleEqualTimeFlashCount(0, 1);
+    const pos1Seed1Repeat = sampleEqualTimeFlashCount(0, 1);
+    assert.deepStrictEqual(pos1Seed1, pos1Seed1Repeat);
+    assert.strictEqual(pos1Seed1.durationSec, 10);
+    assert.strictEqual(pos1Seed1.expectedCount, 10000);
+
+    let sumPos1 = 0;
+    let sumPos2 = 0;
+    const seenPos2Counts = new Set<number>();
+    for (let s = 1; s <= 200; s++) {
+      sumPos1 += sampleEqualTimeFlashCount(0, s).count;
+      const c2 = sampleEqualTimeFlashCount(140, s).count;
+      sumPos2 += c2;
+      seenPos2Counts.add(c2);
+    }
+    const meanRatio = sumPos2 / sumPos1;
+    assert.ok(meanRatio > 0.00004 && meanRatio < 0.0002, `Expected statistical ratio ~1e-4, got ${meanRatio}`);
+    assert.ok(seenPos2Counts.size >= 3, "Single 10s trials at Position (2) must show Poisson random fluctuation");
   });
 
   await t.test("geometry.ts builds 11 distinct components without duplicating meshes and hides chamber-window in cutaway", () => {

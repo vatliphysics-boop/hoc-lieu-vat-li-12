@@ -49,7 +49,7 @@ const MODEL_META: Record<
     fullTitle: "Mô hình đám mây electron (Hydrogen 1s)",
     yearTag: "Hiện đại · Lát cắt xác suất z = 0",
     summaryCaption:
-      "Hạt nhân +1e rất nhỏ ở tâm; không vẽ quỹ đạo cố định mà dùng mật độ chấm đo vị trí để biểu diễn mật độ xác suất tìm thấy electron.",
+      "Hạt nhân +1e rất nhỏ ở tâm; mỗi chấm xanh biểu diễn kết quả một lần ghi nhận vị trí của duy nhất 1 electron (mật độ chấm là mật độ xác suất có mặt, KHÔNG phải vệt đường bay chuyển động hay có nhiều electron).",
   },
 };
 

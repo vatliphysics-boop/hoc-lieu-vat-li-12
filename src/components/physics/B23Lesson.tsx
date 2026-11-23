@@ -124,9 +124,9 @@ export function B23Lesson() {
         </section>
 
         <section id="van-dung" className={styles.section}>
-          <h2>Vận dụng: Định tuổi mẫu cổ vật bằng đồng vị ¹⁴₆C</h2>
+          <h2>Vận dụng (Ô Em có biết — SGK tr. 109–110): Định tuổi mẫu cổ vật bằng đồng vị ¹⁴₆C</h2>
           <p className={styles.lead}>
-            Áp dụng hệ thức độ phóng xạ theo chu kì bán rã T = 5 730 năm vào bài toán khảo cổ học (SGK tr. 113).
+            Áp dụng hệ thức độ phóng xạ theo chu kì bán rã T = 5 730 năm vào bài toán khảo cổ học (Ô đọc thêm Em có biết, SGK tr. 109–110).
           </p>
           <Carbon14Dating onProgress={(v) => mark("c14", v)} />
 

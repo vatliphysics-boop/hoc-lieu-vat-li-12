@@ -1,5 +1,4 @@
 "use client";
-/* eslint-disable @next/next/no-img-element -- Scientific apparatus capture and explicit dimensions */
 
 import { useState } from "react";
 import {
@@ -74,10 +73,10 @@ const B21_APPARATUS_PARTS: readonly {
 
 const B21_APPARATUS_ROLE_OPTIONS = [
   { value: "", label: "— Chọn đúng vai trò trên Hình 21.2 —" },
-  { value: "emit_alpha", label: "Phát chùm hạt α mang điện dương đi qua khe chuẩn trực" },
+  { value: "emit_alpha", label: "Phát chùm hạt α mang điện dương bắn vào lá vàng D" },
   { value: "scatter_target", label: "Bia tán xạ bằng vàng rất mỏng (dày cỡ 4·10⁻⁷ m) đặt tại tâm" },
-  { value: "flash_screen", label: "Tạo đốm sáng nhấp nháy mỗi khi có một hạt α đập vào" },
-  { value: "observer_microscope", label: "Nơi người quan sát nhìn qua, xoay từ vị trí (1) sang vị trí (2)" },
+  { value: "flash_screen", label: "Màn phủ chất huỳnh quang phát đốm sáng rồi tắt khi hạt α đập vào" },
+  { value: "observer_microscope", label: "Nơi người quan sát nhìn qua, di chuyển từ vị trí (1) đến vị trí (2)" },
 ] as const;
 
 const B21_PRE_SELF_CHECK_OPTIONS = [
@@ -520,7 +519,7 @@ export function Chapter4SectionBody({
           ==================================================================== */}
       {section.kind === "b21_pre_rutherford" && (
         <div>
-          {/* BƯỚC 1: Câu hỏi mở đầu gắn với Hình 21.1 (Mô hình nguyên tử Thomson) */}
+          {/* BƯỚC 1: Mô hình nguyên tử ban đầu từ phép tương tự bánh ngọt có mận khô (Hình 21.1 · SGK tr. 91) */}
           <section
             aria-labelledby="b21-hinh-21-1-heading"
             style={{
@@ -531,7 +530,7 @@ export function Chapter4SectionBody({
             }}
           >
             <h4 id="b21-hinh-21-1-heading" style={{ margin: "0 0 10px", fontSize: "16px" }}>
-              Bước 1 · Tình huống mở đầu từ mô hình nguyên tử ban đầu (Hình 21.1 · SGK tr. 91)
+              Bước 1 · Mô hình nguyên tử đầu tiên &amp; phép tương tự Hình 21.1 (SGK tr. 91)
             </h4>
             <div
               style={{
@@ -551,38 +550,37 @@ export function Chapter4SectionBody({
                 }}
               >
                 <svg
-                  viewBox="0 0 320 200"
+                  viewBox="0 0 320 206"
                   width="320"
-                  height="200"
+                  height="206"
                   role="img"
-                  aria-label="Hình 21.1 Mô hình nguyên tử Thomson: hình cầu đường kính cỡ 10 mũ trừ 10 mét mang điện tích dương phân bố đều khắp thể tích và các electron mang điện âm nằm rải rác bên trong"
+                  aria-label="Sơ đồ hóa mô hình nguyên tử Thomson dựng từ phép tương tự bánh ngọt có mận khô ở Hình 21.1 SGK trang 91: hình cầu đường kính cỡ 10 mũ trừ 10 mét mang điện tích dương phân bố đều khắp không gian nguyên tử và các electron mang điện âm nằm rải rác bên trong"
                   style={{ width: "100%", maxWidth: "320px", height: "auto", display: "inline-block" }}
                 >
                   <defs>
                     <radialGradient id="b21ThomsonPosSphere" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#ffd7d9" />
-                      <stop offset="100%" stopColor="#ffb3b8" />
+                      <stop offset="0%" stopColor="#fde68a" />
+                      <stop offset="65%" stopColor="#fcd34d" />
+                      <stop offset="100%" stopColor="#f59e0b" />
                     </radialGradient>
                   </defs>
-                  {/* Khối cầu tích điện dương phân bố đều */}
                   <circle
                     cx="155"
-                    cy="96"
+                    cy="94"
                     r="68"
                     fill="url(#b21ThomsonPosSphere)"
-                    stroke="#da1e28"
+                    stroke="#b45309"
                     strokeWidth="2"
                   />
-                  {/* Dấu + phân bố đều khắp thể tích */}
                   {[
-                    [155, 48],
-                    [116, 68],
-                    [194, 68],
-                    [138, 96],
-                    [174, 96],
-                    [118, 124],
-                    [192, 124],
-                    [155, 144],
+                    [155, 46],
+                    [116, 66],
+                    [194, 66],
+                    [138, 94],
+                    [174, 94],
+                    [118, 122],
+                    [192, 122],
+                    [155, 142],
                   ].map(([cx, cy], idx) => (
                     <text
                       key={idx}
@@ -590,22 +588,21 @@ export function Chapter4SectionBody({
                       y={cy}
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fill="#a2191f"
+                      fill="#92400e"
                       fontSize="15"
                       fontWeight="700"
                     >
                       +
                     </text>
                   ))}
-                  {/* Các electron e⁻ nằm rải rác bên trong */}
                   {[
-                    [135, 66],
-                    [176, 66],
-                    [112, 96],
-                    [155, 96],
-                    [198, 96],
-                    [136, 126],
-                    [176, 126],
+                    [135, 64],
+                    [176, 64],
+                    [112, 94],
+                    [155, 94],
+                    [198, 94],
+                    [136, 124],
+                    [176, 124],
                   ].map(([ex, ey], idx) => (
                     <g key={idx}>
                       <circle cx={ex} cy={ey} r="9" fill="#0f62fe" />
@@ -622,189 +619,200 @@ export function Chapter4SectionBody({
                       </text>
                     </g>
                   ))}
-                  {/* Kích thước cỡ 10⁻¹⁰ m */}
-                  <line x1="87" y1="178" x2="223" y2="178" stroke="#525252" strokeWidth="1.4" />
-                  <line x1="87" y1="173" x2="87" y2="183" stroke="#525252" strokeWidth="1.4" />
-                  <line x1="223" y1="173" x2="223" y2="183" stroke="#525252" strokeWidth="1.4" />
-                  <text x="155" y="194" textAnchor="middle" fill="#161616" fontSize="12" fontWeight="700">
-                    Đường kính nguyên tử ~ 10⁻¹⁰ m
+                  <line x1="87" y1="176" x2="223" y2="176" stroke="#525252" strokeWidth="1.4" />
+                  <line x1="87" y1="171" x2="87" y2="181" stroke="#525252" strokeWidth="1.4" />
+                  <line x1="223" y1="171" x2="223" y2="181" stroke="#525252" strokeWidth="1.4" />
+                  <text x="155" y="194" textAnchor="middle" fill="#161616" fontSize="11.5" fontWeight="700">
+                    Cỡ nguyên tử ~ 10⁻¹⁰ m · (+) chiếm gần trọn thể tích
                   </text>
                 </svg>
-                <figcaption style={{ fontSize: "12.5px", color: "#525252", marginTop: "6px" }}>
-                  <strong>Hình 21.1:</strong> Mô hình nguyên tử Thomson — điện tích dương phân bố đều khắp thể tích hình cầu (<code>~10⁻¹⁰ m</code>), các electron (<code>e⁻</code>) nằm bên trong.
+                <figcaption style={{ fontSize: "12.5px", color: "#525252", marginTop: "6px", lineHeight: 1.5 }}>
+                  <strong>Sơ đồ mô hình Thomson (dựng từ phép tương tự Hình 21.1 SGK tr. 91):</strong> Trong SGK, Hình 21.1 là ảnh chụp bánh ngọt có mận khô — phần bánh biểu diễn phần mang điện dương nặng gần bằng nguyên tử và chiếm gần trọn không gian, còn các mẩu mận khô biểu diễn các electron (<code>e⁻</code>). <em>(Sơ đồ quy ước định tính, không dùng đo kích thước electron.)</em>
                 </figcaption>
               </figure>
 
               <div>
                 <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
-                  Đầu thế kỉ XX, trước thí nghiệm của Rutherford, các nhà vật lí hình dung nguyên tử theo <strong>mô hình Thomson (Hình 21.1)</strong>: toàn bộ điện tích dương trải đều loãng trong khắp quả cầu nguyên tử cỡ <code>10⁻¹⁰ m</code>, xen kẽ các hạt electron <code>e⁻</code> rất nhẹ để nguyên tử trung hòa điện.
+                  <strong>[Nội dung SGK tr. 91]:</strong> Trước thí nghiệm của Ernest Rutherford (1911), mô hình nguyên tử đầu tiên hình dung phần mang điện tích dương phân bố khắp không gian nguyên tử (cỡ <code>10⁻¹⁰ m</code>), còn các electron mang điện âm rất nhẹ nằm rải rác bên trong.
                 </p>
                 <div
                   style={{
                     padding: "12px 14px",
                     background: "#edf5ff",
                     borderLeft: "4px solid #0f62fe",
-                    fontSize: "14.5px",
+                    fontSize: "14px",
                     lineHeight: 1.55,
                   }}
                 >
                   <strong style={{ color: "#002d9c", display: "block", marginBottom: "4px" }}>
-                    Câu hỏi mở đầu cần suy nghĩ:
+                    Câu hỏi dự đoán mở đầu (nhiệm vụ do nhóm thiết kế xây dựng):
                   </strong>
                   <em>
-                    “Nếu điện tích dương trải rộng như vậy, em dự đoán đường đi của hạt alpha thay đổi ra sao?”
+                    “Nếu điện tích dương trải đều khắp nguyên tử như trên, khi bắn chùm hạt alpha (α, mang điện dương) vào lá vàng rất mỏng thì đường đi của các hạt α sẽ như thế nào?”
                   </em>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* BƯỚC 2: Tư liệu quan sát Hình 21.2a (phối cảnh) – Hình 21.2b (mặt cắt chuẩn SGK) & Video bổ trợ */}
+          {/* BƯỚC 2: Bố trí bộ thí nghiệm Hình 21.2a – 21.2b (CHƯA tiết lộ kết quả đếm đốm sáng) & Nhận diện bộ phận */}
           <section
             aria-labelledby="b21-hinh-21-2-heading"
-            style={{ marginBottom: "18px" }}
+            style={{
+              border: "1px solid #d0d7de",
+              background: "#ffffff",
+              padding: "16px",
+              marginBottom: "18px",
+            }}
           >
-            <h4 id="b21-hinh-21-2-heading" style={{ margin: "0 0 10px", fontSize: "16px" }}>
-              Bước 2 · Quan sát thiết bị thí nghiệm tán xạ hạt alpha (Hình 21.2a &amp; Hình 21.2b · SGK tr. 91–92)
+            <h4 id="b21-hinh-21-2-heading" style={{ margin: "0 0 6px", fontSize: "16px" }}>
+              Bước 2 · Nhận diện bố trí thí nghiệm tán xạ hạt alpha (Hình 21.2a &amp; 21.2b · SGK tr. 91) ({matchedApparatusCount}/4 đúng)
             </h4>
-
-            <div
-              style={{
-                padding: "10px 14px",
-                background: "#fcf4d6",
-                border: "1px solid #f1c21b",
-                borderLeft: "4px solid #8e6a00",
-                marginBottom: "14px",
-                fontSize: "14px",
-                lineHeight: 1.55,
-              }}
-            >
-              <strong>Chỉ dẫn quan sát trọng tâm:</strong>{" "}
-              <em>
-                “Hãy để ý vị trí đốm sáng trên màn S khi kính quan sát M chuyển từ vị trí (1) sang vị trí (2)”
-              </em>
-              .
-            </div>
+            <p style={{ margin: "0 0 12px", fontSize: "13.5px", color: "#525252", lineHeight: 1.55 }}>
+              Quan sát hai sơ đồ bố trí dưới đây (chưa bật kết quả thí nghiệm) để chỉ đúng từng bộ phận <strong>R, D, S, M, G, P</strong> trước khi ghi dự đoán ở Bước 3:
+            </p>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                 gap: "14px",
                 marginBottom: "14px",
               }}
             >
-              {/* Hình 21.2a: Phối cảnh bộ thí nghiệm Rutherford V3 */}
-              <figure className={styles.darkBenchStage} style={{ margin: 0 }}>
-                <img
-                  src="/illustrations/rutherford-v3-apparatus.png"
-                  alt="Hình 21.2a phối cảnh bộ thí nghiệm tán xạ hạt alpha Rutherford V3: hộp chân không G đặt trên chân đế P, bên trong có nguồn phát hạt alpha R, lá vàng mỏng D ở tâm, màn huỳnh quang S và kính hiển vi M"
-                  width={960}
-                  height={480}
-                  style={{
-                    width: "100%",
-                    height: "240px",
-                    objectFit: "cover",
-                    display: "block",
-                  }}
-                />
-                <figcaption className={styles.darkBenchCaption}>
-                  <strong>Hình 21.2a (Phối cảnh bộ thiết bị Rutherford V3):</strong> Bên trong hộp chân không <strong>G</strong> đặt trên chân đế <strong>P</strong> gồm nguồn phát hạt α <strong>R</strong>, lá vàng mỏng <strong>D</strong> (<Nuclide sym="Au" a={197} z={79} />, dày <code>4·10⁻⁷ m</code>), màn huỳnh quang <strong>S</strong> và kính hiển vi <strong>M</strong>.
-                </figcaption>
-              </figure>
-
-              {/* Hình 21.2b: Sơ đồ mặt cắt chuẩn SGK */}
+              {/* Sơ đồ 21.2a: Phối cảnh có nhãn chỉ rõ R, D, S, M, G, P đọc rõ trên màn hình 390px */}
               <figure className={styles.darkBenchStage} style={{ margin: 0 }}>
                 <svg
-                  viewBox="0 0 440 240"
-                  width="440"
+                  viewBox="0 0 420 240"
+                  width="420"
                   height="240"
                   role="img"
-                  aria-label="Hình 21.2b sơ đồ mặt cắt bộ thí nghiệm tán xạ hạt alpha SGK: nguồn R chiếu chùm hạt alpha tới lá vàng D đặt trong hộp chân không G trên chân đế P; màn phát quang S và kính hiển vi M xoay từ vị trí (1) đối diện nguồn sang vị trí (2) lệch trên 90 độ với tần suất đốm sáng ít hơn cỡ 10 mũ 4 lần"
-                  style={{ width: "100%", height: "240px", display: "block", background: "#0b1220" }}
+                  aria-label="Sơ đồ phối cảnh đối chiếu Hình 21.2a SGK trang 91: hộp chân không G đặt trên chân đế P, bên trong có nguồn phát hạt alpha R ở bên phải bắn vào lá vàng mỏng D ở giữa, kính phủ chất huỳnh quang S và kính hiển vi M quan sát từ bên ngoài"
+                  style={{ width: "100%", height: "auto", display: "block", background: "#0b1220" }}
                 >
-                  {/* Chân đế P */}
-                  <rect x="120" y="214" width="200" height="14" rx="2" fill="#475569" stroke="#94a3b8" strokeWidth="1.2" />
-                  <rect x="206" y="196" width="28" height="18" fill="#64748b" />
-                  <text x="104" y="225" fill="#e2e8f0" fontSize="13" fontWeight="700">
-                    P
+                  {/* Chân đế P (đúng vị trí Hình 21.2a SGK) */}
+                  <ellipse cx="222" cy="218" rx="64" ry="12" fill="#334155" stroke="#94a3b8" strokeWidth="1.5" />
+                  <rect x="210" y="182" width="24" height="34" fill="#475569" stroke="#94a3b8" strokeWidth="1.2" />
+                  <line x1="234" y1="204" x2="274" y2="204" stroke="#cbd5e1" strokeWidth="1.2" />
+                  <text x="280" y="208" fill="#f8fafc" fontSize="13" fontWeight="700">
+                    P (chân đế)
                   </text>
 
-                  {/* Hộp chân không G */}
-                  <circle
-                    cx="220"
-                    cy="108"
-                    r="88"
-                    fill="#121b2e"
-                    stroke="#64748b"
-                    strokeWidth="2.5"
+                  {/* Thân hộp chân không hình trụ G (mở mặt cắt phía trước như Hình 21.2a) */}
+                  <ellipse cx="222" cy="64" rx="108" ry="26" fill="#1e293b" stroke="#94a3b8" strokeWidth="1.8" />
+                  <path
+                    d="M 114 64 L 114 156 A 108 26 0 0 0 330 156 L 330 64"
+                    fill="#111b2e"
+                    stroke="#94a3b8"
+                    strokeWidth="1.8"
                   />
-                  <text x="142" y="42" fill="#cbd5e1" fontSize="13" fontWeight="700">
-                    G (chân không)
+                  {/* Khung cửa cắt bên trong hộp G */}
+                  <rect x="150" y="78" width="154" height="74" rx="6" fill="#080e1a" stroke="#475569" strokeWidth="1.4" />
+                  <text x="162" y="169" fill="#cbd5e1" fontSize="13" fontWeight="700">
+                    G (hộp chân không)
                   </text>
 
-                  {/* Vòng màn huỳnh quang S */}
-                  <circle
-                    cx="220"
-                    cy="108"
-                    r="72"
-                    fill="none"
-                    stroke="#42be65"
-                    strokeWidth="3"
-                    strokeDasharray="6 3"
-                  />
-                  <text x="242" y="50" fill="#86efac" fontSize="12.5" fontWeight="700">
-                    S (màn ZnS)
+                  {/* Nguồn phát R (bên phải như Hình 21.2a SGK) */}
+                  <rect x="266" y="102" width="32" height="24" rx="3" fill="#64748b" stroke="#fbbf24" strokeWidth="1.5" />
+                  <text x="282" y="96" textAnchor="middle" fill="#fde047" fontSize="13" fontWeight="700">
+                    R
                   </text>
 
-                  {/* Nguồn hạt alpha R trong khối chì */}
-                  <rect x="48" y="92" width="58" height="32" rx="3" fill="#334155" stroke="#cbd5e1" strokeWidth="1.5" />
-                  <text x="64" y="113" fill="#ffffff" fontSize="13" fontWeight="700">
-                    R (α)
+                  {/* Tia mảnh định hướng từ R tới lá vàng D */}
+                  <line x1="266" y1="114" x2="224" y2="114" stroke="#facc15" strokeWidth="2" strokeDasharray="4 3" />
+
+                  {/* Lá vàng mỏng D ở tâm */}
+                  <rect x="219" y="92" width="5" height="44" fill="#fbbf24" />
+                  <line x1="221" y1="136" x2="221" y2="150" stroke="#94a3b8" strokeWidth="2" />
+                  <text x="222" y="87" textAnchor="middle" fill="#fde047" fontSize="13" fontWeight="700">
+                    D
                   </text>
 
-                  {/* Chùm tia alpha tới lá vàng D */}
-                  <line x1="106" y1="108" x2="216" y2="108" stroke="#facc15" strokeWidth="2.6" />
-                  {/* Đa số đi thẳng tới vị trí (1) */}
-                  <line x1="224" y1="108" x2="290" y2="108" stroke="#facc15" strokeWidth="2.8" />
-                  <circle cx="292" cy="108" r="5.5" fill="#4ade80" />
-                  {/* Tia lệch nhỏ */}
-                  <line x1="222" y1="108" x2="286" y2="82" stroke="#facc15" strokeWidth="1.4" strokeDasharray="4 2" />
-                  {/* Tia bật ngược góc > 90° về vị trí (2) */}
-                  <line x1="218" y1="108" x2="164" y2="62" stroke="#fb7185" strokeWidth="1.8" strokeDasharray="4 3" />
-                  <circle cx="164" cy="62" r="4.5" fill="#4ade80" />
-
-                  {/* Lá vàng mỏng D tại tâm */}
-                  <line x1="220" y1="84" x2="220" y2="132" stroke="#fbbf24" strokeWidth="4" />
-                  <text x="202" y="148" fill="#fde047" fontSize="12" fontWeight="700">
-                    D (4·10⁻⁷ m)
+                  {/* Màn S có phủ chất huỳnh quang trước đầu kính M */}
+                  <ellipse cx="164" cy="114" rx="8" ry="20" fill="#14532d" stroke="#4ade80" strokeWidth="2" />
+                  <text x="182" y="119" fill="#86efac" fontSize="13" fontWeight="700">
+                    S
                   </text>
 
-                  {/* Kính hiển vi M ở vị trí (1) đối diện nguồn */}
-                  <rect x="296" y="98" width="44" height="20" rx="2" fill="#0f62fe" stroke="#93c5fd" strokeWidth="1.3" />
-                  <text x="307" y="112" fill="#ffffff" fontSize="12" fontWeight="700">
-                    M (1)
-                  </text>
-                  <text x="346" y="106" fill="#86efac" fontSize="11" fontWeight="700">
-                    Đa số hạt α
-                  </text>
-                  <text x="346" y="120" fill="#cbd5e1" fontSize="10.5">
-                    đốm sáng dày
-                  </text>
-
-                  {/* Kính hiển vi M xoay sang vị trí (2) lệch > 90° */}
-                  <g transform="translate(152, 50) rotate(-138)">
-                    <rect x="0" y="-9" width="38" height="18" rx="2" fill="#1e40af" stroke="#93c5fd" strokeWidth="1.3" strokeDasharray="3 2" />
-                  </g>
-                  <text x="58" y="34" fill="#fda4af" fontSize="11.5" fontWeight="700">
-                    M ở vị trí (2) (&gt; 90°)
-                  </text>
-                  <text x="58" y="49" fill="#f8fafc" fontSize="11">
-                    Ít hơn (1) cỡ 10⁴ lần
+                  {/* Ống kính hiển vi M (bên trái như Hình 21.2a SGK) */}
+                  <rect x="64" y="103" width="92" height="22" rx="4" fill="#eab308" stroke="#fef08a" strokeWidth="1.4" />
+                  <ellipse cx="64" cy="114" rx="6" ry="11" fill="#1e293b" stroke="#fef08a" strokeWidth="1.4" />
+                  <text x="108" y="95" textAnchor="middle" fill="#fef08a" fontSize="13.5" fontWeight="700">
+                    M (kính hiển vi)
                   </text>
                 </svg>
                 <figcaption className={styles.darkBenchCaption}>
-                  <strong>Hình 21.2b (Sơ đồ mặt cắt SGK):</strong> Nguồn <strong>R</strong> chiếu chùm hạt α vào lá vàng <strong>D</strong>. Khi kính hiển vi <strong>M</strong> chuyển từ <strong>vị trí (1)</strong> sang <strong>vị trí (2)</strong> (lệch <code>&gt; 90°</code>), trên màn <strong>S</strong> vẫn xuất hiện đốm sáng nhưng tần suất <strong>ít hơn tại (1) cỡ <code>10⁴</code> lần</strong>.
+                  <strong>a) Sơ đồ phối cảnh (đối chiếu Hình 21.2a SGK tr. 91):</strong> Nguồn <strong>R</strong> bắn chùm hạt α vào lá vàng mỏng <strong>D</strong> (<code>~4·10⁻⁷ m</code>) đặt trong hộp chân không <strong>G</strong> trên chân đế <strong>P</strong>; kính hiển vi <strong>M</strong> quan sát màn huỳnh quang <strong>S</strong>.
+                </figcaption>
+              </figure>
+
+              {/* Sơ đồ 21.2b: Mặt cắt giữ đúng hướng SGK tr. 91 (R bên phải, (1) bên trái, (2) lệch > 90° bên phải) — KHÔNG lộ kết quả */}
+              <figure className={styles.darkBenchStage} style={{ margin: 0 }}>
+                <svg
+                  viewBox="0 0 420 240"
+                  width="420"
+                  height="240"
+                  role="img"
+                  aria-label="Sơ đồ mặt cắt đối chiếu Hình 21.2b SGK trang 91: nguồn phát hạt alpha R ở bên phải chiếu chùm hạt sang trái vào lá vàng D ở tâm hộp chân không; vòng màn S bao quanh; kính hiển vi M có thể di chuyển từ vị trí (1) đối diện nguồn ở bên trái sang vị trí (2) ở phía lệch hơn 90 độ bên dưới phải"
+                  style={{ width: "100%", height: "auto", display: "block", background: "#0b1220" }}
+                >
+                  {/* Thành hộp chân không */}
+                  <circle cx="205" cy="116" r="88" fill="#111b2e" stroke="#94a3b8" strokeWidth="2.4" />
+                  <text x="205" y="20" textAnchor="middle" fill="#e2e8f0" fontSize="12.5" fontWeight="700">
+                    Chân không (G)
+                  </text>
+
+                  {/* Vòng màn phủ chất huỳnh quang S */}
+                  <circle cx="205" cy="116" r="74" fill="none" stroke="#4ade80" strokeWidth="2.8" strokeDasharray="6 3" />
+                  <line x1="94" y1="154" x2="140" y2="154" stroke="#86efac" strokeWidth="1.2" />
+                  <text x="78" y="158" fill="#86efac" fontSize="13" fontWeight="700">
+                    S
+                  </text>
+
+                  {/* Nguồn phát hạt alpha R ở bên phải (đúng hướng Hình 21.2b SGK) */}
+                  <path d="M 262 102 L 280 102 L 280 130 L 262 130 L 262 122 L 272 122 L 272 110 L 262 110 Z" fill="#38bdf8" stroke="#bae6fd" strokeWidth="1.2" />
+                  <text x="260" y="92" fill="#bae6fd" fontSize="13" fontWeight="700">
+                    R
+                  </text>
+                  <text x="304" y="112" fill="#e2e8f0" fontSize="11.5" fontWeight="600">
+                    Nguồn phát
+                  </text>
+                  <text x="304" y="127" fill="#e2e8f0" fontSize="11.5" fontWeight="600">
+                    hạt alpha
+                  </text>
+
+                  {/* Chùm tia alpha đi từ R (phải) tới lá vàng D (giữa) */}
+                  <line x1="270" y1="113" x2="208" y2="113" stroke="#f87171" strokeWidth="1.8" />
+                  <line x1="270" y1="119" x2="208" y2="119" stroke="#f87171" strokeWidth="1.8" />
+                  <polygon points="214,116 222,111 222,121" fill="#f87171" />
+
+                  {/* Lá vàng mỏng D ở tâm */}
+                  <line x1="205" y1="90" x2="205" y2="142" stroke="#facc15" strokeWidth="4" />
+                  <text x="192" y="84" fill="#fde047" fontSize="13" fontWeight="700">
+                    D
+                  </text>
+
+                  {/* Đánh dấu vị trí (1) đối diện nguồn R (bên trái) và vị trí (2) lệch > 90° (dưới phải) */}
+                  <circle cx="131" cy="116" r="5" fill="none" stroke="#fef08a" strokeWidth="2" />
+                  <text x="80" y="120" fill="#fef08a" fontSize="12.5" fontWeight="700">
+                    (1) đối diện R
+                  </text>
+
+                  <circle cx="258" cy="168" r="5" fill="none" stroke="#fda4af" strokeWidth="2" />
+                  <text x="274" y="176" fill="#fda4af" fontSize="12.5" fontWeight="700">
+                    (2) lệch &gt; 90°
+                  </text>
+
+                  {/* Kính hiển vi M đang xoay trên cung từ (1) sang (2) */}
+                  <g transform="translate(174, 183) rotate(114)">
+                    <rect x="0" y="-8" width="38" height="16" rx="2" fill="#eab308" stroke="#fef08a" strokeWidth="1.2" />
+                  </g>
+                  <text x="150" y="226" fill="#fef08a" fontSize="13" fontWeight="700">
+                    M (xoay từ (1) đến (2))
+                  </text>
+                </svg>
+                <figcaption className={styles.darkBenchCaption}>
+                  <strong>b) Sơ đồ mặt cắt góc đo (đối chiếu Hình 21.2b SGK tr. 91):</strong> Kính hiển vi <strong>M</strong> di chuyển dọc màn <strong>S</strong> từ <strong>vị trí (1)</strong> (đối diện nguồn phát <strong>R</strong>) sang <strong>vị trí (2)</strong> (lệch hơn <code>90°</code> về phía nguồn). <em>(Chiều trái/phải chỉ phụ thuộc góc đặt mắt nhìn thiết bị.)</em>
                 </figcaption>
               </figure>
             </div>
@@ -814,50 +822,94 @@ export function Chapter4SectionBody({
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
                 gap: "12px",
-                marginBottom: "14px",
               }}
             >
-              <div style={{ border: "1px solid #a6c8ff", background: "#edf5ff", padding: "12px 14px" }}>
-                <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
-                  Lớp 1 · Dấu hiệu quan sát trực tiếp (Thực nghiệm)
-                </strong>
-                <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
-                  Mắt đặt sau kính hiển vi <strong>M</strong> chỉ nhìn thấy <strong>các đốm sáng lóe lên trên màn huỳnh quang S</strong> mỗi khi một hạt α đập tới màn.
-                </p>
-              </div>
-              <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
-                <strong style={{ display: "block", color: "#161616", marginBottom: "4px" }}>
-                  Lớp 2 · Đường quỹ đạo (Mô hình giải thích)
-                </strong>
-                <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
-                  Ta <strong>không nhìn thấy đường bay của hạt α</strong>. Các tia vẽ trên sơ đồ là <em>mô hình quỹ đạo</em> dùng để suy luận điều gì đã xảy ra bên trong lá vàng <strong>D</strong>.
-                </p>
-              </div>
+              {B21_APPARATUS_PARTS.map((part) => {
+                const selectedRole = apparatusRoles[part.code] ?? "";
+                const isCorrect = selectedRole === part.correctRole;
+                return (
+                  <div
+                    key={part.code}
+                    style={{
+                      padding: "10px 12px",
+                      border: selectedRole
+                        ? isCorrect
+                          ? "1px solid #198038"
+                          : "1px solid #da1e28"
+                        : "1px solid #e0e0e0",
+                      background: selectedRole
+                        ? isCorrect
+                          ? "#defbe6"
+                          : "#fff1f1"
+                        : "#fafafa",
+                    }}
+                  >
+                    <label
+                      htmlFor={`b21-part-${part.code}`}
+                      style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+                    >
+                      {part.label}
+                    </label>
+                    <select
+                      id={`b21-part-${part.code}`}
+                      value={selectedRole}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const nextRoles = {
+                          ...apparatusRoles,
+                          [part.code]: val,
+                        };
+                        patchNotebook((cur) => ({
+                          ...cur,
+                          preClassWork: {
+                            ...cur.preClassWork,
+                            apparatusRoles: {
+                              ...cur.preClassWork?.apparatusRoles,
+                              [part.code]: val,
+                            },
+                          },
+                        }));
+                        if (isB21PreClassAllComplete(notebook, nextRoles)) {
+                          onMarkSectionComplete(section.id, true);
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        minHeight: "40px",
+                        padding: "6px 8px",
+                        border: "1px solid #8d8d8d",
+                        background: "#ffffff",
+                        fontSize: "13.5px",
+                        color: "#161616",
+                      }}
+                    >
+                      {B21_APPARATUS_ROLE_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    {selectedRole && (
+                      <small
+                        style={{
+                          display: "block",
+                          marginTop: "6px",
+                          fontWeight: 600,
+                          color: isCorrect ? "#198038" : "#b42332",
+                        }}
+                      >
+                        {isCorrect
+                          ? `✓ Đúng vai trò của kí hiệu ${part.code}.`
+                          : `Chưa khớp: hãy đối chiếu lại kí hiệu ${part.code} trên hai sơ đồ Hình 21.2 ở trên.`}
+                      </small>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-
-            {/* Khối tư liệu video sẵn có hỗ trợ Pha 1 + thông báo phương án không phụ thuộc video */}
-            {b21VideoLesson && (
-              <div
-                style={{
-                  border: "1px solid #d0d7de",
-                  background: "#f8fafc",
-                  padding: "12px 14px",
-                }}
-              >
-                <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.55 }}>
-                  <strong>Tư liệu video bổ trợ Pha 1 (có thuyết minh &amp; phụ đề tiếng Việt):</strong>{" "}
-                  Khi xem, hãy chú ý cách chùm hạt α đi từ nguồn <strong>R</strong> tới lá vàng <strong>D</strong> và sự chênh lệch số đốm sáng giữa vị trí <strong>(1)</strong> và vị trí <strong>(2)</strong>.{" "}
-                  <span style={{ color: "#002d9c", fontWeight: 600 }}>
-                    Nếu chưa xem video, học sinh vẫn hoàn thành trọn vẹn Pha 1 từ sơ đồ Hình 21.1–21.2 và dữ liệu thật ngay trên trang
-                  </span>{" "}
-                  (việc mở hay phát video không tự tính là hoàn thành bài).
-                </p>
-                <NuclearLessonVideo lesson={b21VideoLesson} />
-              </div>
-            )}
           </section>
 
-          {/* BƯỚC 3: Lưu nguyên dự đoán ban đầu + lí do */}
+          {/* BƯỚC 3: Lưu nguyên dự đoán ban đầu + lí do TRƯỚC khi xem kết quả thực nghiệm */}
           <section
             aria-labelledby="b21-pre-prediction-heading"
             style={{
@@ -868,10 +920,11 @@ export function Chapter4SectionBody({
             }}
           >
             <h4 id="b21-pre-prediction-heading" style={{ margin: "0 0 6px", fontSize: "16px" }}>
-              Bước 3 · Ghi và khóa dự đoán ban đầu kèm lí do
+              Bước 3 · Ghi và khóa dự đoán ban đầu kèm lí do (trước khi xem kết quả thí nghiệm)
             </h4>
             <p style={{ margin: "0 0 12px", fontSize: "14px", color: "#525252", lineHeight: 1.55 }}>
-              Từ câu hỏi mở đầu ở Hình 21.1, hãy chọn dự đoán của riêng em và nêu rõ lí do. <strong>Dự đoán chốt lần đầu tiên sẽ được giữ nguyên (kể cả khi đoán chưa khớp kết quả thí nghiệm)</strong> để em mang vào Pha 2 đối chiếu khoa học trên lớp.
+              Từ mô hình ở Bước 1 và bố trí thiết bị ở Bước 2, hãy chọn dự đoán của riêng em và nêu rõ lí do.{" "}
+              <strong>Dự đoán chốt lần đầu tiên được giữ nguyên (kể cả khi chưa khớp kết quả thí nghiệm)</strong> để mang vào Pha 2 đối chiếu khoa học trên lớp.
             </p>
 
             {lockedInitialPredictionLabel && (
@@ -948,7 +1001,7 @@ export function Chapter4SectionBody({
                 setPredReasonDraft(e.target.value);
                 setPredSavedMsg("");
               }}
-              placeholder="Ví dụ: Nếu điện tích dương trải đều khắp nguyên tử như Hình 21.1 thì lực đẩy tĩnh điện ở mọi chỗ đều yếu nên hạt α sẽ…"
+              placeholder="Ví dụ: Nếu điện tích dương trải đều khắp nguyên tử như phép tương tự Hình 21.1 thì lực đẩy tĩnh điện ở mọi chỗ đều yếu nên hạt α sẽ…"
             />
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", alignItems: "center", marginTop: "12px" }}>
@@ -976,7 +1029,7 @@ export function Chapter4SectionBody({
                   setPredSavedMsg(
                     lockedInitialChoiceId
                       ? "Đã cập nhật ghi chú dự đoán (dự đoán chốt lần đầu vẫn được giữ nguyên để đối chiếu ở Pha 2)."
-                      : "Đã khóa dự đoán ban đầu kèm lí do. Hãy hoàn thành tiếp Bước 4 và Bước 5 bên dưới để hoàn tất Pha 1!"
+                      : "Đã khóa dự đoán ban đầu kèm lí do. Hãy đối chiếu tiếp kết quả thực nghiệm và hoàn thành Bước 4 bên dưới!"
                   );
                 }}
               >
@@ -997,114 +1050,7 @@ export function Chapter4SectionBody({
             </div>
           </section>
 
-          {/* BƯỚC 4: Thao tác nhỏ có ý nghĩa — Nhận diện đúng vai trò 4 bộ phận cốt lõi R, D, S, M */}
-          <section
-            aria-labelledby="b21-pre-apparatus-heading"
-            style={{
-              border: "1px solid #d0d7de",
-              background: "#ffffff",
-              padding: "16px",
-              marginBottom: "18px",
-            }}
-          >
-            <h4 id="b21-pre-apparatus-heading" style={{ margin: "0 0 6px", fontSize: "16px" }}>
-              Bước 4 · Thao tác nhận diện vai trò 4 bộ phận cốt lõi trên Hình 21.2 ({matchedApparatusCount}/4 đúng)
-            </h4>
-            <p style={{ margin: "0 0 12px", fontSize: "14px", color: "#525252", lineHeight: 1.55 }}>
-              Đối chiếu Hình 21.2a–21.2b để ghép đúng chức năng của từng bộ phận trước khi bước vào bàn thí nghiệm trên lớp:
-            </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                gap: "12px",
-              }}
-            >
-              {B21_APPARATUS_PARTS.map((part) => {
-                const selectedRole = apparatusRoles[part.code] ?? "";
-                const isCorrect = selectedRole === part.correctRole;
-                return (
-                  <div
-                    key={part.code}
-                    style={{
-                      padding: "10px 12px",
-                      border: selectedRole
-                        ? isCorrect
-                          ? "1px solid #198038"
-                          : "1px solid #da1e28"
-                        : "1px solid #e0e0e0",
-                      background: selectedRole
-                        ? isCorrect
-                          ? "#defbe6"
-                          : "#fff1f1"
-                        : "#fafafa",
-                    }}
-                  >
-                    <label
-                      htmlFor={`b21-part-${part.code}`}
-                      style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
-                    >
-                      {part.label}
-                    </label>
-                    <select
-                      id={`b21-part-${part.code}`}
-                      value={selectedRole}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        const nextRoles = {
-                          ...apparatusRoles,
-                          [part.code]: val,
-                        };
-                        patchNotebook((cur) => ({
-                          ...cur,
-                          preClassWork: {
-                            ...cur.preClassWork,
-                            apparatusRoles: {
-                              ...cur.preClassWork?.apparatusRoles,
-                              [part.code]: val,
-                            },
-                          },
-                        }));
-                        if (isB21PreClassAllComplete(notebook, nextRoles)) {
-                          onMarkSectionComplete(section.id, true);
-                        }
-                      }}
-                      style={{
-                        width: "100%",
-                        minHeight: "40px",
-                        padding: "6px 8px",
-                        border: "1px solid #8d8d8d",
-                        background: "#ffffff",
-                        fontSize: "13.5px",
-                      }}
-                    >
-                      {B21_APPARATUS_ROLE_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    {selectedRole && (
-                      <small
-                        style={{
-                          display: "block",
-                          marginTop: "6px",
-                          fontWeight: 600,
-                          color: isCorrect ? "#198038" : "#b42332",
-                        }}
-                      >
-                        {isCorrect
-                          ? `✓ Đúng vai trò của kí hiệu ${part.code}.`
-                          : `Chưa khớp: hãy tìm lại kí hiệu ${part.code} trên Hình 21.2b.`}
-                      </small>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* BƯỚC 5: Câu tự kiểm tra có phản hồi giải thích vì sao */}
+          {/* BƯỚC 4: Kết quả thực nghiệm trên màn S (SGK tr. 91–92), tách 2 lớp Quan sát vs Mô hình & Câu tự kiểm tra */}
           <section
             aria-labelledby="b21-pre-selfcheck-heading"
             style={{
@@ -1115,11 +1061,63 @@ export function Chapter4SectionBody({
             }}
           >
             <h4 id="b21-pre-selfcheck-heading" style={{ margin: "0 0 8px", fontSize: "16px" }}>
-              Bước 5 · Câu tự kiểm tra trước giờ học
+              Bước 4 · Đối chiếu kết quả thực nghiệm (SGK tr. 91–92) &amp; Câu tự kiểm tra
             </h4>
+            <p style={{ margin: "0 0 12px", fontSize: "14px", lineHeight: 1.6 }}>
+              <strong>[Kết quả thí nghiệm Rutherford — SGK tr. 91]:</strong> Khi di chuyển kính hiển vi <strong>M</strong> từ{" "}
+              <strong>vị trí (1)</strong> đến <strong>vị trí (2)</strong> (Hình 21.2b), tần suất đốm sáng xuất hiện trên màn <strong>S</strong> giảm đi rất nhanh. Tại <strong>vị trí (2)</strong> vẫn thấy xuất hiện các đốm sáng (lóe lên rồi tắt) nhưng{" "}
+              <strong>tần suất ít hơn so với tại vị trí (1) cỡ <code>10⁴</code> lần</strong>.
+            </p>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "12px",
+                marginBottom: "14px",
+              }}
+            >
+              <div style={{ border: "1px solid #a6c8ff", background: "#edf5ff", padding: "12px 14px" }}>
+                <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                  Lớp 1 · Dấu hiệu quan sát qua kính M (Thực nghiệm)
+                </strong>
+                <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
+                  Người quan sát chỉ nhìn thấy <strong>từng đốm sáng xuất hiện rồi tắt trên màn huỳnh quang S</strong> mỗi khi một hạt α đập tới màn.
+                </p>
+              </div>
+              <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+                <strong style={{ display: "block", color: "#161616", marginBottom: "4px" }}>
+                  Lớp 2 · Đường quỹ đạo (Mô hình giải thích — Hình 21.3, 21.4 SGK)
+                </strong>
+                <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
+                  Mắt <strong>không nhìn thấy đường bay của hạt α</strong>. Các đường thẳng và vết cong ở Hình 21.3–21.4 thuộc lớp <em>“Mô hình giải thích”</em> dùng để suy luận cấu tạo nguyên tử vàng.
+                </p>
+              </div>
+            </div>
+
+            {b21VideoLesson && (
+              <div
+                style={{
+                  border: "1px solid #d0d7de",
+                  background: "#f8fafc",
+                  padding: "12px 14px",
+                  marginBottom: "14px",
+                }}
+              >
+                <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                  <strong>Tư liệu video bổ trợ Pha 1 (có thuyết minh &amp; phụ đề tiếng Việt):</strong>{" "}
+                  <span style={{ color: "#002d9c", fontWeight: 600 }}>
+                    Nếu chưa xem video, học sinh vẫn hoàn thành trọn vẹn Pha 1 từ sơ đồ Hình 21.1–21.2 và dữ kiện SGK ngay trên trang
+                  </span>{" "}
+                  (việc mở hay phát video không tự tính là hoàn thành bài).
+                </p>
+                <NuclearLessonVideo lesson={b21VideoLesson} />
+              </div>
+            )}
+
             <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
               <legend style={{ fontWeight: 700, fontSize: "14px", marginBottom: "10px", lineHeight: 1.5 }}>
-                Dựa vào Hình 21.2b, điều gì được người làm thí nghiệm quan sát trực tiếp khi chuyển kính hiển vi M từ vị trí (1) sang vị trí (2)?
+                Câu tự kiểm tra: Dựa vào Hình 21.2b và kết quả trên, điều gì được người làm thí nghiệm quan sát trực tiếp khi chuyển kính hiển vi M từ vị trí (1) sang vị trí (2)?
               </legend>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {B21_PRE_SELF_CHECK_OPTIONS.map((opt) => (
@@ -1473,9 +1471,26 @@ export function Chapter4SectionBody({
                 Hình 21.5b · Mô hình hiện đại (Đám mây electron)
               </strong>
               <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
-                Giữ nguyên <strong>Hạt nhân</strong> rất nhỏ ở tâm, nhưng electron chuyển động rất nhanh tạo thành <strong>Đám mây electron</strong> (vùng không gian có xác suất tìm thấy electron, không theo quỹ đạo tròn cố định).
+                Giữ nguyên <strong>Hạt nhân</strong> rất nhỏ ở tâm; các electron có thể xuất hiện ở mọi vị trí trong không gian nguyên tử với xác suất nào đó và <strong>mật độ xác suất có mặt của electron</strong> được biểu diễn bằng <strong>Đám mây electron</strong> (không phải quỹ đạo cố định hay vệt nhòe chuyển động).
               </p>
             </div>
+          </div>
+
+          {/* Ô đọc thêm "Em có biết" — SGK tr. 93 */}
+          <div
+            style={{
+              marginTop: "14px",
+              border: "1px solid #b5c7e3",
+              background: "#f4f8ff",
+              padding: "12px 16px",
+              fontSize: "13.5px",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong style={{ color: "#002d9c", display: "block", marginBottom: "4px" }}>
+              [Ô đọc thêm “Em có biết” — SGK tr. 93] Từ mẫu hành tinh Rutherford đến Bohr (1913) và Schrödinger
+            </strong>
+            Mẫu hành tinh nguyên tử của Rutherford chưa giải thích được <em>tính bền vững</em> của nguyên tử và sự tạo thành <em>quang phổ vạch</em>. Năm 1913, <strong>Niels Bohr</strong> giữ mô hình hành tinh của Rutherford nhưng bổ sung các tiên đề lượng tử, giải thích thành công quang phổ vạch của nguyên tử hydrogen (dù chưa giải thích được nhiều nguyên tử phức tạp khác). Hiện nay, cơ học lượng tử của <strong>Erwin Schrödinger</strong> biểu diễn mật độ xác suất có mặt của electron bằng <strong>đám mây electron</strong> (Hình 21.5b), giải thích được quang phổ vạch của các loại nguyên tử.
           </div>
 
           <details
@@ -1517,7 +1532,7 @@ export function Chapter4SectionBody({
                     <th scope="row">Electron &amp; không gian nguyên tử?</th>
                     <td>Nằm bên trong vùng tích điện dương.</td>
                     <td>Chuyển động trên <strong>Quỹ đạo của electron</strong> quanh tâm; phần còn lại là <strong>Khoảng trống</strong>.</td>
-                    <td>Biểu diễn bằng <strong>Đám mây electron</strong>; mật độ chấm đo vị trí tỉ lệ với xác suất tìm thấy electron.</td>
+                    <td>Biểu diễn bằng <strong>Đám mây electron</strong>; mật độ chấm đo vị trí tỉ lệ với xác suất có mặt của electron.</td>
                   </tr>
                   <tr>
                     <th scope="row">Liên hệ với thí nghiệm lá vàng?</th>
@@ -1537,7 +1552,7 @@ export function Chapter4SectionBody({
           ==================================================================== */}
       {section.kind === "b21_structure_size" && (
         <div>
-          {/* 1. Hạt nhân mẫu Silic-28 & Hằng số khối lượng SGK tr. 93 */}
+          {/* 1. Hạt nhân mẫu Silic-28 (Hình 21.6) & Hằng số khối lượng SGK tr. 93 */}
           <div
             style={{
               border: "1px solid #d0d7de",
@@ -1547,38 +1562,103 @@ export function Chapter4SectionBody({
             }}
           >
             <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
-              1. Cấu tạo hạt nhân qua nguyên tử Silic-28 (<Nuclide sym="Si" a={28} z={14} />) &amp; đơn vị khối lượng nguyên tử (SGK tr. 93)
+              1. Cấu tạo hạt nhân qua nguyên tử Silicon-28 (<Nuclide sym="Si" a={28} z={14} />) &amp; đơn vị khối lượng nguyên tử (SGK tr. 93)
             </h4>
-            <p style={{ margin: "0 0 12px", fontSize: "14px", lineHeight: 1.55 }}>
-              Hạt nhân được tạo thành bởi hai loại hạt là <strong>proton (p)</strong> mang điện tích <code>+1e</code> và <strong>neutron (n)</strong> trung hòa điện; hai loại hạt này có khối lượng xấp xỉ bằng nhau và gọi chung là <strong>nucleon</strong>. Với nguyên tử Silic-28 (<Nuclide sym="Si" a={28} z={14} />):
-            </p>
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: "10px",
-                fontVariantNumeric: "tabular-nums",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "14px",
+                alignItems: "center",
                 marginBottom: "12px",
               }}
             >
-              <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "10px 12px" }}>
-                <span style={{ fontSize: "12px", color: "#525252", display: "block" }}>
-                  Điện tích hạt nhân / Số proton (Z)
-                </span>
-                <strong style={{ fontSize: "18px", color: "#0f62fe" }}>14 proton (+14e)</strong>
+              <div>
+                <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.55 }}>
+                  Theo mô hình Rutherford, hạt nhân tích điện dương <code>+Z·e</code> (<code>Z</code> là số thứ tự trong bảng tuần hoàn, gọi là <strong>số hiệu nguyên tử</strong>). Hạt nhân được tạo thành bởi hai loại hạt là <strong>proton (p)</strong> mang điện <code>+e ≈ 1,6·10⁻¹⁹ C</code> và <strong>neutron (n)</strong> trung hòa về điện; hai loại hạt này có tên chung là <strong>nucleon</strong>. Tổng số nucleon được kí hiệu là <strong>A</strong> (<strong>số khối</strong>).
+                </p>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+                    gap: "8px",
+                    fontVariantNumeric: "tabular-nums",
+                  }}
+                >
+                  <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "8px 10px" }}>
+                    <span style={{ fontSize: "12px", color: "#525252", display: "block" }}>Số proton (Z)</span>
+                    <strong style={{ fontSize: "16px", color: "#b42332" }}>14 proton (+14e)</strong>
+                  </div>
+                  <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "8px 10px" }}>
+                    <span style={{ fontSize: "12px", color: "#525252", display: "block" }}>Số neutron (N = A − Z)</span>
+                    <strong style={{ fontSize: "16px", color: "#0043ce" }}>14 neutron</strong>
+                  </div>
+                  <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "8px 10px" }}>
+                    <span style={{ fontSize: "12px", color: "#525252", display: "block" }}>Số khối (A)</span>
+                    <strong style={{ fontSize: "16px", color: "#161616" }}>A = 28 nucleon</strong>
+                  </div>
+                </div>
               </div>
-              <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "10px 12px" }}>
-                <span style={{ fontSize: "12px", color: "#525252", display: "block" }}>
-                  Số neutron (N = A − Z)
-                </span>
-                <strong style={{ fontSize: "18px", color: "#198038" }}>14 neutron</strong>
-              </div>
-              <div style={{ background: "#ffffff", border: "1px solid #e0e0e0", padding: "10px 12px" }}>
-                <span style={{ fontSize: "12px", color: "#525252", display: "block" }}>
-                  Tổng số nucleon (Số khối A)
-                </span>
-                <strong style={{ fontSize: "18px", color: "#161616" }}>A = 14 + 14 = 28</strong>
-              </div>
+
+              {/* Sơ đồ vector chuẩn Hình 21.6 SGK tr. 93 */}
+              <figure
+                style={{
+                  margin: 0,
+                  background: "#ffffff",
+                  border: "1px solid #d0d7de",
+                  padding: "10px 12px",
+                  textAlign: "center",
+                }}
+              >
+                <svg
+                  viewBox="0 0 260 155"
+                  role="img"
+                  aria-label="Hình 21.6 SGK trang 93: Hạt nhân Si-28 gồm 14 proton đỏ và 14 neutron xanh"
+                  style={{ width: "100%", maxWidth: "250px", height: "auto" }}
+                >
+                  <defs>
+                    <radialGradient id="b21ProtonGrad" cx="35%" cy="35%" r="65%">
+                      <stop offset="0%" stopColor="#ff8389" />
+                      <stop offset="100%" stopColor="#da1e28" />
+                    </radialGradient>
+                    <radialGradient id="b21NeutronGrad" cx="35%" cy="35%" r="65%">
+                      <stop offset="0%" stopColor="#78a9ff" />
+                      <stop offset="100%" stopColor="#0043ce" />
+                    </radialGradient>
+                  </defs>
+                  {/* Cụm 28 nucleon xếp cầu đặc trưng (14 đỏ + 14 xanh) */}
+                  {[
+                    [112, 46, "n"], [132, 44, "p"], [150, 50, "n"],
+                    [96, 58, "p"], [118, 60, "p"], [138, 59, "n"], [158, 64, "p"],
+                    [88, 76, "n"], [106, 75, "n"], [126, 74, "p"], [146, 75, "p"], [166, 80, "n"],
+                    [92, 94, "p"], [112, 92, "p"], [132, 91, "n"], [152, 92, "n"], [164, 98, "p"],
+                    [100, 110, "n"], [120, 108, "n"], [140, 108, "p"], [154, 112, "n"],
+                    [114, 122, "p"], [132, 122, "p"], [146, 121, "n"],
+                    [110, 68, "p"], [140, 68, "n"], [118, 84, "n"], [138, 84, "p"],
+                  ].map(([cx, cy, t], idx) => (
+                    <circle
+                      key={idx}
+                      cx={Number(cx)}
+                      cy={Number(cy)}
+                      r="11.5"
+                      fill={t === "p" ? "url(#b21ProtonGrad)" : "url(#b21NeutronGrad)"}
+                      stroke="#ffffff"
+                      strokeWidth="0.7"
+                    />
+                  ))}
+                  {/* Mũi tên chú thích Proton & Neutron đúng Hình 21.6 */}
+                  <text x="16" y="34" fontSize="12" fontWeight="700" fill="#b42332">Proton</text>
+                  <line x1="56" y1="32" x2="90" y2="52" stroke="#161616" strokeWidth="1.3" />
+                  <polygon points="90,52 83,51 86,46" fill="#161616" />
+
+                  <text x="194" y="34" fontSize="12" fontWeight="700" fill="#0043ce">Neutron</text>
+                  <line x1="205" y1="38" x2="160" y2="50" stroke="#161616" strokeWidth="1.3" />
+                  <polygon points="160,50 167,51 165,45" fill="#161616" />
+                </svg>
+                <figcaption style={{ fontSize: "12px", color: "#525252", marginTop: "4px" }}>
+                  <strong>Hình 21.6 (SGK tr. 93).</strong> Hạt nhân <Nuclide sym="Si" a={28} z={14} /> gồm 14 proton và 14 neutron
+                </figcaption>
+              </figure>
             </div>
 
             <div
@@ -1595,17 +1675,37 @@ export function Chapter4SectionBody({
             >
               <div>
                 <strong>Khối lượng proton:</strong>{" "}
-                <code>m_p ≈ {SGK_B21_MASS_CONSTANTS.protonKg}</code> (≈ 1,00728 amu)
+                <code>m_p ≈ {SGK_B21_MASS_CONSTANTS.protonKg}</code>
               </div>
               <div>
                 <strong>Khối lượng neutron:</strong>{" "}
-                <code>m_n ≈ {SGK_B21_MASS_CONSTANTS.neutronKg}</code> (≈ 1,00866 amu)
+                <code>m_n ≈ {SGK_B21_MASS_CONSTANTS.neutronKg}</code>
               </div>
               <div>
                 <strong>Đơn vị khối lượng nguyên tử:</strong>{" "}
-                <code>1 amu ≈ {SGK_B21_MASS_CONSTANTS.amuKg}</code> (1/12 khối lượng nguyên tử ¹²₆C)
+                <code>1 amu ≈ {SGK_B21_MASS_CONSTANTS.amuKg}</code> (= 1/12 khối lượng nguyên tử ¹²₆C)
               </div>
             </div>
+
+            {/* Câu hỏi ? SGK tr. 93 (không lộ đáp án trước khi học sinh tự chia) */}
+            <details
+              style={{
+                marginTop: "10px",
+                background: "#ffffff",
+                border: "1px solid #d0d7de",
+                padding: "10px 12px",
+                fontSize: "13.5px",
+              }}
+            >
+              <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+                Câu hỏi ? (SGK tr. 93): Xác định khối lượng của proton và neutron theo đơn vị amu (tự bấm máy trước khi mở đối chiếu)
+              </summary>
+              <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+                Lấy khối lượng tính bằng kg chia cho <code>1 amu ≈ 1,66054·10⁻²⁷ kg</code>:{" "}
+                <code>m_p = 1,67262 / 1,66054 ≈ 1,00727 amu</code> và{" "}
+                <code>m_n = 1,67493 / 1,66054 ≈ 1,00867 amu</code>. Cả proton và neutron đều có khối lượng <strong>xấp xỉ bằng 1 amu</strong>, nên khối lượng hạt nhân (tính ra amu) xấp xỉ bằng số khối <code>A</code>.
+              </p>
+            </details>
           </div>
 
           {/* Cảnh báo rõ ràng khi đổi tỉ lệ phóng đại giữa nguyên tử và hạt nhân */}
@@ -1617,22 +1717,25 @@ export function Chapter4SectionBody({
             <strong>đổi sang tỉ lệ phóng đại lớn hơn hàng chục nghìn lần cho riêng vùng hạt nhân</strong>; nếu giữ nguyên một tỉ lệ mà nguyên tử rộng <code>10 m</code> thì hạt nhân ở tâm chỉ nhỏ cỡ <code>0,15 mm</code>.
           </div>
 
-          {/* Bảng 21.1 chính xác 100% SGK tr. 94 (đủ 8 nguyên tố) */}
+          <div style={{ marginBottom: "12px" }}>
+            <LatexMath
+              block
+              math={String.raw`R = 1{,}2 \times 10^{-15}\,A^{1/3}\;(\mathrm{m}) \quad (21.1), \qquad 1\,\mathrm{fm} = 10^{-15}\,\mathrm{m}`}
+            />
+          </div>
+
+          {/* Bảng 21.1 chính xác 100% SGK tr. 94 (4 cột số liệu gốc SGK, không trộn sẵn cột tính sẵn làm lộ câu ?) */}
           <div className={styles.tableScroll}>
             <table className={styles.cdsTable}>
               <caption>
-                Bảng 21.1 — Bán kính nguyên tử và bán kính hạt nhân của một số nguyên tố (SGK Vật lí 12, tr. 94)
+                Bảng 21.1. Kích thước của một số hạt nhân (SGK Vật lí 12, tr. 94)
               </caption>
               <thead>
                 <tr>
-                  <th scope="col">Nguyên tố</th>
-                  <th scope="col">Kí hiệu hạt nhân</th>
+                  <th scope="col">Tên nguyên tố</th>
                   <th scope="col" className={styles.numCell}>Số khối A</th>
                   <th scope="col" className={styles.numCell}>Bán kính nguyên tử (10⁻¹⁰ m)</th>
                   <th scope="col" className={styles.numCell}>Bán kính hạt nhân (10⁻¹⁵ m)</th>
-                  <th scope="col" className={styles.numCell}>
-                    Kiểm chứng R = 1,2·10⁻¹⁵·A¹/³ (10⁻¹⁵ m)
-                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -1645,25 +1748,178 @@ export function Chapter4SectionBody({
                         : undefined
                     }
                   >
-                    <th scope="row">{row.elementName}</th>
-                    <td>
-                      <Nuclide sym={row.symbol} a={row.massNumberA} z={row.z} />
-                    </td>
+                    <th scope="row">
+                      {row.elementName} (<Nuclide sym={row.symbol} a={row.massNumberA} z={row.z} />)
+                    </th>
                     <td className={styles.numCell}>{row.massNumberA}</td>
                     <td className={styles.numCell}>{row.atomicRadius10m10}</td>
                     <td className={styles.numCell}>{row.nuclearRadius10m15}</td>
-                    <td className={styles.numCell}>{row.formulaRadius10m15}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div style={{ marginBottom: "16px" }}>
-            <LatexMath
-              block
-              math={String.raw`R = 1{,}2 \times 10^{-15}\,A^{1/3}\;(\mathrm{m}), \qquad 1\,\mathrm{fm} = 10^{-15}\,\mathrm{m}`}
-            />
+          {/* Câu hỏi ? SGK tr. 94: Nghiệm lại công thức (21.1) cho Bảng 21.1 với A > 12 */}
+          <details
+            style={{
+              marginBottom: "16px",
+              border: "1px solid #d0d7de",
+              background: "#ffffff",
+              padding: "12px 14px",
+              fontSize: "13.5px",
+            }}
+          >
+            <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+              Câu hỏi ? (SGK tr. 94): Công thức (21.1) cho kết quả tốt hơn với A &gt; 12. Nghiệm lại sự chính xác của công thức này cho Bảng 21.1
+            </summary>
+            <div style={{ marginTop: "10px", lineHeight: 1.6 }}>
+              <p style={{ margin: "0 0 8px" }}>
+                Thay số khối <code>A</code> vào <code>R_tính = 1,2·10⁻¹⁵·A¹/³</code> (đơn vị <code>10⁻¹⁵ m</code>) và đối chiếu với cột thực nghiệm trong Bảng 21.1:
+              </p>
+              <div className={styles.tableScroll} style={{ marginBottom: "8px" }}>
+                <table className={styles.cdsTable}>
+                  <thead>
+                    <tr>
+                      <th scope="col">Hạt nhân</th>
+                      {SGK_TABLE_21_1.map((r) => (
+                        <th key={r.symbol} scope="col" className={styles.numCell}>
+                          {r.symbol} (A={r.massNumberA})
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">Bảng 21.1 (10⁻¹⁵ m)</th>
+                      {SGK_TABLE_21_1.map((r) => (
+                        <td key={r.symbol} className={styles.numCell}>{r.nuclearRadius10m15}</td>
+                      ))}
+                    </tr>
+                    <tr>
+                      <th scope="row">Công thức (21.1)</th>
+                      {SGK_TABLE_21_1.map((r) => (
+                        <td key={r.symbol} className={styles.numCell}>{r.formulaRadius10m15}</td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ margin: 0 }}>
+                <strong>Nhận xét vật lí:</strong> Với hạt nhân rất nhẹ như Hydrogen (<code>A = 1</code>), công thức cho <code>1,2·10⁻¹⁵ m</code> lệch tới ~33% so với giá trị <code>0,9·10⁻¹⁵ m</code> vì 1 proton đơn lẻ chưa thể coi như một “giọt chất lỏng” gồm nhiều nucleon xếp sát nhau. Với các hạt nhân có <code>A &gt; 12</code> (từ Oxygen <code>A = 16</code> trở lên), công thức <code>R = R₀·A¹/³</code> phản ánh tốt quy luật thể tích hạt nhân tỉ lệ thuận với số nucleon <code>A</code> (hệ số <code>R₀ ≈ 1,2 fm</code> là giá trị trung bình gần đúng dùng trong chương trình phổ thông).
+              </p>
+            </div>
+          </details>
+
+          {/* Ô đọc thêm "Em có biết" — Hình 21.7 SGK tr. 94: Cỡ kích thước các hạt vi mô & hạt quark */}
+          <div
+            style={{
+              marginBottom: "18px",
+              border: "1px solid #b5c7e3",
+              background: "#f4f8ff",
+              padding: "14px 16px",
+            }}
+          >
+            <strong style={{ color: "#002d9c", display: "block", fontSize: "14px", marginBottom: "6px" }}>
+              [Ô đọc thêm “Em có biết” — SGK tr. 94] Hình 21.7 · Cỡ kích thước của một số loại hạt vi mô và hạt quark
+            </strong>
+            <p style={{ margin: "0 0 10px", fontSize: "13.5px", lineHeight: 1.55 }}>
+              Hạt nucleon (proton, neutron) vẫn chưa phải là hạt nhỏ nhất: bên trong mỗi nucleon còn có các hạt nhỏ bé hơn cấu tạo nên chúng, gọi là <strong>hạt quark</strong>. <em>(Lưu ý đọc hình: trục dưới đây ghi bậc độ lớn theo lũy thừa của 10, hình minh họa từng bậc được vẽ tách riêng, không cùng tỉ lệ tuyến tính.)</em>
+            </p>
+            <div style={{ overflowX: "auto" }}>
+              <svg
+                viewBox="0 0 760 128"
+                role="img"
+                aria-label="Hình 21.7 SGK trang 94: Thang bậc độ lớn từ tinh thể 10 mũ trừ 2 mét đến electron 10 mũ trừ 18 mét và hạt quark trong proton"
+                style={{ width: "100%", minWidth: "560px", height: "auto", background: "#ffffff", border: "1px solid #d0d7de" }}
+              >
+                {[
+                  { x: 68, title: "Tinh thể", scale: "10⁻² m", color: "#8d8d8d", note: "" },
+                  { x: 192, title: "Phân tử", scale: "10⁻⁹ m", color: "#f1c21b", note: "" },
+                  { x: 316, title: "Nguyên tử", scale: "10⁻¹⁰ m", color: "#4589ff", note: "" },
+                  { x: 440, title: "Hạt nhân", scale: "10⁻¹⁴ m", color: "#0043ce", note: "" },
+                  { x: 568, title: "Proton", scale: "10⁻¹⁵ m", color: "#da1e28", note: "chứa 3 Quark" },
+                  { x: 692, title: "Electron", scale: "10⁻¹⁸ m", color: "#8a3ffc", note: "" },
+                ].map((item, idx, arr) => (
+                  <g key={item.title}>
+                    {idx === 0 && (
+                      <polygon
+                        points="68,24 90,38 84,64 52,64 46,38"
+                        fill="#e5e7eb"
+                        stroke="#525252"
+                        strokeWidth="1.5"
+                      />
+                    )}
+                    {idx === 1 && (
+                      <g>
+                        <circle cx="192" cy="44" r="13" fill="#da1e28" />
+                        <circle cx="177" cy="53" r="9" fill="#f1c21b" stroke="#8d8d8d" strokeWidth="0.8" />
+                        <circle cx="207" cy="53" r="9" fill="#f1c21b" stroke="#8d8d8d" strokeWidth="0.8" />
+                      </g>
+                    )}
+                    {idx === 2 && (
+                      <g>
+                        <circle cx="316" cy="45" r="22" fill="#edf5ff" stroke="#78a9ff" strokeDasharray="3 2" />
+                        <circle cx="316" cy="45" r="4" fill="#da1e28" />
+                        <circle cx="302" cy="36" r="2.5" fill="#0043ce" />
+                        <circle cx="331" cy="52" r="2.5" fill="#0043ce" />
+                      </g>
+                    )}
+                    {idx === 3 && (
+                      <g>
+                        <circle cx="434" cy="40" r="8" fill="#da1e28" />
+                        <circle cx="446" cy="40" r="8" fill="#0043ce" />
+                        <circle cx="440" cy="51" r="8" fill="#da1e28" />
+                        <circle cx="429" cy="50" r="7.5" fill="#0043ce" />
+                        <circle cx="450" cy="50" r="7.5" fill="#da1e28" />
+                      </g>
+                    )}
+                    {idx === 4 && (
+                      <g>
+                        <circle cx="568" cy="46" r="20" fill="#ffd7d9" stroke="#da1e28" strokeWidth="1.6" />
+                        <line x1="560" y1="40" x2="576" y2="40" stroke="#161616" strokeWidth="1.4" />
+                        <line x1="560" y1="40" x2="568" y2="54" stroke="#161616" strokeWidth="1.4" />
+                        <line x1="576" y1="40" x2="568" y2="54" stroke="#161616" strokeWidth="1.4" />
+                        <circle cx="560" cy="40" r="4" fill="#198038" />
+                        <circle cx="576" cy="40" r="4" fill="#0043ce" />
+                        <circle cx="568" cy="54" r="4" fill="#da1e28" />
+                        <text x="568" y="18" textAnchor="middle" fontSize="11" fontWeight="700" fill="#198038">
+                          Quark
+                        </text>
+                      </g>
+                    )}
+                    {idx === 5 && <circle cx="692" cy="46" r="7" fill="#8a3ffc" />}
+
+                    {idx < arr.length - 1 && (
+                      <g>
+                        <path
+                          d={`M ${item.x + 28} 56 Q ${item.x + 62} 68 ${arr[idx + 1].x - 28} 56`}
+                          fill="none"
+                          stroke="#0f62fe"
+                          strokeWidth="1.6"
+                        />
+                        <polygon
+                          points={`${arr[idx + 1].x - 28},56 ${arr[idx + 1].x - 35},54 ${arr[idx + 1].x - 33},60`}
+                          fill="#0f62fe"
+                        />
+                      </g>
+                    )}
+
+                    <text x={item.x} y="92" textAnchor="middle" fontSize="12.5" fontWeight="700" fill="#161616">
+                      {item.title}
+                    </text>
+                    <text x={item.x} y="109" textAnchor="middle" fontSize="12" fontWeight="600" fill="#002d9c">
+                      {item.scale}
+                    </text>
+                    {item.note && (
+                      <text x={item.x} y="122" textAnchor="middle" fontSize="10.5" fill="#525252">
+                        ({item.note})
+                      </text>
+                    )}
+                  </g>
+                ))}
+              </svg>
+            </div>
           </div>
 
           {/* Nhiệm vụ nhỏ có lưu localStorage: đọc 1 dòng Bảng 21.1 (Silicon A=28) & giải thích tỉ lệ phóng đại */}
@@ -1721,7 +1977,7 @@ export function Chapter4SectionBody({
                           },
                         }));
                       }}
-                      placeholder="Ví dụ: 2,1"
+                      placeholder="Tra cột 3 Bảng 21.1…"
                       style={{
                         display: "block",
                         width: "100%",
@@ -1752,7 +2008,7 @@ export function Chapter4SectionBody({
                           },
                         }));
                       }}
-                      placeholder="Ví dụ: 3,1"
+                      placeholder="Tra cột 4 Bảng 21.1…"
                       style={{
                         display: "block",
                         width: "100%",
@@ -1790,7 +2046,7 @@ export function Chapter4SectionBody({
                       },
                     }));
                   }}
-                  placeholder="Ví dụ: Vì bán kính hạt nhân (cỡ 10⁻¹⁵ m) nhỏ hơn nguyên tử (cỡ 10⁻¹⁰ m) hàng chục nghìn lần nên nếu vẽ đúng tỉ lệ thực sẽ không nhìn thấy hạt nhân…"
+                  placeholder="So sánh bậc độ lớn giữa bán kính hạt nhân và bán kính nguyên tử để giải thích…"
                 />
 
                 <div style={{ marginTop: "10px", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
@@ -1825,7 +2081,7 @@ export function Chapter4SectionBody({
                     >
                       {allStructOk
                         ? "✓ Chính xác! Nguyên tử Silicon có bán kính 2,1·10⁻¹⁰ m, lớn gấp khoảng 68 000 lần hạt nhân (3,1·10⁻¹⁵ m) nên hình vẽ bắt buộc phải phóng lớn vùng hạt nhân."
-                        : "Kiểm tra lại dòng Silicon (A = 28) trên Bảng 21.1 (2,1 × 10⁻¹⁰ m và 3,1 × 10⁻¹⁵ m) và ghi ít nhất một câu giải thích tỉ lệ phóng đại."}
+                        : "Kiểm tra lại dòng Silicon (A = 28) trên Bảng 21.1 và ghi ít nhất một câu giải thích tỉ lệ phóng đại."}
                     </span>
                   )}
                 </div>
@@ -1853,13 +2109,13 @@ export function Chapter4SectionBody({
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
               gap: "14px",
-              marginBottom: "18px",
+              marginBottom: "14px",
             }}
           >
             {/* Hiển thị chỉ số A, Z to rõ trên điện thoại 390px + kí hiệu rút gọn ᴬX */}
             <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "14px 16px" }}>
               <h4 style={{ margin: "0 0 8px", fontSize: "15.5px" }}>
-                Quy tắc đọc kí hiệu hạt nhân chuẩn và kí hiệu rút gọn (SGK tr. 94)
+                2. Kí hiệu hạt nhân chuẩn và kí hiệu rút gọn (SGK tr. 94–95)
               </h4>
               <div
                 style={{
@@ -1878,49 +2134,81 @@ export function Chapter4SectionBody({
                   <div style={{ fontSize: "30px", color: "#002d9c", lineHeight: 1.2 }}>
                     <Nuclide sym="X" a="A" z="Z" />
                   </div>
-                  <small style={{ color: "#525252", fontWeight: 600 }}>Kí hiệu đầy đủ</small>
+                  <small style={{ color: "#525252", fontWeight: 600 }}>Kí hiệu đầy đủ (ví dụ ¹²₆C)</small>
                 </div>
                 <div style={{ textAlign: "center" }}>
                   <div style={{ fontSize: "28px", color: "#161616", fontWeight: 700, lineHeight: 1.2 }}>
                     <sup style={{ fontSize: "0.68em", marginRight: "1px" }}>A</sup>X
                   </div>
                   <small style={{ color: "#525252", fontWeight: 600 }}>
-                    Rút gọn (ví dụ <sup>12</sup>C, <sup>197</sup>Au)
+                    Kí hiệu gọn (ví dụ <sup>12</sup>C)
                   </small>
                 </div>
               </div>
               <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "14px", lineHeight: 1.6 }}>
                 <li>
                   <strong>X</strong>: Kí hiệu hóa học của nguyên tố (ví dụ{" "}
-                  <Nuclide sym="Si" a={28} z={14} />, <Nuclide sym="Au" a={197} z={79} />).
+                  <Nuclide sym="C" a={12} z={6} />, <Nuclide sym="Si" a={28} z={14} />).
                 </li>
                 <li>
-                  <strong>Chỉ số trên A (số khối)</strong>: Tổng số nucleon (<code>A = Z + N</code>).
+                  <strong>Chỉ số trên A (số khối)</strong>: Tổng số nucleon trong hạt nhân.
                 </li>
                 <li>
-                  <strong>Chỉ số dưới Z (số hiệu nguyên tử)</strong>: Số proton trong hạt nhân (điện tích <code>+Ze</code>).
+                  <strong>Chỉ số dưới Z (số hiệu nguyên tử)</strong>: Số proton trong hạt nhân (điện tích <code>+Z·e</code>).
                 </li>
                 <li>
-                  <strong>Số neutron</strong>: <code>N = A − Z</code>. Vì tên nguyên tố <strong>X</strong> đã xác định duy nhất <strong>Z</strong> trong bảng tuần hoàn nên SGK cũng dùng <strong>kí hiệu rút gọn <sup>A</sup>X</strong> (như <code>¹²C</code>, <code>²³⁵U</code>).
+                  <strong>Kí hiệu gọn <sup>A</sup>X</strong>: Vì kí hiệu hóa học <strong>X</strong> gắn với duy nhất một ô thứ tự <strong>Z</strong> trong bảng tuần hoàn nên SGK thường viết gọn là <code>¹²C</code>.
                 </li>
               </ul>
             </div>
 
             <div style={{ border: "1px solid #a6c8ff", background: "#edf5ff", padding: "14px 16px" }}>
               <h4 style={{ margin: "0 0 8px", fontSize: "15.5px", color: "#002d9c" }}>
-                Khái niệm đồng vị &amp; tính chất vật lí (SGK tr. 94–95)
+                3. Đồng vị bền, đồng vị phóng xạ &amp; ví dụ Hydrogen, Carbon (SGK tr. 95)
               </h4>
-              <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
-                Các <strong>đồng vị</strong> là những hạt nhân có <strong>cùng số proton Z</strong> nhưng{" "}
-                <strong>khác số neutron N</strong> (do đó <strong>khác số khối A</strong>).
+              <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.6 }}>
+                Các hạt nhân <strong>đồng vị</strong> là những hạt nhân có <strong>cùng số Z, khác số A</strong>, nghĩa là <strong>cùng số proton và khác số neutron</strong>.
               </p>
-              <p style={{ margin: 0, fontSize: "14px", lineHeight: 1.6 }}>
-                Do có cùng số proton <code>Z</code> (cùng cấu hình vỏ electron) nên các đồng vị có{" "}
-                <strong>tính chất hóa học tương tự nhau</strong>, nhưng vì khối lượng hạt nhân khác nhau nên có{" "}
-                <strong>tính chất vật lí khác nhau</strong> (như khối lượng riêng, nhiệt độ nóng chảy, tính phóng xạ).
+              <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.6 }}>
+                Các đồng vị được chia làm hai loại: <strong>đồng vị bền</strong> và <strong>đồng vị phóng xạ (không bền)</strong>. Hầu hết các mẫu chất trong tự nhiên đều là hỗn hợp của nhiều đồng vị.
+              </p>
+              <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55, background: "#ffffff", padding: "8px 10px", border: "1px solid #b5c7e3" }}>
+                <strong>Ví dụ Carbon (SGK tr. 95):</strong> Carbon có ba đồng vị chính là{" "}
+                <Nuclide sym="C" a={12} z={6} />, <Nuclide sym="C" a={13} z={6} />,{" "}
+                <Nuclide sym="C" a={14} z={6} />; trong đó <Nuclide sym="C" a={12} z={6} /> và{" "}
+                <Nuclide sym="C" a={13} z={6} /> là <strong>đồng vị bền</strong> chiếm hơn <strong>99%</strong> carbon tự nhiên, còn{" "}
+                <Nuclide sym="C" a={14} z={6} /> là đồng vị phóng xạ.
               </p>
             </div>
           </div>
+
+          {/* Ba câu hỏi ? mục 2 Kí hiệu hạt nhân — SGK tr. 95 (không lộ sẵn trước khi học sinh tự làm) */}
+          <details
+            style={{
+              marginBottom: "16px",
+              border: "1px solid #d0d7de",
+              background: "#ffffff",
+              padding: "12px 14px",
+              fontSize: "13.5px",
+            }}
+          >
+            <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+              Câu hỏi ? mục 2 (SGK tr. 95): Tự trả lời 3 câu hỏi về N = A − Z, kí hiệu gọn ᴬX và viết kí hiệu vàng (Au), helium (He), nitrogen (N)
+            </summary>
+            <ol style={{ margin: "10px 0 0", paddingLeft: "20px", lineHeight: 1.65 }}>
+              <li>
+                <strong>Đại lượng <code>N = A − Z</code> cho biết gì? Vì sao?</strong> Cho biết <strong>số lượng hạt neutron</strong> trong hạt nhân, vì hạt nhân chỉ gồm proton và neutron nên tổng số nucleon <code>A = Z + N ⇒ N = A − Z</code>.
+              </li>
+              <li>
+                <strong>Cách tìm <code>Z</code> và <code>N</code> từ kí hiệu dạng <code>ᴬX</code>?</strong> Dựa vào kí hiệu hóa học <code>X</code>, tra ô thứ tự của nguyên tố trong <strong>bảng tuần hoàn</strong> để biết số hiệu nguyên tử <code>Z</code>, sau đó lấy số khối <code>A</code> trừ đi <code>Z</code> để tìm <code>N = A − Z</code>.
+              </li>
+              <li>
+                <strong>Viết kí hiệu hạt nhân vàng (Au), helium (He) và nitrogen (N) có số nucleon lần lượt là 197; 4 và 14:</strong> Tra bảng tuần hoàn được <code>Z_Au = 79</code>, <code>Z_He = 2</code>, <code>Z_N = 7</code>; từ đó viết được:{" "}
+                <Nuclide sym="Au" a={197} z={79} />, <Nuclide sym="He" a={4} z={2} /> và{" "}
+                <Nuclide sym="N" a={14} z={7} />.
+              </li>
+            </ol>
+          </details>
 
           <div className={styles.tableScroll}>
             <table className={styles.cdsTable}>
@@ -1934,19 +2222,19 @@ export function Chapter4SectionBody({
                   <th scope="col" className={styles.numCell}>Số proton Z</th>
                   <th scope="col" className={styles.numCell}>Số khối A</th>
                   <th scope="col" className={styles.numCell}>Số neutron N = A − Z</th>
-                  <th scope="col">Đặc điểm vật lí &amp; ứng dụng</th>
+                  <th scope="col">Phân loại &amp; đặc điểm vật lí</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <th scope="row">Hydrogen thường (Protium)</th>
+                  <th scope="row">Hydrogen thường</th>
                   <td style={{ fontSize: "16px" }}>
                     <Nuclide sym="H" a={1} z={1} />
                   </td>
                   <td className={styles.numCell}>1</td>
                   <td className={styles.numCell}>1</td>
                   <td className={styles.numCell}>0</td>
-                  <td>Đồng vị bền, chiếm ~99,985% Hydrogen tự nhiên; hạt nhân chỉ gồm 1 proton.</td>
+                  <td>Đồng vị bền, chiếm ~99,985% hydrogen tự nhiên; hạt nhân chỉ gồm 1 proton.</td>
                 </tr>
                 <tr>
                   <th scope="row">Hydrogen nặng (deuterium)</th>
@@ -1956,7 +2244,7 @@ export function Chapter4SectionBody({
                   <td className={styles.numCell}>1</td>
                   <td className={styles.numCell}>2</td>
                   <td className={styles.numCell}>1</td>
-                  <td>Đồng vị bền (~0,015%); tạo phân tử nước nặng D₂O có khối lượng riêng lớn hơn nước thường H₂O (~1,11 g/cm³).</td>
+                  <td>Đồng vị bền (~0,015%); tạo nước nặng D₂O có khối lượng riêng (~1,11 g/cm³) lớn hơn nước thường H₂O.</td>
                 </tr>
                 <tr>
                   <th scope="row">Hydrogen siêu nặng (tritium)</th>
@@ -1966,13 +2254,13 @@ export function Chapter4SectionBody({
                   <td className={styles.numCell}>1</td>
                   <td className={styles.numCell}>3</td>
                   <td className={styles.numCell}>2</td>
-                  <td>Đồng vị phóng xạ (chu kì bán rã ~12,3 năm); nhiên liệu quan trọng cho phản ứng tổng hợp hạt nhân.</td>
+                  <td>Đồng vị phóng xạ (không bền); hạt nhân có 1 proton và 2 neutron.</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* Bài tập nhanh tìm N = A - Z và câu hỏi khối lượng riêng đồng vị (lưu localStorage) */}
+          {/* Bài tập nhanh tìm N = A - Z và câu hỏi ? SGK tr. 95 về khối lượng riêng đồng vị (lưu localStorage) */}
           {(() => {
             const isoWork = notebook.symbolIsotopeWork ?? {};
             const nInput = isoWork.targetNeutronInput ?? "";
@@ -1992,14 +2280,10 @@ export function Chapter4SectionBody({
                 }}
               >
                 <h4 style={{ margin: "0 0 10px", fontSize: "15.5px" }}>
-                  Bài tập nhanh: Tính số neutron N = A − Z &amp; giải thích khối lượng riêng đồng vị
+                  Bài tập nhanh &amp; Câu hỏi ? mục 3 (SGK tr. 95): Tính số neutron &amp; giải thích sự khác nhau về khối lượng riêng
                 </h4>
                 <label style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "12px" }}>
-                  1. Hạt nhân vàng trong lá vàng Rutherford có kí hiệu{" "}
-                  <span style={{ fontSize: "17px" }}>
-                    <Nuclide sym="Au" a={197} z={79} />
-                  </span>{" "}
-                  (hoặc viết rút gọn <code>¹⁹⁷Au</code> với <code>Z = 79</code>). Số neutron <code>N = A − Z</code> của hạt nhân này bằng bao nhiêu?
+                  1. Hạt nhân vàng trong lá vàng Rutherford có số khối <code>A = 197</code> và số hiệu nguyên tử <code>Z = 79</code>. Số neutron <code>N = A − Z</code> của hạt nhân này bằng bao nhiêu?
                   <input
                     type="number"
                     inputMode="numeric"
@@ -2016,7 +2300,7 @@ export function Chapter4SectionBody({
                         },
                       }));
                     }}
-                    placeholder="Nhập N = 197 − 79…"
+                    placeholder="Nhập giá trị N…"
                     style={{
                       display: "block",
                       width: "100%",
@@ -2032,16 +2316,16 @@ export function Chapter4SectionBody({
 
                 <fieldset style={{ border: "none", margin: "0 0 12px", padding: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
-                    2. Ở cùng điều kiện nhiệt độ và áp suất, vì sao khí deuterium (²₁H₂) hoặc nước nặng (D₂O) có khối lượng riêng lớn hơn khí hydrogen thường (¹₁H₂) hoặc nước thường (H₂O)?
+                    2. (Câu hỏi ? SGK tr. 95) Tại sao các mẫu đơn chất tạo từ cùng một nguyên tố (xét ở cùng điều kiện nhiệt độ, áp suất và cùng kiểu cấu trúc phân tử/tinh thể, ví dụ khí ²₁H₂ so với ¹₁H₂) nhưng khối lượng riêng vẫn có thể khác nhau?
                   </legend>
                   {[
                     [
                       "heavier_nucleus",
-                      "Vì hai đồng vị có cùng Z = 1 nên kích thước nguyên tử/phân tử xấp xỉ như nhau, nhưng hạt nhân ²₁H có thêm 1 neutron nên khối lượng nguyên tử lớn gấp khoảng 2 lần ¹₁H.",
+                      "Vì các đồng vị của cùng nguyên tố có cùng số proton Z (kích thước vỏ nguyên tử/khoảng cách phân tử xấp xỉ như nhau) nhưng khác số neutron N, làm khối lượng hạt nhân (và khối lượng nguyên tử) khác nhau nên khối lượng trên một đơn vị thể tích khác nhau.",
                     ],
                     [
                       "more_protons",
-                      "Vì hạt nhân ²₁H có nhiều proton hơn nên hút vỏ electron co nhỏ lại một nửa.",
+                      "Vì các đồng vị nặng hơn có nhiều proton hơn nên hút vỏ electron co nhỏ lại một nửa.",
                     ],
                   ].map(([val, label]) => (
                     <label
@@ -2107,8 +2391,8 @@ export function Chapter4SectionBody({
                       }}
                     >
                       {allIsoQuickOk
-                        ? "✓ Chính xác! ¹⁹⁷₇₉Au có N = 197 − 79 = 118 neutron, và sự chênh lệch số neutron làm khối lượng riêng của các đồng vị khác nhau."
-                        : "Kiểm tra lại phép trừ N = 197 − 79 và nhớ rằng các đồng vị có cùng số proton Z = 1 nhưng khác số neutron."}
+                        ? "✓ Chính xác! ¹⁹⁷₇₉Au có N = 197 − 79 = 118 neutron; ngoài ra các đồng vị khác số neutron làm khối lượng nguyên tử khác nhau nên tỉ lệ đồng vị khác nhau sẽ cho khối lượng riêng khác nhau (bên cạnh yếu tố dạng thù hình tinh thể như kim cương/than chì ở chất rắn)."
+                        : "Kiểm tra lại phép trừ N = A − Z và nhớ rằng các đồng vị có cùng số proton Z nhưng khác số neutron N."}
                     </span>
                   )}
                 </div>
@@ -2485,10 +2769,10 @@ export function Chapter4SectionBody({
                 </div>
               </section>
 
-              {/* Bước 2: Tư liệu quan sát + Chỉ dẫn + Đối chiếu với tán xạ Rutherford B21 + Video */}
+              {/* Bước 2: Tư liệu quan sát Hình 22.1 & Hình 22.2 (chưa lộ tên sản phẩm trước khi học sinh dự đoán & ghép vai trò) */}
               <section style={{ marginBottom: "18px" }}>
                 <h4 style={{ margin: "0 0 10px", fontSize: "16px" }}>
-                  Bước 2 · Quan sát 4 chi tiết trên vết phân nhánh chữ Y và đối chiếu với Bài 21
+                  Bước 2 · Quan sát sơ đồ Hình 22.1 (Rutherford) và vết rẽ nhánh chữ Y Hình 22.2 (Blackett · SGK tr. 96)
                 </h4>
                 <div
                   style={{
@@ -2501,84 +2785,120 @@ export function Chapter4SectionBody({
                     lineHeight: 1.55,
                   }}
                 >
-                  <strong>Chỉ dẫn quan sát trọng tâm:</strong>{" "}
+                  <strong>Chỉ dẫn quan sát trọng tâm (chưa lộ đáp án):</strong>{" "}
                   <em>
-                    “Hãy để ý điểm rẽ nhánh chữ Y nơi vệt α biến mất (không có nhánh thứ 3 đi tiếp), đồng thời so sánh độ mảnh – dài của hai nhánh sau va chạm”
+                    “Trên Hình 22.2, hãy để ý tại đỉnh (2) vệt hạt α đi tới (1) biến mất (không có nhánh thứ 3 đi tiếp), chỉ xuất hiện một nhánh mảnh – rất dài (3) và một nhánh rất đậm – ngắn (4).”
                   </em>
-                  .
                 </div>
 
-                <figure className={styles.darkBenchStage} style={{ margin: "0 0 14px" }}>
-                  <svg
-                    viewBox="0 0 680 230"
-                    width="680"
-                    height="230"
-                    role="img"
-                    aria-label="Sơ đồ Hình 22.1–22.2 buồng sương Blackett: (1) vệt hạt alpha tới, (2) đỉnh tương tác với N-14 không có nhánh thứ 3 đi tiếp, (3) vệt mảnh dài của proton H-1, (4) vệt đậm ngắn của hạt nhân O-17"
-                    style={{ width: "100%", height: "auto", display: "block" }}
-                  >
-                    <rect x="0" y="0" width="680" height="230" fill="#0b1220" />
-                    {[40, 72, 158, 192].map((y) => (
-                      <line key={y} x1="34" y1={y} x2="368" y2={y} stroke="#334155" strokeWidth="2" />
-                    ))}
-                    <line x1="34" y1="116" x2="292" y2="116" stroke="#38bdf8" strokeWidth="4.2" />
-                    <circle cx="292" cy="116" r="6.5" fill="#facc15" />
-                    <line x1="292" y1="116" x2="604" y2="36" stroke="#fde047" strokeWidth="2.2" />
-                    <line
-                      x1="292"
-                      y1="116"
-                      x2="396"
-                      y2="164"
-                      stroke="#fb7185"
-                      strokeWidth="5.5"
-                      strokeLinecap="round"
-                    />
-                    <text x="42" y="104" fill="#7dd3fc" fontSize="13" fontWeight="700">
-                      (1) Vệt hạt α tới (⁴₂He)
-                    </text>
-                    <text x="196" y="142" fill="#facc15" fontSize="12.5" fontWeight="700">
-                      (2) Đỉnh va chạm ¹⁴₇N (không có nhánh thứ 3)
-                    </text>
-                    <text x="418" y="30" fill="#fde047" fontSize="13" fontWeight="700">
-                      (3) Vệt mảnh, dài: Proton (¹₁H)
-                    </text>
-                    <text x="404" y="170" fill="#fda4af" fontSize="13" fontWeight="700">
-                      (4) Vệt đậm, ngắn: Hạt nhân ¹⁷₈O
-                    </text>
-                  </svg>
-                  <figcaption className={styles.darkBenchCaption}>
-                    <strong>Hình 22.1 – 22.2 (Buồng sương Blackett · SGK tr. 96):</strong> Phản ứng hạt nhân kích thích đầu tiên{" "}
-                    <Nuclide sym="He" a={4} z={2} /> + <Nuclide sym="N" a={14} z={7} /> →{" "}
-                    <Nuclide sym="O" a={17} z={8} /> + <Nuclide sym="H" a={1} z={1} />.
-                  </figcaption>
-                </figure>
-
-                {/* Đối chiếu khác biệt với tán xạ Rutherford Bài 21 */}
                 <div
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
                     gap: "12px",
                     marginBottom: "14px",
                   }}
                 >
-                  <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
-                    <strong style={{ display: "block", marginBottom: "4px" }}>
-                      Ôn lại Bài 21 · Tán xạ hạt α trên lá vàng
-                    </strong>
-                    <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
-                      Hạt α chỉ bị lực đẩy tĩnh điện làm <strong>đổi hướng bay</strong>; hạt nhân vàng{" "}
-                      <Nuclide sym="Au" a={197} z={79} /> <strong>giữ nguyên là nguyên tố vàng</strong>, không biến thành nguyên tố khác.
-                    </p>
-                  </div>
-                  <div style={{ border: "1px solid #a6c8ff", background: "#edf5ff", padding: "12px 14px" }}>
-                    <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
-                      Điểm mới ở Bài 22 · Phản ứng hạt nhân Blackett
-                    </strong>
-                    <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
-                      Hạt α bị bắt giữ vào <Nuclide sym="N" a={14} z={7} />, vệt α biến mất hoàn toàn và <strong>biến đổi nguyên tố Nitrogen (Z = 7) thành Oxygen (Z = 8)</strong> kèm một proton.
-                    </p>
-                  </div>
+                  {/* Hình 22.1 SGK tr. 96: Sơ đồ thí nghiệm của Rutherford */}
+                  <figure
+                    style={{
+                      margin: 0,
+                      border: "1px solid #d0d7de",
+                      background: "#ffffff",
+                      padding: "12px",
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 340 185"
+                      role="img"
+                      aria-label="Hình 22.1 SGK trang 96: Sơ đồ thí nghiệm của Rutherford gồm nguồn Po-210 phát hạt alpha tại P trong buồng chứa khí nitrogen dẫn qua ống A, màn huỳnh quang S và kính hiển vi K"
+                      style={{ width: "100%", height: "auto", display: "block" }}
+                    >
+                      <rect x="0" y="0" width="340" height="185" fill="#f8fafc" />
+                      {/* Thành buồng khí */}
+                      <rect x="26" y="48" width="214" height="96" fill="#ffffff" stroke="#0f62fe" strokeWidth="2" />
+                      {/* Hai van nạp/hút khí A */}
+                      <path d="M 74 48 L 74 20 M 86 48 L 86 20" stroke="#0f62fe" strokeWidth="1.8" />
+                      <ellipse cx="80" cy="30" rx="10" ry="5" fill="#e0e7ff" stroke="#161616" strokeWidth="1.2" />
+                      <text x="64" y="63" fontSize="12" fontWeight="700" fill="#161616">A</text>
+
+                      <path d="M 190 48 L 190 20 M 202 48 L 202 20" stroke="#0f62fe" strokeWidth="1.8" />
+                      <ellipse cx="196" cy="30" rx="10" ry="5" fill="#e0e7ff" stroke="#161616" strokeWidth="1.2" />
+                      <text x="180" y="63" fontSize="12" fontWeight="700" fill="#161616">A</text>
+
+                      {/* Nguồn P phát chùm alpha trong khí N-14 */}
+                      <line x1="36" y1="126" x2="236" y2="126" stroke="#525252" strokeWidth="2" />
+                      <rect x="148" y="96" width="6" height="30" fill="#0f62fe" />
+                      <line x1="154" y1="104" x2="178" y2="104" stroke="#da1e28" strokeWidth="2" />
+                      <polygon points="178,104 171,100 171,108" fill="#da1e28" />
+                      <text x="160" y="96" fontSize="12.5" fontWeight="700" fill="#b42332">P (²¹⁰₈₄Po)</text>
+                      <text x="44" y="98" fontSize="11.5" fill="#525252">Khí chứa ¹⁴₇N</text>
+
+                      {/* Màn huỳnh quang S và kính hiển vi K */}
+                      <rect x="240" y="42" width="8" height="108" fill="#a6c8ff" stroke="#0043ce" strokeWidth="1.4" />
+                      <text x="252" y="138" fontSize="12.5" fontWeight="700" fill="#002d9c">S</text>
+                      <polygon
+                        points="256,96 286,84 324,84 324,108 286,108"
+                        fill="#e5e7eb"
+                        stroke="#161616"
+                        strokeWidth="1.5"
+                      />
+                      <text x="298" y="100" fontSize="12.5" fontWeight="700" fill="#161616">K</text>
+                    </svg>
+                    <figcaption style={{ fontSize: "12.5px", color: "#525252", marginTop: "6px", lineHeight: 1.5 }}>
+                      <strong>Hình 22.1 (SGK tr. 96) · Sơ đồ thí nghiệm của Rutherford:</strong> Nguồn{" "}
+                      <Nuclide sym="Po" a={210} z={84} /> đặt tại <code>P</code> phát hạt α bắn phá{" "}
+                      <Nuclide sym="N" a={14} z={7} /> trong không khí (nạp/hút qua <code>A</code>). Kính hiển vi <code>K</code> thấy vết sáng trên màn <code>S</code> gợi ý có hạt{" "}
+                      <Nuclide sym="H" a={1} z={1} />, nhưng chưa thấy trực tiếp diễn biến tương tác.
+                    </figcaption>
+                  </figure>
+
+                  {/* Hình 22.2 SGK tr. 96: Buồng sương Blackett (chỉ đánh số 1-4 chưa lộ đáp án) */}
+                  <figure className={styles.darkBenchStage} style={{ margin: 0 }}>
+                    <svg
+                      viewBox="0 0 420 185"
+                      role="img"
+                      aria-label="Hình 22.2 SGK trang 96: Vết sương rẽ nhánh trong buồng sương của Blackett với 4 chi tiết đánh số (1), (2), (3), (4) để học sinh nhận diện"
+                      style={{ width: "100%", height: "auto", display: "block" }}
+                    >
+                      <rect x="0" y="0" width="420" height="185" fill="#0b1220" />
+                      {/* Các vệt sương thẳng không va chạm */}
+                      {[34, 60, 138, 164].map((y) => (
+                        <line key={y} x1="22" y1={y} x2="250" y2={y} stroke="#334155" strokeWidth="2" />
+                      ))}
+                      {/* (1) Vệt thẳng đi tới */}
+                      <line x1="22" y1="98" x2="188" y2="98" stroke="#38bdf8" strokeWidth="4" />
+                      {/* (2) Đỉnh chữ Y */}
+                      <circle cx="188" cy="98" r="6" fill="#facc15" />
+                      {/* (3) Nhánh mảnh vươn rất dài */}
+                      <line x1="188" y1="98" x2="392" y2="28" stroke="#fde047" strokeWidth="2.1" />
+                      {/* (4) Nhánh rất đậm, quãng đi ngắn */}
+                      <line
+                        x1="188"
+                        y1="98"
+                        x2="262"
+                        y2="140"
+                        stroke="#fb7185"
+                        strokeWidth="5.5"
+                        strokeLinecap="round"
+                      />
+                      <text x="28" y="86" fill="#7dd3fc" fontSize="12.5" fontWeight="700">
+                        (1) Vệt thẳng đi tới
+                      </text>
+                      <text x="116" y="122" fill="#facc15" fontSize="12" fontWeight="700">
+                        (2) Đỉnh rẽ nhánh chữ Y
+                      </text>
+                      <text x="252" y="26" fill="#fde047" fontSize="12.5" fontWeight="700">
+                        (3) Nhánh mảnh, rất dài
+                      </text>
+                      <text x="268" y="146" fill="#fda4af" fontSize="12.5" fontWeight="700">
+                        (4) Nhánh đậm, ngắn
+                      </text>
+                    </svg>
+                    <figcaption className={styles.darkBenchCaption}>
+                      <strong>Hình 22.2 (SGK tr. 96) · Vết sương rẽ nhánh của Blackett (1925):</strong> Buồng sương siêu bão hòa giúp chụp được vệt đường đi của các hạt tích điện. Hãy dự đoán điều gì xảy ra tại đỉnh <code>(2)</code> ở Bước 3 và ghép vai trò <code>(1)–(4)</code> ở Bước 4!
+                    </figcaption>
+                  </figure>
                 </div>
 
                 {b21VideoLesson && (
@@ -2586,7 +2906,7 @@ export function Chapter4SectionBody({
                     <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.55 }}>
                       <strong>Tư liệu video bổ trợ Pha 1 Bài 22:</strong> Theo dõi diễn biến trước – trong – sau tương tác hạt nhân và cách kiểm tra tổng A, Z.{" "}
                       <span style={{ color: "#002d9c", fontWeight: 600 }}>
-                        Nếu chưa xem video, học sinh vẫn hoàn thành trọn vẹn Pha 1 từ sơ đồ buồng sương Blackett và dữ liệu thật ngay trên trang
+                        Nếu chưa xem video, học sinh vẫn hoàn thành trọn vẹn Pha 1 từ Hình 22.1 – 22.2 ngay trên trang
                       </span>{" "}
                       (mở hoặc phát video không tự tính hoàn thành).
                     </p>
@@ -2605,7 +2925,7 @@ export function Chapter4SectionBody({
                 }}
               >
                 <h4 style={{ margin: "0 0 6px", fontSize: "16px" }}>
-                  Bước 3 · Ghi và khóa dự đoán ban đầu kèm lí do
+                  Bước 3 · Ghi và khóa dự đoán ban đầu kèm lí do (trước khi xem kết luận của Blackett)
                 </h4>
                 {lockedB22Label && (
                   <div
@@ -2623,7 +2943,7 @@ export function Chapter4SectionBody({
                 )}
                 <fieldset style={{ border: "none", margin: "0 0 12px", padding: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
-                    Chọn dự đoán của em về hiện tượng tại đỉnh rẽ nhánh chữ Y:
+                    Chọn dự đoán của em về hiện tượng tại đỉnh rẽ nhánh chữ Y trên Hình 22.2:
                   </legend>
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     {B22_PREDICTION_CHOICES.map((opt) => (
@@ -2779,7 +3099,7 @@ export function Chapter4SectionBody({
                 </div>
               </section>
 
-              {/* Bước 5: Câu tự kiểm tra có phản hồi */}
+              {/* Bước 5: Đối chiếu kết luận thực nghiệm Blackett (SGK tr. 96–97) & câu tự kiểm tra */}
               <section
                 style={{
                   border: "1px solid #d0d7de",
@@ -2789,8 +3109,40 @@ export function Chapter4SectionBody({
                 }}
               >
                 <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
-                  Bước 5 · Câu tự kiểm tra trước giờ học
+                  Bước 5 · Đối chiếu kết quả phân tích của Blackett (SGK tr. 96–97) &amp; tự kiểm tra
                 </h4>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                    gap: "12px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "10px 12px" }}>
+                    <strong style={{ display: "block", marginBottom: "4px" }}>
+                      Bài 21 · Tán xạ hạt α trên lá vàng
+                    </strong>
+                    <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
+                      Hạt α chỉ bị lực đẩy tĩnh điện làm <strong>đổi hướng bay</strong>; hạt nhân vàng{" "}
+                      <Nuclide sym="Au" a={197} z={79} /> <strong>giữ nguyên là nguyên tố vàng</strong>.
+                    </p>
+                  </div>
+                  <div style={{ border: "1px solid #a6c8ff", background: "#edf5ff", padding: "10px 12px" }}>
+                    <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                      Bài 22 · Kết luận của Blackett từ Hình 22.2
+                    </strong>
+                    <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
+                      Trong một số trường hợp, hạt <Nuclide sym="He" a={4} z={2} /> bắn phá{" "}
+                      <Nuclide sym="N" a={14} z={7} /> đã tạo ra hai hạt nhân mới là{" "}
+                      <Nuclide sym="O" a={17} z={8} /> (nhánh đậm ngắn) và <Nuclide sym="H" a={1} z={1} /> (nhánh mảnh dài):{" "}
+                      <strong>
+                        <Nuclide sym="He" a={4} z={2} /> + <Nuclide sym="N" a={14} z={7} /> →{" "}
+                        <Nuclide sym="O" a={17} z={8} /> + <Nuclide sym="H" a={1} z={1} />
+                      </strong>.
+                    </p>
+                  </div>
+                </div>
                 <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: "14px", marginBottom: "8px" }}>
                     Đối chiếu sơ đồ Blackett với thí nghiệm lá vàng Rutherford ở Bài 21, nhận định nào đúng?
@@ -2942,30 +3294,30 @@ export function Chapter4SectionBody({
               <div className={styles.tableScroll}>
                 <table className={styles.cdsTable}>
                   <caption>
-                    Phân loại hai nhóm phản ứng hạt nhân và các định luật bảo toàn (SGK tr. 97–98)
+                    Phân loại hai nhóm phản ứng hạt nhân và các định luật bảo toàn (SGK tr. 97)
                   </caption>
                   <thead>
                     <tr>
                       <th scope="col">Loại phản ứng hạt nhân</th>
-                      <th scope="col">Bản chất vật lí</th>
+                      <th scope="col">Bản chất vật lí (SGK tr. 97)</th>
                       <th scope="col">Ví dụ điển hình</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <th scope="row">1. Phản ứng hạt nhân tự phát</th>
-                      <td>Quá trình tự phân rã của một hạt nhân không bền vững thành các hạt nhân khác (hiện tượng phóng xạ).</td>
-                      <td>
-                        <Nuclide sym="U" a={238} z={92} /> → <Nuclide sym="Th" a={234} z={90} /> +{" "}
-                        <Nuclide sym="He" a={4} z={2} />
-                      </td>
-                    </tr>
-                    <tr>
-                      <th scope="row">2. Phản ứng hạt nhân kích thích</th>
-                      <td>Quá trình các hạt nhân tương tác với nhau (do va chạm/bắn phá) tạo ra các hạt nhân mới.</td>
+                      <th scope="row">1. Phản ứng hạt nhân kích thích</th>
+                      <td>Quá trình các hạt nhân tương tác với các hạt khác (hạt nhân, neutron,…) tạo ra các hạt nhân mới (như phân hạch, tổng hợp hạt nhân).</td>
                       <td>
                         <Nuclide sym="He" a={4} z={2} /> + <Nuclide sym="N" a={14} z={7} /> →{" "}
                         <Nuclide sym="O" a={17} z={8} /> + <Nuclide sym="H" a={1} z={1} /> (Blackett)
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2. Phản ứng hạt nhân tự phát</th>
+                      <td>Quá trình tự phân rã của một hạt nhân không bền vững thành các hạt nhân mới (như phân rã phóng xạ của Uranium được Henri Becquerel công bố).</td>
+                      <td>
+                        <Nuclide sym="U" a={238} z={92} /> → <Nuclide sym="Th" a={234} z={90} /> +{" "}
+                        <Nuclide sym="He" a={4} z={2} />
                       </td>
                     </tr>
                   </tbody>
@@ -2977,14 +3329,57 @@ export function Chapter4SectionBody({
                   padding: "10px 14px",
                   background: "#f8fafc",
                   border: "1px solid #d0d7de",
-                  marginBottom: "16px",
+                  marginBottom: "12px",
                   fontSize: "13.5px",
-                  lineHeight: 1.55,
+                  lineHeight: 1.6,
                 }}
               >
-                <strong>Định luật bảo toàn trong mọi phản ứng hạt nhân:</strong>{" "}
-                Bảo toàn <strong>số nucleon (số khối A)</strong> và bảo toàn <strong>điện tích (Z)</strong>, bảo toàn năng lượng toàn phần và động lượng. <em>Lưu ý:</em> Không có định luật bảo toàn khối lượng nghỉ!
+                <strong>Định luật bảo toàn trong phản ứng hạt nhân{" "}
+                <code>ᴬ¹_Z₁X₁ + ᴬ²_Z₂X₂ → ᴬ³_Z₃X₃ + ᴬ⁴_Z₄X₄</code> (SGK tr. 97):</strong>
+                <ul style={{ margin: "6px 0 0", paddingLeft: "18px" }}>
+                  <li>
+                    <strong>Bảo toàn số nucleon (số khối A):</strong> <code>A₁ + A₂ = A₃ + A₄</code> (ví dụ Hình 22.2: <code>4 + 14 = 17 + 1 = 18</code>).
+                  </li>
+                  <li>
+                    <strong>Bảo toàn điện tích:</strong> <code>Z₁ + Z₂ = Z₃ + Z₄</code> (ví dụ Hình 22.2: <code>2 + 7 = 8 + 1 = 9</code>).
+                  </li>
+                  <li>
+                    Hệ kín các hạt tương tác còn tuân theo bảo toàn năng lượng toàn phần và động lượng; <em>không</em> có định luật bảo toàn khối lượng nghỉ.
+                  </li>
+                </ul>
               </div>
+
+              {/* Câu hỏi ? & Hoạt động SGK tr. 97 (không lộ đáp án trước khi học sinh tự làm) */}
+              <details
+                style={{
+                  marginBottom: "16px",
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "12px 14px",
+                  fontSize: "13.5px",
+                }}
+              >
+                <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+                  Câu hỏi ? &amp; Bài tập hoạt động (SGK tr. 97): Phân biệt với phản ứng hóa học &amp; tìm hạt nhân X, Y khi bắn ²³⁵₉₂U bằng neutron
+                </summary>
+                <div style={{ marginTop: "10px", lineHeight: 1.6 }}>
+                  <p style={{ margin: "0 0 8px" }}>
+                    <strong>1. Khác nhau giữa phản ứng hạt nhân và phản ứng hóa học:</strong> Phản ứng hạt nhân làm biến đổi chính hạt nhân (thường tạo ra nguyên tố mới, tỏa/thu năng lượng cỡ hàng triệu eV trên mỗi hạt nhân và không phụ thuộc nhiệt độ, áp suất thông thường), trong khi phản ứng hóa học chỉ sắp xếp lại liên kết electron ở lớp vỏ và giữ nguyên các hạt nhân nguyên tố.
+                  </p>
+                  <p style={{ margin: 0 }}>
+                    <strong>2. Bắn phá <Nuclide sym="U" a={235} z={92} /> bằng <Nuclide sym="n" a={1} z={0} /> hợp nhất thành X, rồi X phân rã thành <Nuclide sym="Mo" a={99} z={42} />, 3 neutron và Y:</strong>
+                    <br />
+                    a) Phương trình: <Nuclide sym="n" a={1} z={0} /> + <Nuclide sym="U" a={235} z={92} /> →{" "}
+                    <Nuclide sym="U" a={236} z={92} />* và <Nuclide sym="U" a={236} z={92} />* →{" "}
+                    <Nuclide sym="Mo" a={99} z={42} /> + <Nuclide sym="Sn" a={134} z={50} /> + 3·<Nuclide sym="n" a={1} z={0} />.
+                    <br />
+                    b) Áp dụng bảo toàn <code>A</code> và <code>Z</code>: <strong>X</strong> là đồng vị Uranium{" "}
+                    <Nuclide sym="U" a={236} z={92} />; <strong>Y</strong> có <code>Z = 92 − 42 = 50</code>,{" "}
+                    <code>A = 236 − 99 − 3 = 134</code>, tra bảng tuần hoàn ô <code>Z = 50</code> là <strong>Thiếc (Tin)</strong>{" "}
+                    <Nuclide sym="Sn" a={134} z={50} />.
+                  </p>
+                </div>
+              </details>
 
               <FixedPhysicsActivityRenderer
                 activityKey="nuclear_reaction_balancer"
@@ -2996,56 +3391,192 @@ export function Chapter4SectionBody({
 
       {section.kind === "b22_binding_energy" && (
         <div>
-          <div style={{ border: "1px solid #d0d7de", background: "#ffffff", padding: "14px", marginBottom: "16px" }}>
-            <h4 style={{ margin: "0 0 8px", fontSize: "15.5px" }}>
-              Hình 22.3 · Đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ / A theo số khối A (SGK tr. 100)
+          {/* 1. Lực hạt nhân & Hình 22.3 + Hình 22.5 (SGK tr. 98 & tr. 100) */}
+          <div style={{ border: "1px solid #d0d7de", background: "#ffffff", padding: "14px 16px", marginBottom: "14px" }}>
+            <h4 style={{ margin: "0 0 6px", fontSize: "15.5px" }}>
+              1. Lực hạt nhân &amp; Đồ thị năng lượng liên kết riêng Hình 22.3 (SGK tr. 98) – Hình 22.5 (SGK tr. 100)
             </h4>
+            <p style={{ margin: "0 0 10px", fontSize: "13.5px", lineHeight: 1.6 }}>
+              <strong>Lực hạt nhân</strong> là lực hút rất mạnh liên kết các nucleon trong hạt nhân, không phụ thuộc điện tích (không phải lực tĩnh điện) và chỉ phát huy tác dụng trong phạm vi bán kính rất ngắn cỡ kích thước hạt nhân (<code>≤ 10⁻¹⁵ m</code>). Năng lượng tối thiểu dùng để tách toàn bộ số nucleon ra khỏi hạt nhân bằng <strong>năng lượng liên kết</strong> <code>Eₗₖ</code>; mức độ bền vững của hạt nhân phụ thuộc vào <strong>năng lượng liên kết riêng</strong> <code>Eₗₖᵣ = Eₗₖ / A</code> (công thức 22.1).
+            </p>
             <svg
-              viewBox="0 0 640 215"
-              width="640"
-              height="215"
+              viewBox="0 0 660 225"
+              width="660"
+              height="225"
               role="img"
-              aria-label="Hình 22.3 đồ thị năng lượng liên kết riêng E_lkr bằng E_lk chia A theo số khối A: vùng bền vững 50 nhỏ hơn A nhỏ hơn 95 đạt đỉnh khoảng 8,8 MeV trên nucleon quanh Fe-56 đến Y-89"
-              style={{ width: "100%", height: "auto", display: "block" }}
+              aria-label="Đối chiếu Hình 22.3 SGK trang 98 và Hình 22.5 SGK trang 100: đồ thị năng lượng liên kết riêng E_lkr (MeV) theo số khối A với các mốc M, N, T, Q, P; đỉnh bền vững nhất tại Fe-56 và Y-89 khoảng 8,8 MeV"
+              style={{ width: "100%", height: "auto", display: "block", border: "1px solid #e5e7eb", background: "#fcfcfd" }}
             >
-              <line x1="62" y1="180" x2="615" y2="180" stroke="#525252" strokeWidth="1.4" />
-              <line x1="62" y1="180" x2="62" y2="20" stroke="#525252" strokeWidth="1.4" />
-              <rect x="148" y="24" width="150" height="156" fill="#defbe6" opacity="0.55" />
+              <line x1="64" y1="186" x2="628" y2="186" stroke="#525252" strokeWidth="1.5" />
+              <line x1="64" y1="186" x2="64" y2="22" stroke="#525252" strokeWidth="1.5" />
+              {/* Vạch chia trục E_lkr (0..10 MeV) */}
+              {[0, 2, 4, 6, 8, 10].map((v) => {
+                const y = 186 - v * 15.5;
+                return (
+                  <g key={v}>
+                    <line x1="60" y1={y} x2="620" y2={y} stroke="#eef2f6" strokeWidth="1" />
+                    <text x="52" y={y + 4} textAnchor="end" fontSize="11" fill="#525252">{v}</text>
+                  </g>
+                );
+              })}
+              {/* Vạch chia trục số khối A (0..240) */}
+              {[0, 30, 60, 90, 120, 150, 180, 210, 240].map((a) => {
+                const x = 64 + a * 2.2;
+                return (
+                  <g key={a}>
+                    <line x1={x} y1="186" x2={x} y2="191" stroke="#525252" strokeWidth="1.2" />
+                    <text x={x} y="204" textAnchor="middle" fontSize="11" fill="#525252">{a}</text>
+                  </g>
+                );
+              })}
+              {/* Vùng hạt nhân trung bình bền nhất */}
+              <rect x={64 + 50 * 2.2} y="26" width={45 * 2.2} height="160" fill="#defbe6" opacity="0.5" />
+              {/* Đường cong đơn giản hóa Hình 22.5 (M - N - T - Q - P) kết hợp điểm đặc trưng Hình 22.3 */}
               <path
-                d="M 68 164 L 74 62 L 88 88 L 102 56 L 154 40 Q 205 34 268 39 Q 392 49 596 67"
+                d="M 68 170 L 73 76 L 84 94 L 91 64 L 130 50 Q 192 46 264 51 Q 405 60 590 68"
                 fill="none"
                 stroke="#0f62fe"
                 strokeWidth="2.8"
               />
-              <circle cx="188" cy="36" r="5" fill="#198038" />
-              <text x="196" y="34" fill="#198038" fontSize="12" fontWeight="700">
-                ⁵⁶₂₆Fe – ⁸⁹₃₉Y (Eₗₖᵣ ≈ 8,8 MeV/nucleon · Bền nhất)
+              {/* Các mốc M, N, T, Q, P của Hình 22.5 SGK tr. 100 */}
+              <circle cx="68" cy="170" r="4" fill="#da1e28" />
+              <text x="75" y="174" fontSize="11.5" fontWeight="700" fill="#b42332">M (²H ≈ 1,1 MeV)</text>
+
+              <circle cx="91" cy="64" r="3.8" fill="#0f62fe" />
+              <text x="72" y="56" fontSize="11" fontWeight="700" fill="#0043ce">⁴He · N</text>
+
+              <circle cx="187" cy="49" r="5" fill="#198038" />
+              <circle cx="260" cy="51" r="4.5" fill="#198038" />
+              <text x="174" y="39" fontSize="11.5" fontWeight="700" fill="#198038">
+                T · Đỉnh bền nhất: ⁵⁶Fe, ⁸⁹Y (≈ 8,8 MeV)
               </text>
-              <text x="78" y="54" fill="#0f62fe" fontSize="11.5" fontWeight="700">⁴₂He</text>
-              <text x="518" y="60" fill="#161616" fontSize="11.5" fontWeight="700">²³⁵₉₂U (Eₗₖᵣ ≈ 7,6 MeV)</text>
-              <text x="70" y="152" fill="#8e6a00" fontSize="11.5" fontWeight="700">Tổng hợp hạt nhân ↗</text>
-              <text x="424" y="94" fill="#002d9c" fontSize="11.5" fontWeight="700">↖ Phân hạch hạt nhân</text>
-              <text x="522" y="200" fill="#525252" fontSize="12">Số khối A →</text>
-              <text x="8" y="18" fill="#525252" fontSize="12" fontWeight="700">Eₗₖᵣ = Eₗₖ/A (MeV/nucleon)</text>
+
+              <circle cx="380" cy="58" r="4" fill="#002d9c" />
+              <text x="374" y="49" fontSize="11.5" fontWeight="700" fill="#002d9c">Q</text>
+
+              <circle cx="588" cy="68" r="4.2" fill="#161616" />
+              <text x="510" y="84" fontSize="11.5" fontWeight="700" fill="#161616">P · ²³⁸U (≈ 7,6 MeV)</text>
+
+              {/* Hai mũi tên chuyển dịch Tổng hợp (MN→NT) & Phân hạch (PQ→QT) đúng Hình 22.5 */}
+              <text x="98" y="128" fill="#8e6a00" fontSize="11.5" fontWeight="700">Tổng hợp hạt nhân (MN → NT) ↗</text>
+              <text x="405" y="106" fill="#002d9c" fontSize="11.5" fontWeight="700">↖ Phân hạch hạt nhân (PQ → QT)</text>
+
+              <text x="612" y="218" fill="#161616" fontSize="12" fontWeight="700">Số khối A</text>
+              <text x="12" y="16" fill="#161616" fontSize="12" fontWeight="700">Eₗₖᵣ (MeV/nucleon)</text>
             </svg>
           </div>
 
+          {/* 2. Hình 22.4 SGK tr. 99 (Cân hai đĩa độ hụt khối Δm) & Hệ thức Einstein E = mc², Eₗₖ = Δm·c² */}
           <div
             style={{
-              padding: "12px 14px",
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "14px",
+              alignItems: "center",
+              padding: "14px 16px",
               background: "#f8fafc",
               border: "1px solid #d0d7de",
-              marginBottom: "16px",
-              fontSize: "13.5px",
-              lineHeight: 1.6,
+              marginBottom: "14px",
             }}
           >
-            <strong>Liên hệ Hình 22.5 SGK (Độ hụt khối Δm &amp; Năng lượng liên kết Eₗₖ):</strong>{" "}
-            Khi cân tổng khối lượng các nucleon riêng rẽ <code>M = Z·m_p + (A − Z)·m_n</code> (đĩa cân <code>P</code>) so với khối lượng hạt nhân tạo thành <code>m_X</code> (đĩa cân <code>Q</code> trên hệ <code>M, N, T, Q, P</code>), ta luôn có <code>M &gt; m_X</code>. Độ hụt khối{" "}
-            <code>Δm = [Z·m_p + (A − Z)·m_n] − m_X</code> ứng với <strong>năng lượng liên kết</strong>{" "}
-            <code>Eₗₖ = Δm·c²</code> (năng lượng tối thiểu cần cung cấp để tách hạt nhân thành các nucleon riêng lẻ). Độ bền vững của hạt nhân được quyết định bởi <strong>năng lượng liên kết riêng</strong>{" "}
-            <code>Eₗₖᵣ = Eₗₖ / A</code>.
+            <div>
+              <h4 style={{ margin: "0 0 6px", fontSize: "15.5px" }}>
+                2. Độ hụt khối Δm (Hình 22.4 · SGK tr. 99) &amp; Hệ thức Einstein
+              </h4>
+              <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.6 }}>
+                So sánh khối lượng hạt nhân <Nuclide sym="He" a={4} z={2} /> (<code>m_He ≈ 4,00015 amu</code>) với tổng khối lượng 4 nucleon riêng rẽ (<code>2m_p + 2m_n ≈ 2·1,00728 + 2·1,00866 = 4,03188 amu</code>), khối lượng hạt nhân luôn <strong>nhỏ hơn</strong> tổng khối lượng các nucleon tạo thành nó:
+              </p>
+              <LatexMath
+                block
+                math={String.raw`\Delta m = \left[Z m_p + (A - Z) m_n\right] - m_X \;\;(22.2), \qquad E_{\mathrm{lk}} = \Delta m \cdot c^2 \;\;(22.4)`}
+              />
+              <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#525252", lineHeight: 1.5 }}>
+                Hệ thức Einstein (22.3): <code>E = m·c²</code> (vật ở trạng thái nghỉ khối lượng <code>m₀</code> có năng lượng nghỉ <code>E₀ = m₀·c²</code>; đổi đơn vị tiện tính: <code>1 amu·c² ≈ 931,5 MeV</code>).
+              </p>
+            </div>
+
+            {/* Sơ đồ vector chuẩn Hình 22.4 SGK tr. 99: Cân hai đĩa He nhẹ hơn 2p + 2n */}
+            <figure
+              style={{
+                margin: 0,
+                background: "#ffffff",
+                border: "1px solid #d0d7de",
+                padding: "10px 12px",
+                textAlign: "center",
+              }}
+            >
+              <svg
+                viewBox="0 0 280 155"
+                role="img"
+                aria-label="Hình 22.4 SGK trang 99: Cân hai đĩa minh họa hạt nhân He-4 nhẹ hơn tổng 2 proton cộng 2 neutron rời nhau"
+                style={{ width: "100%", maxWidth: "270px", height: "auto" }}
+              >
+                {/* Trụ cân */}
+                <rect x="114" y="136" width="52" height="8" rx="3" fill="#8e6a00" />
+                <line x1="140" y1="30" x2="140" y2="136" stroke="#8e6a00" strokeWidth="4" />
+                {/* Đòn cân nghiêng về phía 2p + 2n (nặng hơn) */}
+                <line x1="56" y1="38" x2="224" y2="56" stroke="#b28600" strokeWidth="3.2" />
+                <circle cx="140" cy="47" r="4.5" fill="#161616" />
+
+                {/* Đĩa trái cao hơn: Hạt nhân He đã liên kết */}
+                <line x1="56" y1="38" x2="40" y2="88" stroke="#525252" strokeWidth="1.1" />
+                <line x1="56" y1="38" x2="72" y2="88" stroke="#525252" strokeWidth="1.1" />
+                <path d="M 34 88 Q 56 96 78 88 Z" fill="#d0d7de" stroke="#525252" />
+                <circle cx="52" cy="82" r="5" fill="#da1e28" />
+                <circle cx="60" cy="82" r="5" fill="#0043ce" />
+                <circle cx="56" cy="75" r="5" fill="#da1e28" />
+                <circle cx="56" cy="85" r="4.5" fill="#0043ce" />
+                <text x="56" y="108" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#002d9c">
+                  ⁴₂He (4,00015 amu)
+                </text>
+
+                {/* Đĩa phải thấp hơn: 2p + 2n rời nhau */}
+                <line x1="224" y1="56" x2="202" y2="108" stroke="#525252" strokeWidth="1.1" />
+                <line x1="224" y1="56" x2="246" y2="108" stroke="#525252" strokeWidth="1.1" />
+                <path d="M 196 108 Q 224 116 252 108 Z" fill="#d0d7de" stroke="#525252" />
+                <circle cx="206" cy="103" r="4.8" fill="#da1e28" />
+                <circle cx="218" cy="103" r="4.8" fill="#da1e28" />
+                <circle cx="230" cy="103" r="4.8" fill="#0043ce" />
+                <circle cx="242" cy="103" r="4.8" fill="#0043ce" />
+                <text x="224" y="127" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#b42332">
+                  2p + 2n (4,03188 amu)
+                </text>
+              </svg>
+              <figcaption style={{ fontSize: "12px", color: "#525252", marginTop: "4px" }}>
+                <strong>Hình 22.4 (SGK tr. 99).</strong> Các nucleon đã liên kết thành hạt nhân nhẹ hơn khi đứng riêng rẽ
+              </figcaption>
+            </figure>
           </div>
+
+          {/* Câu hỏi ? & Hoạt động SGK tr. 98–100 (tự tính trước khi mở đối chiếu) */}
+          <details
+            style={{
+              marginBottom: "16px",
+              border: "1px solid #d0d7de",
+              background: "#ffffff",
+              padding: "12px 14px",
+              fontSize: "13.5px",
+            }}
+          >
+            <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+              Câu hỏi ? &amp; Bài tập hoạt động (SGK tr. 98–100): Đọc Hình 22.3, tính Δm của ¹⁶₈O và Eₗₖ, Eₗₖᵣ của ⁴₂He
+            </summary>
+            <ul style={{ margin: "10px 0 0", paddingLeft: "18px", lineHeight: 1.65 }}>
+              <li>
+                <strong>Đọc đồ thị Hình 22.3 (SGK tr. 98):</strong> Hai hạt nhân bền vững nhất trên đồ thị là{" "}
+                <code>⁵⁶Fe</code> và <code>⁸⁹Y</code> với <code>Eₗₖᵣ ≈ 8,8 MeV/nucleon</code>. Năm hạt nhân nhẹ (<code>A ≤ 30</code>) có <code>Eₗₖᵣ &lt; 8,2 MeV</code> gồm <code>²H, ⁶Li, ⁹Be, ¹¹B, ⁴He</code> (hoặc <code>¹²C, ¹⁴N, ¹⁹F, ²⁰Ne</code>); bốn hạt nhân nặng (<code>A ≥ 160</code>) có <code>Eₗₖᵣ &lt; 8,2 MeV</code> là <code>¹⁶⁰Dy, ¹⁸⁰Hf, ¹⁹⁷Au, ²⁰⁹Bi</code> (hoặc <code>²³⁸U</code>).
+              </li>
+              <li>
+                <strong>Tính độ hụt khối của <Nuclide sym="O" a={16} z={8} /> biết <code>m_O ≈ 15,99492 amu</code> (SGK tr. 99):</strong>{" "}
+                <code>Δm = 8·1,00728 + 8·1,00866 − 15,99492 = 16,12752 − 15,99492 = 0,13260 amu</code>.
+              </li>
+              <li>
+                <strong>Hệ số chuyển đổi <code>amu</code> sang <code>MeV/c²</code> &amp; tính cho <Nuclide sym="He" a={4} z={2} /> (SGK tr. 100):</strong>{" "}
+                <code>1 amu ≈ 1,66054·10⁻²⁷ kg ⇒ 1 amu·c² ≈ 931,5 MeV</code> (nên <code>1 amu ≈ 931,5 MeV/c²</code>). Với <code>Δm_He = 4,03188 − 4,00015 = 0,03173 amu</code> (theo tr. 99), ta có{" "}
+                <code>Eₗₖ ≈ 0,03173 × 931,5 ≈ 29,56 MeV</code> và <code>Eₗₖᵣ = Eₗₖ / 4 ≈ 7,39 MeV/nucleon</code> (nếu dùng khối lượng hạt nhân trừ vỏ electron <code>m_α ≈ 4,0015 amu</code> thì <code>Eₗₖ ≈ 28,3 MeV</code>, <code>Eₗₖᵣ ≈ 7,07 MeV/nucleon</code>).
+              </li>
+            </ul>
+          </details>
 
           <FixedPhysicsActivityRenderer
             activityKey="binding_energy_lab"
@@ -3055,10 +3586,76 @@ export function Chapter4SectionBody({
       )}
 
       {section.kind === "b22_fission" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="nuclear_fission"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
+        <div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "12px",
+              marginBottom: "14px",
+            }}
+          >
+            <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+              <strong style={{ display: "block", marginBottom: "4px" }}>
+                1. Tiến trình phân hạch của <Nuclide sym="U" a={235} z={92} /> (Otto Hahn, 1939 · Hình 22.6 SGK tr. 100–101)
+              </strong>
+              <p style={{ margin: "0 0 6px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                Dùng <strong>neutron nhiệt</strong> (động năng <code>&lt; 0,1 eV</code>) bắn vào{" "}
+                <Nuclide sym="U" a={235} z={92} /> tạo trạng thái kích thích không bền{" "}
+                <Nuclide sym="U" a={236} z={92} />*; sau khoảng <code>10⁻¹⁴ s</code> hạt nhân biến dạng vỡ thành hai mảnh khối lượng trung bình và giải phóng <code>k = 1, 2, 3</code> neutron (tỏa khoảng <code>200 MeV</code> mỗi phân hạch):
+              </p>
+              <div style={{ fontSize: "13.5px", fontWeight: 600, color: "#002d9c" }}>
+                <Nuclide sym="n" a={1} z={0} /> + <Nuclide sym="U" a={235} z={92} /> →{" "}
+                <Nuclide sym="U" a={236} z={92} />* → <Nuclide sym="Y" a={95} z={39} /> +{" "}
+                <Nuclide sym="I" a={138} z={53} /> + 3·<Nuclide sym="n" a={1} z={0} />
+              </div>
+              <p style={{ margin: "6px 0 0", fontSize: "12.5px", color: "#525252" }}>
+                Ngoài <Nuclide sym="U" a={235} z={92} />, các đồng vị <Nuclide sym="Np" a={237} z={93} />,{" "}
+                <Nuclide sym="Pu" a={239} z={94} />, <Nuclide sym="Cf" a={251} z={98} /> cũng có tính phân hạch tương tự.
+              </p>
+            </div>
+
+            <div style={{ border: "1px solid #b5c7e3", background: "#f4f8ff", padding: "12px 14px" }}>
+              <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                [Ô đọc thêm “Em có biết” — SGK tr. 102] Hình 22.7 · Hệ số nhân neutron k &amp; khối lượng tới hạn m_th
+              </strong>
+              <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                <li>
+                  Gọi <code>k</code> là số neutron trung bình sau mỗi phân hạch tiếp tục kích thích được các hạt nhân{" "}
+                  <Nuclide sym="U" a={235} z={92} /> khác: <code>k &lt; 1</code> phản ứng dây chuyền tắt dần;{" "}
+                  <code>k ≥ 1</code> phản ứng dây chuyền tự duy trì (<code>k = 1</code> ổn định trong lò phản ứng; <code>k &gt; 1</code> bùng nổ như Hình 22.7).
+                </li>
+                <li>
+                  Để giảm neutron thoát ra ngoài, khối lượng chất phân hạch phải vượt <strong>khối lượng tới hạn <code>m_th</code></strong> (với mẫu làm giàu ~90% không nén/phản xạ neutron: <code>m_th(²³⁵U) ≈ 47 kg</code>, <code>m_th(²³⁹Pu) ≈ 10 kg</code>).
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <details
+            style={{
+              marginBottom: "14px",
+              border: "1px solid #d0d7de",
+              background: "#ffffff",
+              padding: "10px 14px",
+              fontSize: "13.5px",
+            }}
+          >
+            <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+              Câu hỏi ? mục 2 (SGK tr. 101): Tính năng lượng tỏa ra khi phân hạch hoàn toàn 1 kg ²³⁵₉₂U (mỗi phân hạch tỏa 200 MeV)
+            </summary>
+            <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+              Số hạt nhân trong <code>1 kg = 1000 g</code> <Nuclide sym="U" a={235} z={92} /> là{" "}
+              <code>N = (1000 / 235) × 6,022·10²³ ≈ 2,56·10²⁴</code> hạt nhân. Năng lượng toàn phần tỏa ra:{" "}
+              <code>E = N × 200 MeV ≈ 5,13·10²⁶ MeV ≈ 8,2·10¹³ J</code> (tương đương đốt hàng nghìn tấn than đá!).
+            </p>
+          </details>
+
+          <FixedPhysicsActivityRenderer
+            activityKey="nuclear_fission"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
+        </div>
       )}
 
       {section.kind === "b22_fusion" && (
@@ -3068,35 +3665,56 @@ export function Chapter4SectionBody({
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
               gap: "12px",
-              marginBottom: "16px",
+              marginBottom: "14px",
             }}
           >
             <div style={{ border: "1px solid #a6c8ff", background: "#edf5ff", padding: "12px 14px" }}>
               <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
-                Phản ứng tổng hợp hạt nhân đầu tiên (Oliphant, 1934 · SGK tr. 102)
+                IV. Phản ứng tổng hợp hạt nhân (phản ứng nhiệt hạch · SGK tr. 102)
               </strong>
-              <p style={{ margin: 0, fontSize: "13.5px", lineHeight: 1.55 }}>
-                Dùng máy gia tốc bắn hạt nhân deuterium vào bia chứa deuterium:{" "}
-                <strong>
-                  <Nuclide sym="H" a={2} z={1} /> + <Nuclide sym="H" a={2} z={1} /> →{" "}
-                  <Nuclide sym="He" a={3} z={2} /> + <Nuclide sym="n" a={1} z={0} />
-                </strong>{" "}
-                (tỏa năng lượng cỡ <code>3,3 – 4,0 MeV</code> mỗi phản ứng).
+              <p style={{ margin: "0 0 6px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                Là phản ứng trong đó hai hay nhiều hạt nhân nhẹ (đoạn <code>MN</code> trên Hình 22.5) tổng hợp lại thành một hạt nhân nặng hơn có <code>Eₗₖᵣ</code> lớn hơn (đoạn <code>NT</code>). Trong thí nghiệm máy gia tốc của Oliphant với dòng hạt deuterium (SGK tr. 102):
+              </p>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "#002d9c", marginBottom: "6px" }}>
+                <Nuclide sym="H" a={2} z={1} /> + <Nuclide sym="H" a={2} z={1} /> →{" "}
+                <Nuclide sym="He" a={3} z={2} /> + <Nuclide sym="n" a={1} z={0} /> (tỏa khoảng 4 MeV)
+              </div>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.55 }}>
+                Để thắng lực đẩy tĩnh điện Coulomb giữa các hạt nhân mang điện dương và tiến lại gần nhau đến phạm vi lực hạt nhân, thực tế cần nung nóng tới nhiệt độ cực cao <code>10⁷ – 10⁸ K</code> nên gọi là <strong>phản ứng nhiệt hạch</strong>.
               </p>
             </div>
-            <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
-              <strong style={{ display: "block", marginBottom: "4px" }}>
-                Ba điều kiện thực hiện phản ứng nhiệt hạch (SGK tr. 103)
+            <div style={{ border: "1px solid #b5c7e3", background: "#f4f8ff", padding: "12px 14px" }}>
+              <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                [Ô đọc thêm “Em có biết” — SGK tr. 103] Điều kiện J. D. Lawson cho phản ứng tổng hợp hạt nhân
               </strong>
               <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                <li>Nhiệt độ cực cao vào khoảng <code>10⁷</code> đến <code>10⁸ K</code>.</li>
+                <li>Mật độ hạt nhân <code>n</code> phải đủ lớn.</li>
                 <li>
-                  Nhiệt độ cực cao cỡ <code>10⁷ – 10⁸ K</code> để vật chất chuyển sang trạng thái <strong>plasma</strong> và thắng lực đẩy tĩnh điện Coulomb.
+                  Thời gian <code>Δt</code> duy trì nhiệt độ cao phải đủ dài sao cho thỏa mãn điều kiện Lawson:{" "}
+                  <strong><code>n · Δt &gt; 10¹⁴ s/cm³</code></strong>.
                 </li>
-                <li>Mật độ hạt nhân trong plasma phải đủ lớn.</li>
-                <li>Thời gian duy trì trạng thái plasma ở nhiệt độ cao phải đủ dài (tích mật độ × thời gian giam giữ đủ lớn).</li>
               </ul>
             </div>
           </div>
+
+          <details
+            style={{
+              marginBottom: "14px",
+              border: "1px solid #d0d7de",
+              background: "#ffffff",
+              padding: "10px 14px",
+              fontSize: "13.5px",
+            }}
+          >
+            <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+              Câu hỏi ? mục IV (SGK tr. 103): So sánh định tính phản ứng tổng hợp hạt nhân và phản ứng phân hạch về nhiên liệu &amp; điều kiện xảy ra
+            </summary>
+            <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+              <strong>Về nhiên liệu:</strong> Phân hạch dùng các hạt nhân rất nặng, hiếm và sinh chất thải phóng xạ mạnh (<Nuclide sym="U" a={235} z={92} />, <Nuclide sym="Pu" a={239} z={94} />); tổng hợp hạt nhân dùng các hạt nhân rất nhẹ, dồi dào trong nước biển (<Nuclide sym="H" a={2} z={1} />, <Nuclide sym="H" a={3} z={1} />).{" "}
+              <strong>Về điều kiện xảy ra:</strong> Phân hạch chỉ cần neutron nhiệt ở nhiệt độ thông thường và khối lượng đạt mức tới hạn <code>m_th</code>; tổng hợp hạt nhân đòi hỏi nhiệt độ cực cao (<code>10⁷ – 10⁸ K</code>) để thắng rào thế đẩy tĩnh điện Coulomb kèm điều kiện mật độ và thời gian duy trì đủ lớn.
+            </p>
+          </details>
 
           <FixedPhysicsActivityRenderer
             activityKey="nuclear_fusion"
@@ -3322,10 +3940,10 @@ export function Chapter4SectionBody({
                 </div>
               </section>
 
-              {/* Bước 2: Ống đếm Geiger–Müller Hình 23.2 + Vết buồng sương + Bảng 23.1 chuẩn SGK */}
+              {/* Bước 2: Thí nghiệm đếm tia phóng xạ Hình 23.2 (SGK tr. 105) + Bảng 23.1 chuẩn SGK */}
               <section style={{ marginBottom: "18px" }}>
                 <h4 style={{ margin: "0 0 10px", fontSize: "16px" }}>
-                  Bước 2 · Sơ đồ ống đếm Geiger–Müller (Hình 23.2) và Bảng 23.1 số liệu thực nghiệm SGK
+                  Bước 2 · Bố trí thí nghiệm đếm tia phóng xạ (Hình 23.2) và Bảng 23.1 số liệu thực nghiệm (SGK tr. 105)
                 </h4>
                 <div
                   style={{
@@ -3340,9 +3958,8 @@ export function Chapter4SectionBody({
                 >
                   <strong>Chỉ dẫn quan sát trọng tâm:</strong>{" "}
                   <em>
-                    “So sánh số xung trong hai khoảng thời gian 5 giây bằng nhau (ví dụ 5–10 s và 15–20 s) trên Bảng 23.1”
+                    “Theo dõi đường truyền tín hiệu từ nguồn (1) → đầu thu Geiger–Müller (2) → bộ chuyển đổi (3) → loa (4) &amp; màn hình đếm (5) trên Hình 23.2, rồi đối chiếu các cột thời gian 5 giây liên tiếp trên Bảng 23.1.”
                   </em>
-                  .
                 </div>
 
                 <div
@@ -3353,91 +3970,93 @@ export function Chapter4SectionBody({
                     marginBottom: "14px",
                   }}
                 >
-                  {/* Sơ đồ cấu tạo ống đếm Geiger–Müller Hình 23.2 SGK tr. 104 + Vết buồng sương */}
+                  {/* Sơ đồ chuẩn Hình 23.2 SGK tr. 105: Bộ thí nghiệm đếm tia phóng xạ 5 bộ phận */}
                   <figure className={styles.darkBenchStage} style={{ margin: 0 }}>
                     <svg
-                      viewBox="0 0 420 220"
-                      width="420"
-                      height="220"
+                      viewBox="0 0 430 210"
+                      width="430"
+                      height="210"
                       role="img"
-                      aria-label="Hình 23.2 cấu tạo ống đếm Geiger-Müller và vết buồng sương: tia phóng xạ đi qua cửa sổ mica làm ion hóa chất khí giữa vỏ cathode và dây anode điện áp cao tạo ra xung điện gửi tới bộ đếm"
+                      aria-label="Hình 23.2 SGK trang 105: Thí nghiệm đếm tia phóng xạ gồm (1) nguồn phóng xạ, (2) đầu thu phóng xạ Geiger-Müller, (3) thiết bị chuyển đổi tín hiệu, (4) loa phát xung âm thanh và (5) màn hình hiển thị số đếm"
                       style={{ width: "100%", height: "auto", display: "block" }}
                     >
-                      <rect x="0" y="0" width="420" height="220" fill="#0b1220" />
-                      {/* Nguồn phóng xạ */}
-                      <rect x="16" y="42" width="48" height="30" rx="3" fill="#334155" stroke="#cbd5e1" />
-                      <text x="23" y="61" fill="#ffffff" fontSize="11" fontWeight="700">Nguồn</text>
-                      <line x1="66" y1="57" x2="118" y2="57" stroke="#facc15" strokeWidth="2.5" strokeDasharray="4 3" />
+                      <rect x="0" y="0" width="430" height="210" fill="#0b1220" />
+                      {/* Bệ đỡ nguồn (1) & đầu thu GM (2) */}
+                      <rect x="16" y="76" width="170" height="72" rx="4" fill="#1e293b" stroke="#475569" />
+                      {/* (1) Nguồn phóng xạ trên giá */}
+                      <rect x="28" y="96" width="38" height="24" rx="3" fill="#b45309" stroke="#fde047" strokeWidth="1.5" />
+                      <text x="47" y="112" textAnchor="middle" fill="#ffffff" fontSize="10.5" fontWeight="700">Nguồn</text>
+                      <line x1="47" y1="96" x2="47" y2="44" stroke="#7dd3fc" strokeWidth="1.4" />
+                      <circle cx="47" cy="34" r="10" fill="#0f62fe" />
+                      <text x="47" y="38" textAnchor="middle" fill="#ffffff" fontSize="11.5" fontWeight="700">1</text>
 
-                      {/* Ống trụ Cathode (-) */}
-                      <rect x="116" y="30" width="180" height="54" rx="8" fill="#121b2e" stroke="#38bdf8" strokeWidth="2.2" />
-                      {/* Cửa sổ mỏng */}
-                      <line x1="116" y1="36" x2="116" y2="78" stroke="#fde047" strokeWidth="3.5" />
-                      {/* Dây Anode (+) ở trục */}
-                      <line x1="130" y1="57" x2="318" y2="57" stroke="#fb7185" strokeWidth="2.4" />
-                      {/* Ion hóa thác lũ */}
-                      <text x="152" y="49" fill="#86efac" fontSize="11" fontWeight="700">e⁻ / ion⁺ (ion hóa khí)</text>
-                      <text x="128" y="22" fill="#7dd3fc" fontSize="11.5" fontWeight="700">
-                        Hình 23.2 · Ống đếm Geiger–Müller (Cathode − / Anode +)
-                      </text>
+                      {/* Chùm tia hướng sang đầu thu (2) */}
+                      <line x1="68" y1="108" x2="112" y2="108" stroke="#facc15" strokeWidth="2.2" strokeDasharray="4 3" />
 
-                      {/* Mạch tạo xung & Bộ đếm số */}
-                      <rect x="320" y="36" width="84" height="42" rx="4" fill="#1e293b" stroke="#94a3b8" />
-                      <text x="330" y="54" fill="#facc15" fontSize="11" fontWeight="700">1 hạt → 1 xung</text>
-                      <text x="330" y="70" fill="#e2e8f0" fontSize="10.5">Bộ đếm xung</text>
+                      {/* (2) Đầu thu phóng xạ Geiger–Müller */}
+                      <rect x="114" y="94" width="64" height="28" rx="5" fill="#0f172a" stroke="#38bdf8" strokeWidth="2" />
+                      <text x="146" y="112" textAnchor="middle" fill="#bae6fd" fontSize="10.5" fontWeight="700">GM</text>
+                      <line x1="146" y1="94" x2="146" y2="44" stroke="#7dd3fc" strokeWidth="1.4" />
+                      <circle cx="146" cy="34" r="10" fill="#0f62fe" />
+                      <text x="146" y="38" textAnchor="middle" fill="#ffffff" fontSize="11.5" fontWeight="700">2</text>
 
-                      {/* Nửa dưới: Vết buồng sương tia α vs tia β */}
-                      <line x1="16" y1="108" x2="404" y2="108" stroke="#263552" strokeWidth="1" />
-                      <text x="18" y="128" fill="#fda4af" fontSize="11.5" fontWeight="700">
-                        Vết buồng sương tia α: Dày, thẳng (ion hóa rất mạnh)
+                      {/* Dây cáp tín hiệu nối sang bộ chuyển đổi (3) */}
+                      <path d="M 178 108 C 206 108, 206 54, 240 68" fill="none" stroke="#94a3b8" strokeWidth="2.5" />
+
+                      {/* (3) Thiết bị chuyển đổi tín hiệu (vỏ đỏ như Hình 23.2) */}
+                      <rect x="236" y="62" width="174" height="86" rx="6" fill="#7f1d1d" stroke="#fca5a5" strokeWidth="1.8" />
+                      <line x1="254" y1="148" x2="236" y2="176" stroke="#7dd3fc" strokeWidth="1.4" />
+                      <circle cx="230" cy="184" r="10" fill="#0f62fe" />
+                      <text x="230" y="188" textAnchor="middle" fill="#ffffff" fontSize="11.5" fontWeight="700">3</text>
+
+                      {/* (5) Màn hình hiển thị số đếm điện tử */}
+                      <rect x="252" y="78" width="76" height="36" rx="3" fill="#090d16" stroke="#cbd5e1" strokeWidth="1.4" />
+                      <text x="290" y="102" textAnchor="middle" fill="#fb7185" fontSize="17" fontFamily="monospace" fontWeight="700">
+                        0010
                       </text>
-                      <line x1="20" y1="142" x2="178" y2="140" stroke="#fb7185" strokeWidth="4.5" strokeLinecap="round" />
-                      <text x="18" y="172" fill="#7dd3fc" fontSize="11.5" fontWeight="700">
-                        Vết buồng sương tia β: Mảnh, gấp khúc (hạt nhẹ dễ lệch)
-                      </text>
-                      <polyline
-                        points="20,190 72,184 126,198 184,184 248,200 318,186 388,196"
-                        fill="none"
-                        stroke="#38bdf8"
-                        strokeWidth="1.8"
-                      />
+                      <line x1="290" y1="114" x2="290" y2="174" stroke="#7dd3fc" strokeWidth="1.4" />
+                      <circle cx="290" cy="184" r="10" fill="#0f62fe" />
+                      <text x="290" y="188" textAnchor="middle" fill="#ffffff" fontSize="11.5" fontWeight="700">5</text>
+
+                      {/* (4) Loa phát xung âm thanh */}
+                      <rect x="344" y="76" width="52" height="46" rx="3" fill="#e2e8f0" stroke="#475569" strokeWidth="1.4" />
+                      {[354, 362, 370, 378, 386].map((lx) => (
+                        <line key={lx} x1={lx} y1="84" x2={lx} y2="114" stroke="#334155" strokeWidth="1.5" />
+                      ))}
+                      <line x1="370" y1="122" x2="384" y2="174" stroke="#7dd3fc" strokeWidth="1.4" />
+                      <circle cx="388" cy="184" r="10" fill="#0f62fe" />
+                      <text x="388" y="188" textAnchor="middle" fill="#ffffff" fontSize="11.5" fontWeight="700">4</text>
                     </svg>
                     <figcaption className={styles.darkBenchCaption}>
-                      <strong>Nguyên lí ống Geiger–Müller (SGK tr. 104):</strong> Mỗi hạt phóng xạ đi qua cửa sổ mỏng làm ion hóa chất khí trong điện trường mạnh giữa Anode (+) và Cathode (−), tạo thành <strong>một xung điện</strong> báo về máy đếm.
+                      <strong>Hình 23.2 (SGK tr. 105) · Thí nghiệm đếm tia phóng xạ:</strong>{" "}
+                      <strong>(1)</strong> Nguồn phóng xạ · <strong>(2)</strong> Đầu thu Geiger–Müller ·{" "}
+                      <strong>(3)</strong> Bộ chuyển đổi tín hiệu · <strong>(4)</strong> Loa phát xung âm thanh ·{" "}
+                      <strong>(5)</strong> Màn hình nhảy thêm 1 đơn vị mỗi khi có tia phóng xạ đi tới đầu thu.
                     </figcaption>
                   </figure>
 
-                  {/* Bảng 23.1 chuẩn SGK tr. 105 */}
+                  {/* Bảng 23.1 chuẩn SGK tr. 105 (không tô màu lộ sẵn hai dòng câu hỏi Bước 4) */}
                   <div className={styles.tableScroll} style={{ margin: 0 }}>
                     <table className={styles.cdsTable}>
                       <caption>
-                        Bảng 23.1 — Số liệu thực nghiệm SGK tr. 105 (tách biệt với lượt chạy mô phỏng)
+                        Bảng 23.1. Kết quả ghi nhận số tia phóng xạ theo thời gian (SGK tr. 105 — tách biệt với mô phỏng)
                       </caption>
                       <thead>
                         <tr>
                           <th scope="col">Khoảng thời gian (s)</th>
-                          <th scope="col" className={styles.numCell}>Số xung đếm được</th>
+                          <th scope="col" className={styles.numCell}>Số tia phóng xạ</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {SGK_TABLE_23_1.map((row) => {
-                          const isHighlight =
-                            row.windowSeconds === "5 – 10" || row.windowSeconds === "15 – 20";
-                          return (
-                            <tr
-                              key={row.windowSeconds}
-                              style={
-                                isHighlight ? { background: "#fcf4d6", fontWeight: 700 } : undefined
-                              }
-                            >
-                              <td>{row.windowSeconds}</td>
-                              <td className={styles.numCell}>{row.counts}</td>
-                            </tr>
-                          );
-                        })}
+                        {SGK_TABLE_23_1.map((row) => (
+                          <tr key={row.windowSeconds}>
+                            <td>{row.windowSeconds}</td>
+                            <td className={styles.numCell}>{row.counts}</td>
+                          </tr>
+                        ))}
                         <tr style={{ background: "#f4f4f4", fontWeight: 700 }}>
-                          <td>Tổng cộng trong 30 s</td>
-                          <td className={styles.numCell}>10 xung</td>
+                          <td>Tổng cộng trong 30 s (6 khoảng 5 s)</td>
+                          <td className={styles.numCell}>10</td>
                         </tr>
                       </tbody>
                     </table>
@@ -3447,7 +4066,7 @@ export function Chapter4SectionBody({
                 {b21VideoLesson && (
                   <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
                     <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.55 }}>
-                      <strong>Tư liệu video bổ trợ Pha 1 Bài 23:</strong> Phân biệt số xung ngẫu nhiên ghi nhận trong từng khoảng đo ngắn với đường cong kì vọng khi mẫu rất lớn.{" "}
+                      <strong>Tư liệu video bổ trợ Pha 1 Bài 23:</strong> Phân biệt số tia phóng xạ ngẫu nhiên ghi nhận trong từng khoảng đo ngắn với đường cong kì vọng khi mẫu rất lớn.{" "}
                       <span style={{ color: "#002d9c", fontWeight: 600 }}>
                         Nếu chưa xem video, học sinh vẫn hoàn thành trọn vẹn Pha 1 từ sơ đồ Hình 23.2 và Bảng 23.1 ngay trên trang
                       </span>{" "}
@@ -3486,7 +4105,7 @@ export function Chapter4SectionBody({
                 )}
                 <fieldset style={{ border: "none", margin: "0 0 12px", padding: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
-                    Chọn dự đoán của em để giải thích sự chênh lệch số xung trên Bảng 23.1:
+                    Chọn dự đoán của em để giải thích sự chênh lệch số tia phóng xạ trên Bảng 23.1:
                   </legend>
                   <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     {B23_PREDICTION_CHOICES.map((opt) => (
@@ -3530,7 +4149,7 @@ export function Chapter4SectionBody({
                     setPredReasonDraft(e.target.value);
                     setPredSavedMsg("");
                   }}
-                  placeholder="Giải thích vì sao sau khoảng 15–20 s có 0 xung thì khoảng 20–25 s lại xuất hiện 3 xung…"
+                  placeholder="Giải thích vì sao sau khoảng 15–20 s ghi 0 tia thì khoảng 20–25 s lại ghi 3 tia…"
                 />
                 <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", marginTop: "10px" }}>
                   <button
@@ -3584,7 +4203,7 @@ export function Chapter4SectionBody({
                   }}
                 >
                   <label style={{ display: "block", fontSize: "13.5px", fontWeight: 700 }}>
-                    Số xung đếm được trong khoảng <code>5 – 10 s</code> (xung):
+                    Số tia phóng xạ trong khoảng <code>5 – 10 s</code>:
                     <input
                       type="number"
                       inputMode="numeric"
@@ -3599,7 +4218,7 @@ export function Chapter4SectionBody({
                           onMarkSectionComplete(section.id, true);
                         }
                       }}
-                      placeholder="Đọc dòng 5 – 10 s…"
+                      placeholder="Tra dòng 5 – 10 s…"
                       style={{
                         display: "block",
                         width: "100%",
@@ -3612,7 +4231,7 @@ export function Chapter4SectionBody({
                     />
                   </label>
                   <label style={{ display: "block", fontSize: "13.5px", fontWeight: 700 }}>
-                    Số xung đếm được trong khoảng <code>15 – 20 s</code> (xung):
+                    Số tia phóng xạ trong khoảng <code>15 – 20 s</code>:
                     <input
                       type="number"
                       inputMode="numeric"
@@ -3627,7 +4246,7 @@ export function Chapter4SectionBody({
                           onMarkSectionComplete(section.id, true);
                         }
                       }}
-                      placeholder="Đọc dòng 15 – 20 s…"
+                      placeholder="Tra dòng 15 – 20 s…"
                       style={{
                         display: "block",
                         width: "100%",
@@ -3650,8 +4269,8 @@ export function Chapter4SectionBody({
                     }}
                   >
                     {c5to10.trim() === "3" && c15to20.trim() === "0"
-                      ? "✓ Đã đọc chính xác hai dòng thực nghiệm Bảng 23.1 (5–10 s: 3 xung; 15–20 s: 0 xung)."
-                      : "Hãy đối chiếu lại đúng cột Số xung đếm được ở dòng 5 – 10 s và 15 – 20 s của Bảng 23.1."}
+                      ? "✓ Đã đọc chính xác hai dòng thực nghiệm Bảng 23.1 (5–10 s: 3 tia; 15–20 s: 0 tia)."
+                      : "Hãy đối chiếu lại cột Số tia phóng xạ ở dòng 5 – 10 s và 15 – 20 s của Bảng 23.1."}
                   </small>
                 )}
               </section>
@@ -3761,7 +4380,7 @@ export function Chapter4SectionBody({
                   <li>
                     <strong>Cặp số liệu Bảng 23.1:</strong>{" "}
                     {c5to10.trim() === "3" && c15to20.trim() === "0"
-                      ? "5–10 s: 3 xung vs 15–20 s: 0 xung (tổng 10 xung/30 s)"
+                      ? "5–10 s: 3 tia vs 15–20 s: 0 tia (tổng 10 tia/30 s)"
                       : "Chưa đọc đúng hai khoảng mẫu"}
                   </li>
                 </ul>
@@ -3829,10 +4448,114 @@ export function Chapter4SectionBody({
                 preSectionId="b23-cloud-geiger"
                 lockedChoiceLabel={lockedB23Label}
                 lockedReason={lockedInitialReason}
-                actionSummary={`Đã đối chiếu Bảng 23.1 SGK (5–10 s: ${notebook.preClassWork?.b23Count5to10 || "—"} xung; 15–20 s: ${notebook.preClassWork?.b23Count15to20 || "—"} xung)`}
+                actionSummary={`Đã đối chiếu Bảng 23.1 SGK (5–10 s: ${notebook.preClassWork?.b23Count5to10 || "—"} tia; 15–20 s: ${notebook.preClassWork?.b23Count15to20 || "—"} tia)`}
                 bringQuestion={bringToClassQuestion}
                 onJumpToSection={onJumpToSection}
               />
+
+              {/* Sơ đồ đối chiếu chuẩn Hình 23.3a (Điện trường) & Hình 23.3b (Từ trường B hướng ra ngoài ⊙) SGK tr. 105 + Hình 23.4 tr. 106 */}
+              <div
+                style={{
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "14px 16px",
+                  marginBottom: "16px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px", fontSize: "15.5px" }}>
+                  Đối chiếu Hình 23.3 (SGK tr. 105): Sự lệch của các tia α, β⁻, β⁺, γ trong điện trường (a) &amp; từ trường (b)
+                </h4>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                    gap: "12px",
+                    alignItems: "center",
+                  }}
+                >
+                  {/* Hình 23.3a: Điện trường E hướng từ trên (+) xuống dưới (-) */}
+                  <figure style={{ margin: 0, border: "1px solid #e5e7eb", background: "#f8fafc", padding: "10px", textAlign: "center" }}>
+                    <svg
+                      viewBox="0 0 300 165"
+                      role="img"
+                      aria-label="Hình 23.3a SGK trang 105: Bản dương ở trên, bản âm ở dưới, điện trường E hướng xuống; chùm tia đi từ trái sang phải có beta trừ lệch mạnh lên trên, gamma đi thẳng, alpha lệch nhẹ xuống dưới, beta cộng lệch mạnh xuống dưới"
+                      style={{ width: "100%", maxWidth: "290px", height: "auto" }}
+                    >
+                      <rect x="48" y="22" width="196" height="6" fill="#0f62fe" />
+                      {[72, 118, 164, 210].map((x) => (
+                        <g key={x}>
+                          <text x={x} y="17" textAnchor="middle" fontSize="12" fontWeight="700" fill="#002d9c">+</text>
+                          <line x1={x} y1="28" x2={x} y2="128" stroke="#93c5fd" strokeWidth="1" />
+                          <polygon points={`${x},78 ${x - 3},71 ${x + 3},71`} fill="#60a5fa" />
+                          <text x={x} y="148" textAnchor="middle" fontSize="13" fontWeight="700" fill="#b42332">−</text>
+                        </g>
+                      ))}
+                      <rect x="48" y="128" width="196" height="6" fill="#da1e28" />
+                      <text x="30" y="68" fontSize="13" fontWeight="700" fill="#002d9c">E⃗ ↓</text>
+
+                      {/* β⁻ lệch mạnh lên bản (+) */}
+                      <path d="M 48 80 Q 140 76 254 44" fill="none" stroke="#0043ce" strokeWidth="2.1" />
+                      <text x="260" y="46" fontSize="12.5" fontWeight="700" fill="#0043ce">β⁻</text>
+                      {/* γ đi thẳng */}
+                      <line x1="48" y1="84" x2="254" y2="84" stroke="#161616" strokeWidth="2" />
+                      <text x="260" y="88" fontSize="12.5" fontWeight="700" fill="#161616">γ</text>
+                      {/* α lệch nhẹ xuống bản (-) */}
+                      <path d="M 48 88 Q 150 90 254 106" fill="none" stroke="#b42332" strokeWidth="2.4" />
+                      <text x="260" y="109" fontSize="12.5" fontWeight="700" fill="#b42332">α</text>
+                      {/* β⁺ lệch mạnh xuống bản (-) */}
+                      <path d="M 48 92 Q 140 96 254 122" fill="none" stroke="#198038" strokeWidth="2.1" />
+                      <text x="260" y="126" fontSize="12.5" fontWeight="700" fill="#198038">β⁺</text>
+                    </svg>
+                    <figcaption style={{ fontSize: "12px", color: "#525252", marginTop: "4px" }}>
+                      <strong>a) Điện trường đều E⃗ hướng xuống:</strong> <code>β⁻</code> lệch về bản (+); <code>α</code> và <code>β⁺</code> lệch về bản (−), trong đó <code>β⁺</code> nhẹ hơn <code>α</code> ~7300 lần nên lệch mạnh hơn nhiều.
+                    </figcaption>
+                  </figure>
+
+                  {/* Hình 23.3b: Từ trường đều B hướng từ trong ra ngoài (⊙), nguồn ở đáy bắn thẳng đứng lên */}
+                  <figure style={{ margin: 0, border: "1px solid #e5e7eb", background: "#f8fafc", padding: "10px", textAlign: "center" }}>
+                    <svg
+                      viewBox="0 0 300 165"
+                      role="img"
+                      aria-label="Hình 23.3b SGK trang 105: Nguồn phóng xạ ở dưới bắn thẳng đứng lên trên vào từ trường đều B hướng từ trong ra ngoài mặt giấy (chấm tròn); lực Lorentz làm beta trừ lệch mạnh sang trái, gamma đi thẳng, alpha lệch nhẹ sang phải, beta cộng lệch mạnh sang phải"
+                      style={{ width: "100%", maxWidth: "290px", height: "auto" }}
+                    >
+                      {/* Lưới kí hiệu ⊙ (từ trường B hướng ra ngoài mặt giấy) */}
+                      {[76, 112, 148, 184, 220].map((gx) =>
+                        [32, 62, 92, 122].map((gy) => (
+                          <g key={`${gx}-${gy}`}>
+                            <circle cx={gx} cy={gy} r="5.5" fill="none" stroke="#7dd3fc" strokeWidth="1" />
+                            <circle cx={gx} cy={gy} r="1.5" fill="#0284c7" />
+                          </g>
+                        ))
+                      )}
+                      <text x="28" y="42" fontSize="13" fontWeight="700" fill="#0284c7">B⃗ ⊙</text>
+
+                      {/* Hộp chì chứa nguồn ở đáy */}
+                      <path d="M 126 130 L 126 150 L 170 150 L 170 130 L 156 130 L 156 142 L 140 142 L 140 130 Z" fill="#64748b" />
+
+                      {/* β⁻ lệch mạnh sang trái */}
+                      <path d="M 145 138 Q 142 84 114 26" fill="none" stroke="#0043ce" strokeWidth="2.1" />
+                      <text x="104" y="20" fontSize="12.5" fontWeight="700" fill="#0043ce">β⁻</text>
+                      {/* γ đi thẳng đứng */}
+                      <line x1="148" y1="138" x2="148" y2="24" stroke="#161616" strokeWidth="2" />
+                      <text x="144" y="18" fontSize="12.5" fontWeight="700" fill="#161616">γ</text>
+                      {/* α lệch nhẹ sang phải */}
+                      <path d="M 150 138 Q 152 84 166 26" fill="none" stroke="#b42332" strokeWidth="2.4" />
+                      <text x="162" y="20" fontSize="12.5" fontWeight="700" fill="#b42332">α</text>
+                      {/* β⁺ lệch mạnh sang phải */}
+                      <path d="M 152 138 Q 158 84 188 26" fill="none" stroke="#198038" strokeWidth="2.1" />
+                      <text x="186" y="20" fontSize="12.5" fontWeight="700" fill="#198038">β⁺</text>
+                    </svg>
+                    <figcaption style={{ fontSize: "12px", color: "#525252", marginTop: "4px" }}>
+                      <strong>b) Từ trường đều B⃗ hướng ra ngoài (⊙), chùm tia bắn lên:</strong> Lực Lorentz <code>F⃗ = q(v⃗ × B⃗)</code> hướng sang phải với hạt dương (<code>α, β⁺</code>) và sang trái với hạt âm (<code>β⁻</code>).
+                    </figcaption>
+                  </figure>
+                </div>
+                <p style={{ margin: "10px 0 0", fontSize: "13px", color: "#525252", lineHeight: 1.55 }}>
+                  <strong>Khả năng đâm xuyên chuẩn Hình 23.4 (SGK tr. 106):</strong> Tia <strong>α</strong> (hạt nhân <Nuclide sym="He" a={4} z={2} />, tốc độ <code>~2·10⁷ m/s</code>) ion hóa rất mạnh nhưng bị chặn bởi <strong>tờ giấy dày ~1 mm</strong>; tia <strong>β</strong> (<code>β⁻</code> là <Nuclide sym="e" a={0} z={-1} />, <code>β⁺</code> là positron <Nuclide sym="e" a={0} z={1} />, tốc độ xấp xỉ <code>c</code>) xuyên qua giấy nhưng bị chặn bởi <strong>tấm nhôm dày ~1 mm</strong>; tia <strong>γ</strong> (sóng điện từ bước sóng rất ngắn, cũng là hạt photon năng lượng cao) đi xuyên qua cả giấy và nhôm, cần <strong>tấm chì dày</strong> mới cản bớt được.
+                </p>
+              </div>
+
               <FixedPhysicsActivityRenderer
                 activityKey="radiation_properties"
                 onProgress={(done) => onMarkSectionComplete(section.id, done)}
@@ -3861,60 +4584,58 @@ export function Chapter4SectionBody({
               <div className={styles.tableScroll}>
                 <table className={styles.cdsTable}>
                   <caption>
-                    Phân biệt số hạt nhân chưa phân rã N(t) và độ phóng xạ H(t) (SGK tr. 108–110)
+                    Phân biệt số hạt nhân chưa phân rã N_t và độ phóng xạ H_t (SGK tr. 107–109)
                   </caption>
                   <thead>
                     <tr>
                       <th scope="col">Đại lượng</th>
                       <th scope="col">Ý nghĩa vật lí</th>
                       <th scope="col">Công thức theo thời gian t</th>
-                      <th scope="col">Đơn vị chuẩn SI</th>
+                      <th scope="col">Đơn vị</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <th scope="row">Số hạt nhân còn lại N(t)</th>
+                      <th scope="row">Số hạt nhân còn lại N_t</th>
                       <td>Tổng số hạt nhân mẹ <strong>chưa bị phân rã</strong> còn tồn tại trong mẫu ở thời điểm <code>t</code>.</td>
                       <td>
-                        <code>N(t) = N₀ · 2^(−t/T) = N₀ · e^(−λt)</code>
+                        <code>N_t = N₀ · 2^(−t/T) = N₀ · e^(−λt)</code> (23.1)
                       </td>
-                      <td>Hạt nhân (không thứ nguyên)</td>
+                      <td>Hạt nhân (hằng số phóng xạ <code>λ = ln 2 / T</code> có đơn vị <code>s⁻¹</code>)</td>
                     </tr>
                     <tr>
-                      <th scope="row">Độ phóng xạ H(t)</th>
-                      <td>Đặc trưng cho tính phóng xạ mạnh hay yếu, bằng <strong>số phân rã trong 1 giây</strong>: <code>H(t) = −dN/dt = λ·N(t)</code>.</td>
+                      <th scope="row">Độ phóng xạ H_t</th>
+                      <td>Đặc trưng cho tính phóng xạ mạnh hay yếu, bằng <strong>số hạt nhân phân rã trong một giây</strong>.</td>
                       <td>
-                        <code>H(t) = H₀ · 2^(−t/T) = (ln 2 / T) · N(t)</code>
+                        <code>H_t = λ · N_t = H₀ · 2^(−t/T)</code> (23.2–23.3)
                       </td>
                       <td>
-                        <strong>Becquerel (Bq)</strong>: <code>1 Bq = 1 phân rã/s</code> (lưu ý đổi <code>T</code> ra giây!)
+                        <strong>Becơren (Bq)</strong>: <code>1 Bq = 1 phân rã/s</code>; thực tế còn dùng <strong>Curi (Ci)</strong>: <code>1 Ci = 3,7·10¹⁰ Bq</code> (xấp xỉ 1 g <Nuclide sym="Ra" a={226} z={88} />)
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              {/* Trích Bảng 23.2 chu kì bán rã một số đồng vị phóng xạ tiêu biểu SGK tr. 108 */}
+              {/* Bảng 23.2 đầy đủ 7 đồng vị gốc SGK tr. 108 */}
               <div className={styles.tableScroll}>
                 <table className={styles.cdsTable}>
                   <caption>
-                    Trích Bảng 23.2 — Chu kì bán rã T của một số đồng vị phóng xạ tiêu biểu (SGK tr. 108)
+                    Bảng 23.2. Chu kì bán rã của một số đồng vị phóng xạ (SGK Vật lí 12, tr. 108 — đủ 7 đồng vị)
                   </caption>
                   <thead>
                     <tr>
-                      <th scope="col">Đồng vị</th>
-                      <th scope="col">Kí hiệu</th>
+                      <th scope="col">Đồng vị phóng xạ</th>
                       <th scope="col" className={styles.numCell}>Chu kì bán rã T</th>
-                      <th scope="col">Tia phát ra &amp; ghi chú</th>
+                      <th scope="col">Ghi chú tia phát ra &amp; liên hệ bài học</th>
                     </tr>
                   </thead>
                   <tbody>
                     {SGK_TABLE_23_2_SAMPLES.map((item) => (
                       <tr key={`${item.sym}-${item.a}`}>
-                        <th scope="row">{item.name}</th>
-                        <td>
-                          <Nuclide sym={item.sym} a={item.a} z={item.z} />
-                        </td>
+                        <th scope="row">
+                          {item.name} (<Nuclide sym={item.sym} a={item.a} z={item.z} />)
+                        </th>
                         <td className={styles.numCell}>{item.halfLife}</td>
                         <td>{item.radiation}</td>
                       </tr>
@@ -3922,6 +4643,25 @@ export function Chapter4SectionBody({
                   </tbody>
                 </table>
               </div>
+
+              <details
+                style={{
+                  marginBottom: "16px",
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "10px 14px",
+                  fontSize: "13.5px",
+                }}
+              >
+                <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+                  Câu hỏi ? mục II.1 (SGK tr. 108): Đồng vị ¹⁵₈O sau 244 s có 75% số hạt nhân ban đầu đã bị phân rã. Tính chu kì bán rã T của ¹⁵₈O
+                </summary>
+                <p style={{ margin: "8px 0 0", lineHeight: 1.6 }}>
+                  Sau <code>t = 244 s</code> đã phân rã <code>75%</code> nên số hạt nhân <Nuclide sym="O" a={15} z={8} /> <strong>còn lại chưa phân rã</strong> là{" "}
+                  <code>N_t = (100% − 75%)·N₀ = 25%·N₀ = (1/4)·N₀ = N₀ · 2^(−2)</code>. Do đó{" "}
+                  <code>t / T = 2 ⇒ T = 244 / 2 = 122 s ≈ 1,2·10² giây</code> (khớp chính xác dòng Oxygen trên Bảng 23.2!).
+                </p>
+              </details>
 
               <FixedPhysicsActivityRenderer
                 activityKey="radioactive_decay_half_life"
@@ -3933,13 +4673,13 @@ export function Chapter4SectionBody({
 
       {section.kind === "b23_safety" && (
         <div>
-          {/* Hai biển cảnh báo phóng xạ chuẩn Hình 23.8a & Hình 23.8b SGK tr. 111–112 */}
+          {/* Hai biển cảnh báo phóng xạ chuẩn Hình 23.8a & Hình 23.8b SGK tr. 111 */}
           <div
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
               gap: "14px",
-              marginBottom: "18px",
+              marginBottom: "14px",
             }}
           >
             <figure
@@ -3966,7 +4706,6 @@ export function Chapter4SectionBody({
                   strokeWidth="7"
                   strokeLinejoin="round"
                 />
-                {/* Biểu tượng trefoil 3 cánh phóng xạ */}
                 <circle cx="110" cy="110" r="8" fill="#161616" />
                 <path d="M110,110 L90,76 A38,38 0 0,1 130,76 Z" fill="#161616" />
                 <path d="M110,110 L149,112 A38,38 0 0,1 127,144 Z" fill="#161616" />
@@ -3974,7 +4713,7 @@ export function Chapter4SectionBody({
                 <circle cx="110" cy="110" r="13" fill="none" stroke="#facc15" strokeWidth="4" />
               </svg>
               <figcaption style={{ fontSize: "13px", lineHeight: 1.5, marginTop: "6px", textAlign: "left" }}>
-                <strong>Hình 23.8a (Biển cảnh báo phóng xạ thông thường · SGK tr. 111):</strong> Tam giác nền vàng viền đen với biểu tượng 3 cánh — cảnh báo nơi có nguồn phóng xạ hoặc bức xạ ion hóa, không tự ý tiếp cận.
+                <strong>Hình 23.8a (Biển cảnh báo phóng xạ thông thường · SGK tr. 111):</strong> Tam giác nền vàng viền đen với biểu tượng 3 cánh — cảnh báo khu vực có nguồn phóng xạ hoặc bức xạ ion hóa, không tự ý tiếp cận.
               </figcaption>
             </figure>
 
@@ -3992,7 +4731,7 @@ export function Chapter4SectionBody({
                 width="220"
                 height="170"
                 role="img"
-                aria-label="Hình 23.8b biển cảnh báo bổ sung ISO nền đỏ cho nguồn phóng xạ nguy hiểm chết người: phía trên là cánh quạt phát tia, bên trái là đầu lâu xương chéo, bên phải là hình người chạy rời xa theo mũi tên"
+                aria-label="Hình 23.8b biển cảnh báo bổ sung ISO 2007 nền đỏ cho nguồn phóng xạ nguy hiểm chết người: phía trên là cánh quạt phát tia, bên trái là đầu lâu xương chéo, bên phải là hình người chạy rời xa theo mũi tên"
                 style={{ width: "100%", maxWidth: "210px", height: "auto" }}
               >
                 <polygon
@@ -4002,27 +4741,49 @@ export function Chapter4SectionBody({
                   strokeWidth="7"
                   strokeLinejoin="round"
                 />
-                {/* Phía trên: nguồn 3 cánh + các tia bức xạ */}
                 <circle cx="110" cy="68" r="11" fill="#161616" />
                 <line x1="96" y1="82" x2="82" y2="96" stroke="#161616" strokeWidth="3" />
                 <line x1="110" y1="84" x2="110" y2="100" stroke="#161616" strokeWidth="3" />
                 <line x1="124" y1="82" x2="138" y2="96" stroke="#161616" strokeWidth="3" />
-                {/* Góc trái dưới: biểu tượng nguy hiểm chết người (đầu lâu xương chéo giản lược) */}
                 <circle cx="72" cy="124" r="11" fill="#ffffff" stroke="#161616" strokeWidth="2.5" />
                 <circle cx="68" cy="122" r="2.2" fill="#161616" />
                 <circle cx="76" cy="122" r="2.2" fill="#161616" />
                 <line x1="58" y1="138" x2="86" y2="146" stroke="#161616" strokeWidth="3.5" />
                 <line x1="86" y1="138" x2="58" y2="146" stroke="#161616" strokeWidth="3.5" />
-                {/* Góc phải dưới: người chạy ra xa + mũi tên thoát hiểm */}
                 <circle cx="138" cy="112" r="6" fill="#161616" />
                 <polyline points="128,124 138,122 146,134 136,146" fill="none" stroke="#161616" strokeWidth="4" />
                 <line x1="152" y1="142" x2="176" y2="142" stroke="#ffffff" strokeWidth="4" />
                 <polygon points="176,136 186,142 176,148" fill="#ffffff" />
               </svg>
               <figcaption style={{ fontSize: "13px", lineHeight: 1.5, marginTop: "6px", textAlign: "left" }}>
-                <strong>Hình 23.8b (Biển cảnh báo nguồn phóng xạ nguy hiểm · ISO / SGK tr. 112):</strong> Tam giác nền đỏ — cảnh báo trực quan <em>“Nguy hiểm – Chạy ra xa ngay lập tức – Không chạm vào!”</em>.
+                <strong>Hình 23.8b (Biển cảnh báo nguồn phóng xạ nguy hiểm · ISO 2007 / SGK tr. 111):</strong> Tam giác nền đỏ — cảnh báo trực quan <em>“Nguy hiểm – Chạy ra xa ngay lập tức – Không chạm vào!”</em>.
               </figcaption>
             </figure>
+          </div>
+
+          {/* Hình 23.10 SGK tr. 111 (Nguồn phơi nhiễm tự nhiên & nhân tạo) + Em có biết đơn vị Sievert (Sv) tr. 112–113 */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "12px",
+              marginBottom: "16px",
+              fontSize: "13.5px",
+              lineHeight: 1.55,
+            }}
+          >
+            <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+              <strong style={{ display: "block", marginBottom: "4px" }}>
+                Hình 23.10 (SGK tr. 111) · Các nguồn phóng xạ tự nhiên &amp; nhân tạo quanh ta
+              </strong>
+              Con người luôn chịu phơi nhiễm bức xạ nền ở mức thấp từ tự nhiên và y tế: <strong>Không khí (chủ yếu khí Radon): 51%</strong> · <strong>Thực phẩm &amp; nước uống: 14%</strong> · <strong>Tia vũ trụ: 14%</strong> · <strong>Bức xạ từ mặt đất/vật liệu: 10%</strong> · <strong>Chẩn đoán y tế &amp; nguồn nhân tạo khác: 11%</strong>. Ba nguyên tắc giảm liều chiếu ngoài (Hình 23.11 tr. 112): <strong>giảm thời gian tiếp xúc</strong>, <strong>tăng khoảng cách</strong> và <strong>che chắn thích hợp</strong>.
+            </div>
+            <div style={{ border: "1px solid #b5c7e3", background: "#f4f8ff", padding: "12px 14px" }}>
+              <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                [Ô đọc thêm “Em có biết” — SGK tr. 112–113] Đơn vị đo tác dụng sinh học của bức xạ (Sievert · Sv)
+              </strong>
+              Mức độ ảnh hưởng sinh học của tia phóng xạ lên cơ thể người được đánh giá qua liều hiệu dụng có đơn vị là <strong>Sievert (Sv)</strong> hoặc <strong>milisievert (1 mSv = 10⁻³ Sv)</strong> (chụp X-quang ngực thông thường cỡ <code>0,1 mSv</code>; liều nền tự nhiên trung bình khoảng <code>2,4 mSv/năm</code>).
+            </div>
           </div>
 
           <FixedPhysicsActivityRenderer
@@ -4033,14 +4794,31 @@ export function Chapter4SectionBody({
       )}
 
       {section.kind === "b23_carbon14" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="carbon14_dating"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
+        <div>
+          <div
+            style={{
+              marginBottom: "14px",
+              padding: "12px 14px",
+              border: "1px solid #b5c7e3",
+              background: "#f4f8ff",
+              fontSize: "13.5px",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong style={{ color: "#002d9c", display: "block", marginBottom: "4px" }}>
+              [Ô đọc thêm “Em có biết” — SGK tr. 109–110] Nguyên tắc định tuổi cổ vật bằng đồng vị Carbon-14 (<Nuclide sym="C" a={14} z={6} />)
+            </strong>
+            Tia vũ trụ tương tác với khí quyển liên tục tạo ra đồng vị phóng xạ <Nuclide sym="C" a={14} z={6} /> (<code>T ≈ 5 730 năm</code>). Khi sinh vật còn sống, quá trình trao đổi chất giữ tỉ lệ <Nuclide sym="C" a={14} z={6} /> / <Nuclide sym="C" a={12} z={6} /> trong cơ thể gần như không đổi bằng khí quyển; khi sinh vật chết đi, sự trao đổi dừng lại và lượng <Nuclide sym="C" a={14} z={6} /> giảm dần theo quy luật bán rã <code>H_t = H₀ · 2^(−t/T)</code> (so trên cùng khối lượng carbon với mẫu đang sống).
+          </div>
+          <FixedPhysicsActivityRenderer
+            activityKey="carbon14_dating"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
+        </div>
       )}
 
       {/* ====================================================================
-          BÀI 24 — CÔNG NGHIỆP HẠT NHÂN (HÌNH 24.1, HÌNH 24.2 & HÌNH 24.5 SGK)
+          BÀI 24 — CÔNG NGHIỆP HẠT NHÂN (HÌNH 24.1, HÌNH 24.2–24.3 & HÌNH 24.5 SGK)
           ==================================================================== */}
       {section.kind === "b24_energy_chain" &&
         (() => {
@@ -4106,10 +4884,10 @@ export function Chapter4SectionBody({
                 </div>
               </section>
 
-              {/* Bước 2: Mặt cắt màu Hình 24.1 chuẩn 3 dòng lưu chất tách biệt + Video bổ trợ */}
+              {/* Bước 2: Mặt cắt màu Hình 24.1 chuẩn 3 chu trình lưu chất tách biệt (chưa lộ đáp án câu dự đoán Bước 3) */}
               <section style={{ marginBottom: "18px" }}>
                 <h4 style={{ margin: "0 0 10px", fontSize: "16px" }}>
-                  Bước 2 · Sơ đồ mặt cắt Hình 24.1 SGK và chú giải màu 3 dòng lưu chất tách biệt
+                  Bước 2 · Sơ đồ mặt cắt Hình 24.1 SGK và chú giải màu 3 chu trình lưu chất tách biệt
                 </h4>
                 <div
                   style={{
@@ -4122,11 +4900,10 @@ export function Chapter4SectionBody({
                     lineHeight: 1.55,
                   }}
                 >
-                  <strong>Chỉ dẫn quan sát trọng tâm:</strong>{" "}
+                  <strong>Chỉ dẫn quan sát trọng tâm (chưa lộ đáp án):</strong>{" "}
                   <em>
-                    “Lần theo đường ống từ bình sinh hơi đến tua-bin trên Hình 24.1 và kiểm tra xem 3 dòng lưu chất có trộn lẫn vào nhau hay không”
+                    “Lần theo đường ống nối trực tiếp vào tua-bin trên Hình 24.1 và kiểm tra xem 3 chu trình lưu chất có trộn lẫn vào nhau hay chỉ trao đổi nhiệt qua thành ống kín.”
                   </em>
-                  .
                 </div>
 
                 <figure className={styles.darkBenchStage} style={{ margin: "0 0 14px" }}>
@@ -4135,12 +4912,12 @@ export function Chapter4SectionBody({
                     width="720"
                     height="290"
                     role="img"
-                    aria-label="Hình 24.1 sơ đồ nhà máy điện hạt nhân với 3 vòng lưu chất tách biệt theo màu: (1) vòng tải nhiệt sơ cấp màu cam đỏ khép kín trong nhà lò bảo vệ, (2) vòng hơi nước và nước ngưng thứ cấp màu xanh dương làm quay tua-bin kéo máy phát điện, (3) nguồn nước làm mát ngoài từ sông biển màu ngọc lam qua bình ngưng"
+                    aria-label="Hình 24.1 SGK trang 114: sơ đồ nhà máy điện hạt nhân với (1) Chu trình thứ nhất tải nhiệt sơ cấp màu cam đỏ khép kín trong tòa nhà lò phản ứng, (2) Chu trình thứ hai màu xanh dương từ bộ phận sinh hơi sang tua-bin rồi xuống bộ ngưng tụ hơi, (3) Nguồn nước làm mát ngoài màu ngọc lam qua bộ ngưng tụ và tháp làm mát"
                     style={{ width: "100%", height: "auto", display: "block" }}
                   >
                     <rect x="0" y="0" width="720" height="290" fill="#0b1220" />
 
-                    {/* Vòm nhà lò bảo vệ (Containment) */}
+                    {/* Vòm nhà lò bảo vệ */}
                     <path
                       d="M 24 236 L 24 82 Q 152 14 280 82 L 280 236 Z"
                       fill="#121b2e"
@@ -4148,7 +4925,7 @@ export function Chapter4SectionBody({
                       strokeWidth="2.5"
                     />
                     <text x="58" y="42" fill="#e2e8f0" fontSize="12" fontWeight="700">
-                      Vỏ bảo vệ lò phản ứng
+                      Tòa nhà bảo vệ lò phản ứng
                     </text>
 
                     {/* Tâm lò phản ứng + thanh điều khiển */}
@@ -4157,19 +4934,19 @@ export function Chapter4SectionBody({
                     <line x1="88" y1="88" x2="88" y2="156" stroke="#cbd5e1" strokeWidth="4" />
                     <line x1="104" y1="88" x2="104" y2="148" stroke="#cbd5e1" strokeWidth="4" />
                     <text x="56" y="182" fill="#fdba74" fontSize="11" fontWeight="700">
-                      Tâm lò (²³⁵U)
+                      Lò phản ứng
                     </text>
                     <text x="48" y="82" fill="#cbd5e1" fontSize="10.5">
                       Thanh điều khiển
                     </text>
 
-                    {/* Bình sinh hơi (Steam generator) */}
-                    <rect x="176" y="88" width="76" height="126" rx="10" fill="#1e293b" stroke="#60a5fa" strokeWidth="2.2" />
-                    <text x="182" y="108" fill="#bfdbfe" fontSize="11" fontWeight="700">
-                      Bình sinh hơi
+                    {/* Bộ phận sinh hơi */}
+                    <rect x="172" y="88" width="84" height="126" rx="10" fill="#1e293b" stroke="#60a5fa" strokeWidth="2.2" />
+                    <text x="178" y="108" fill="#bfdbfe" fontSize="10.5" fontWeight="700">
+                      Bộ phận sinh hơi
                     </text>
 
-                    {/* VÒNG 1 (MÀU CAM/ĐỎ): Vòng tải nhiệt sơ cấp khép kín */}
+                    {/* CHU TRÌNH THỨ NHẤT (MÀU CAM/ĐỎ) */}
                     <path
                       d="M 126 132 L 194 132 Q 232 156 194 184 L 126 184"
                       fill="none"
@@ -4179,15 +4956,15 @@ export function Chapter4SectionBody({
                     />
                     <circle cx="152" cy="184" r="9" fill="#ea580c" stroke="#fed7aa" strokeWidth="1.5" />
 
-                    {/* VÒNG 2 (MÀU LAM): Hơi nước áp suất cao quay Tua-bin → Bình ngưng → Bơm hoàn lưu */}
+                    {/* CHU TRÌNH THỨ HAI (MÀU LAM): Đường ống dẫn từ Bộ phận sinh hơi sang Tua-bin */}
                     <path
                       d="M 214 88 L 214 58 L 392 58 L 392 98"
                       fill="none"
                       stroke="#38bdf8"
                       strokeWidth="6"
                     />
-                    <text x="246" y="50" fill="#7dd3fc" fontSize="11.5" fontWeight="700">
-                      Hơi nước áp suất cao → quay tua-bin
+                    <text x="234" y="50" fill="#7dd3fc" fontSize="11" fontWeight="700">
+                      Ống dẫn hơi nước (Chu trình thứ hai) →
                     </text>
 
                     {/* Tua-bin & Máy phát điện */}
@@ -4213,48 +4990,47 @@ export function Chapter4SectionBody({
                       Lưới điện
                     </text>
 
-                    {/* Bình ngưng (Condenser) */}
-                    <rect x="358" y="164" width="84" height="62" rx="4" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
-                    <text x="369" y="182" fill="#cbd5e1" fontSize="11" fontWeight="700">
-                      Bình ngưng
+                    {/* Bộ ngưng tụ hơi */}
+                    <rect x="352" y="164" width="96" height="62" rx="4" fill="#1e293b" stroke="#64748b" strokeWidth="2" />
+                    <text x="358" y="181" fill="#cbd5e1" fontSize="10.5" fontWeight="700">
+                      Bộ ngưng tụ hơi
                     </text>
-                    {/* Hơi từ tua-bin xuống bình ngưng & nước ngưng bơm về bình sinh hơi */}
                     <line x1="396" y1="136" x2="396" y2="164" stroke="#38bdf8" strokeWidth="5" strokeDasharray="5 3" />
                     <path
-                      d="M 358 204 L 214 204 L 214 214"
+                      d="M 352 204 L 214 204 L 214 214"
                       fill="none"
                       stroke="#2563eb"
                       strokeWidth="5"
                     />
 
-                    {/* VÒNG 3 (MÀU LỤC LAM): Nguồn nước làm mát bên ngoài (sông, hồ, biển) */}
+                    {/* VÒNG 3 (MÀU LỤC LAM): Nước làm mát ngoài / Tháp làm mát */}
                     <path
                       d="M 692 214 L 418 214 Q 382 198 418 186 L 692 186"
                       fill="none"
                       stroke="#2dd4bf"
                       strokeWidth="5"
                     />
-                    <text x="486" y="178" fill="#5eead4" fontSize="11" fontWeight="700">
-                      Nước làm mát ngoài (sông, hồ, biển)
+                    <text x="472" y="178" fill="#5eead4" fontSize="11" fontWeight="700">
+                      Nước làm mát ngoài / Tháp làm mát
                     </text>
 
                     {/* Bảng chú giải 3 màu lưu chất ở đáy hình */}
                     <rect x="24" y="248" width="672" height="32" rx="3" fill="#121b2e" stroke="#263552" />
-                    <rect x="36" y="258" width="16" height="10" fill="#f97316" />
-                    <text x="58" y="267" fill="#fed7aa" fontSize="11" fontWeight="600">
-                      (1) Vòng tải nhiệt sơ cấp (kín)
+                    <rect x="34" y="258" width="14" height="10" fill="#f97316" />
+                    <text x="54" y="267" fill="#fed7aa" fontSize="10.5" fontWeight="600">
+                      (1) Chu trình thứ nhất (sơ cấp kín)
                     </text>
-                    <rect x="252" y="258" width="16" height="10" fill="#38bdf8" />
-                    <text x="274" y="267" fill="#bae6fd" fontSize="11" fontWeight="600">
-                      (2) Vòng hơi nước – nước ngưng thứ cấp
+                    <rect x="250" y="258" width="14" height="10" fill="#38bdf8" />
+                    <text x="270" y="267" fill="#bae6fd" fontSize="10.5" fontWeight="600">
+                      (2) Chu trình thứ hai (sinh hơi – ngưng tụ)
                     </text>
-                    <rect x="514" y="258" width="16" height="10" fill="#2dd4bf" />
-                    <text x="536" y="267" fill="#99f6e4" fontSize="11" fontWeight="600">
+                    <rect x="508" y="258" width="14" height="10" fill="#2dd4bf" />
+                    <text x="528" y="267" fill="#99f6e4" fontSize="10.5" fontWeight="600">
                       (3) Nước làm mát ngoài
                     </text>
                   </svg>
                   <figcaption className={styles.darkBenchCaption}>
-                    <strong>Hình 24.1 (Sơ đồ nhà máy điện hạt nhân · SGK tr. 114):</strong> Ba dòng lưu chất trao đổi nhiệt qua thành ống kín và <strong>không bao giờ trộn lẫn trực tiếp với nhau</strong>; chính <strong>hơi nước áp suất cao ở vòng thứ cấp (2)</strong> làm quay tua-bin phát điện.
+                    <strong>Hình 24.1 (Sơ đồ nhà máy điện hạt nhân · SGK tr. 114):</strong> Ba chu trình lưu chất trao đổi nhiệt qua thành ống kín và <strong>không trộn lẫn trực tiếp với nhau</strong>. Hãy quan sát đường ống nối vào tua-bin để khóa dự đoán ở Bước 3!
                   </figcaption>
                 </figure>
 
@@ -4552,7 +5328,7 @@ export function Chapter4SectionBody({
                     <strong>Dự đoán ban đầu:</strong> {lockedB24Label ? `“${lockedB24Label}”` : "Chưa lưu"}
                   </li>
                   <li>
-                    <strong>Phân biệt 3 dòng lưu chất Hình 24.1:</strong> {matchedLoopCount}/3 dòng đúng.
+                    <strong>Phân biệt 3 chu trình lưu chất Hình 24.1:</strong> {matchedLoopCount}/3 dòng đúng.
                   </li>
                 </ul>
                 <label htmlFor="b24-bring-q" style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}>
@@ -4624,25 +5400,82 @@ export function Chapter4SectionBody({
                 preSectionId="b24-energy-chain"
                 lockedChoiceLabel={lockedB24Label}
                 lockedReason={lockedInitialReason}
-                actionSummary={`Đã phân biệt ${matchedLoopCount}/3 dòng lưu chất trên Hình 24.1 (hơi nước vòng thứ cấp làm quay tua-bin)`}
+                actionSummary={`Đã phân biệt ${matchedLoopCount}/3 chu trình lưu chất trên Hình 24.1`}
                 bringQuestion={bringToClassQuestion}
                 onJumpToSection={onJumpToSection}
               />
 
-              {/* Ghi chú bể chứa thanh nhiên liệu đã qua sử dụng Hình 24.2 SGK tr. 115 */}
+              {/* Sơ đồ chuẩn Hình 24.2 (Thiết bị lưu trữ khô nhiên liệu đã qua sử dụng) & Ô đọc thêm Hình 24.3 (Mặt cắt lò phản ứng) SGK tr. 115 */}
               <div
                 style={{
-                  padding: "12px 14px",
-                  background: "#f8fafc",
-                  border: "1px solid #d0d7de",
-                  borderLeft: "4px solid #0f62fe",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                  gap: "12px",
                   marginBottom: "16px",
-                  fontSize: "13.5px",
-                  lineHeight: 1.6,
                 }}
               >
-                <strong>Liên hệ Hình 24.2 SGK tr. 115 (Bể chứa thanh nhiên liệu hạt nhân đã qua sử dụng):</strong>{" "}
-                Sau một thời gian vận hành, các thanh nhiên liệu lấy ra khỏi lò vẫn chứa các mảnh phân hạch đang phóng xạ mạnh và tiếp tục tỏa nhiệt. Vì vậy chúng phải được <strong>ngâm sâu hàng mét dưới bể nước chuyên dụng</strong> (nước vừa tải nhiệt làm mát liên tục, vừa đóng vai trò lớp che chắn bức xạ hiệu quả) trước khi đóng kiện bảo quản dài hạn.
+                <figure
+                  style={{
+                    margin: 0,
+                    padding: "12px 14px",
+                    background: "#f8fafc",
+                    border: "1px solid #d0d7de",
+                    borderLeft: "4px solid #0f62fe",
+                  }}
+                >
+                  <strong style={{ display: "block", fontSize: "14px", marginBottom: "6px" }}>
+                    Hình 24.2 (SGK tr. 115) · Cấu tạo thiết bị lưu trữ nhiên liệu hạt nhân đã qua sử dụng
+                  </strong>
+                  <svg
+                    viewBox="0 0 320 135"
+                    role="img"
+                    aria-label="Hình 24.2 SGK trang 115: Thiết bị lưu trữ khô hình trụ gồm tường thép mạ nickel bao bọc các quả cầu bằng than chì, bên trong là các thanh nhiên liệu đã qua sử dụng, khe tản nhiệt và cửa đậy hai lớp có chốt kim loại"
+                    style={{ width: "100%", maxWidth: "310px", height: "auto", display: "block", margin: "0 auto 6px", background: "#ffffff", border: "1px solid #e0e0e0" }}
+                  >
+                    {/* Vỏ hình trụ tường thép mạ nickel + lớp quả cầu than chì */}
+                    <rect x="64" y="24" width="184" height="86" rx="14" fill="#fef3c7" stroke="#525252" strokeWidth="2.2" />
+                    <rect x="78" y="36" width="156" height="62" rx="8" fill="#e2e8f0" stroke="#475569" strokeWidth="1.5" />
+                    {/* Các quả cầu than chì quanh chu vi */}
+                    {[86, 106, 126, 146, 166, 186, 206, 224].map((cx) => (
+                      <g key={cx}>
+                        <circle cx={cx} cy="30" r="3.2" fill="#334155" />
+                        <circle cx={cx} cy="104" r="3.2" fill="#334155" />
+                      </g>
+                    ))}
+                    {/* Các thanh nhiên liệu đã qua sử dụng ở lõi + khe tản nhiệt */}
+                    {[48, 60, 72, 84].map((ry) => (
+                      <line key={ry} x1="96" y1={ry} x2="218" y2={ry} stroke="#b42332" strokeWidth="3.2" />
+                    ))}
+                    {/* Cửa đậy hai lớp có chốt kim loại ở đầu trái */}
+                    <ellipse cx="68" cy="67" rx="12" ry="38" fill="#cbd5e1" stroke="#161616" strokeWidth="1.8" />
+                    <circle cx="68" cy="67" r="4" fill="#161616" />
+                    <text x="158" y="18" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#161616">
+                      Tường thép mạ nickel + các quả cầu than chì
+                    </text>
+                    <text x="158" y="124" textAnchor="middle" fontSize="10.5" fill="#525252">
+                      Cửa hai lớp chốt kim loại · Lõi thanh nhiên liệu &amp; khe tản nhiệt
+                    </text>
+                  </svg>
+                  <figcaption style={{ fontSize: "13px", lineHeight: 1.55, color: "#334155" }}>
+                    Nhà máy điện hạt nhân không trực tiếp thải khí <code>CO₂, CO</code>, nhưng thanh nhiên liệu đã qua sử dụng chứa đồng vị chu kì bán rã lớn (như <code>⁹⁰Sr, ¹³⁷Cs</code> có <code>T ≈ 30 năm</code>) nên phải đóng trong thiết bị lưu trữ độ bền rất cao để bảo quản hàng trăm năm.
+                  </figcaption>
+                </figure>
+
+                <div
+                  style={{
+                    padding: "12px 14px",
+                    background: "#f4f8ff",
+                    border: "1px solid #b5c7e3",
+                    fontSize: "13.5px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                    [Ô đọc thêm “Em có biết” — SGK tr. 115] Hình 24.3 · Sơ đồ mặt cắt lò phản ứng neutron nhiệt (Fermi, 1942)
+                  </strong>
+                  Nhiên liệu phân hạch thường là <code>²³⁵U</code> hoặc <code>²³⁹Pu</code>. Tám bộ phận chính trên Hình 24.3 gồm:{" "}
+                  <strong>(1) Thanh nhiên liệu</strong> · <strong>(2) Chất làm chậm neutron</strong> (giảm tốc về neutron nhiệt <code>&lt; 0,1 eV</code>) · <strong>(3) Vỏ kim loại</strong> · <strong>(4) Lớp tán xạ neutron bằng than chì</strong> · <strong>(5) Ống làm lạnh &amp; chất tải nhiệt</strong> · <strong>(6) Thanh điều khiển chứa Bo hay Cd</strong> hấp thụ neutron nhiệt thừa (khi <code>k &gt; 1</code> thì hạ ngập sâu hơn để giữ <code>k = 1</code>, công suất tỏa nhiệt ổn định) · <strong>(7) Thành bảo vệ phóng xạ</strong> · <strong>(8) Đường ống làm thí nghiệm</strong>.
+                </div>
               </div>
 
               <FixedPhysicsActivityRenderer
@@ -4654,10 +5487,37 @@ export function Chapter4SectionBody({
         })()}
 
       {section.kind === "b24_medicine" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="nuclear_medicine"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
+        <div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "12px",
+              marginBottom: "14px",
+              fontSize: "13.5px",
+              lineHeight: 1.6,
+            }}
+          >
+            <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+              <strong style={{ display: "block", marginBottom: "4px" }}>
+                II. Ứng dụng trong y học: Chẩn đoán chức năng &amp; điều trị ung thư (SGK tr. 116–117)
+              </strong>
+              Đưa đồng vị phóng xạ theo dõi vào cơ thể để kiểm tra hoạt động của các cơ quan nội tạng (tuyến giáp, thận, <strong>gan – mật</strong>,…). Trong điều trị ung thư, bệnh nhân dùng dược chất phóng xạ đích (như thuốc Xofigo chứa đồng vị Radium <code>²²³₈₈Ra</code>{" "}
+              <em>— lưu ý bản in SGK tr. 117 in nhầm chỉ số dưới 86, số hiệu chuẩn của Ra là Z = 88</em>, hoặc Lutathera chứa <Nuclide sym="Lu" a={177} z={71} />) hoặc chiếu tia từ máy xạ trị ngoài vào khối u (cần kiểm soát liều vì tia xạ cũng tác động lên tế bào lành xung quanh).
+            </div>
+            <div style={{ border: "1px solid #b5c7e3", background: "#f4f8ff", padding: "12px 14px" }}>
+              <strong style={{ display: "block", color: "#002d9c", marginBottom: "4px" }}>
+                [Ô đọc thêm “Em có biết” — SGK tr. 116] Hình 24.4 · Chụp cắt lớp phóng xạ SPECT và PET
+              </strong>
+              Máy <strong>SPECT</strong> và <strong>PET</strong> thu nhận bức xạ gamma phát ra từ dược chất phóng xạ tập trung tại mô đích để dựng ảnh cắt lớp chức năng chi tiết.{" "}
+              <em>(Giải thích vật lí mở rộng cho mô phỏng bên dưới: SPECT thường dùng đồng vị phát γ trực tiếp như <code>⁹⁹₄₃Tc*</code> có <code>T ≈ 6 h</code>; PET dùng đồng vị phát <code>β⁺</code> như <Nuclide sym="F" a={18} z={9} /> tạo cặp 2 photon γ bay ngược chiều 180°.)</em>
+            </div>
+          </div>
+          <FixedPhysicsActivityRenderer
+            activityKey="nuclear_medicine"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
+        </div>
       )}
 
       {section.kind === "b24_bio_food" &&
@@ -4668,7 +5528,7 @@ export function Chapter4SectionBody({
 
           return (
             <div>
-              {/* Đối chiếu trực quan Hình 24.5 SGK tr. 118 + đồng vị đánh dấu ³²P */}
+              {/* Đối chiếu trực quan đúng thứ tự Hình 24.5 SGK tr. 117: (a) đã chiếu xạ bên trái, (b) vải thường bên phải + đồng vị đánh dấu ³²P */}
               <div
                 style={{
                   display: "grid",
@@ -4690,59 +5550,61 @@ export function Chapter4SectionBody({
                     width="380"
                     height="145"
                     role="img"
-                    aria-label="Đối chiếu Hình 24.5 SGK trang 118: bên trái là chùm quả vải không chiếu xạ bị thâm nâu và nấm mốc sau thời gian bảo quản; bên phải là chùm quả vải đã chiếu xạ giữ vỏ tươi đỏ không nấm mốc"
+                    aria-label="Hình 24.5 SGK trang 117: (a) bên trái là vải thiều được chiếu xạ vẫn giữ vỏ tươi đỏ sau 7 ngày kể từ khi thu hoạch; (b) bên phải là vải thiều thường bị thâm nâu và nấm mốc sau 7 ngày"
                     style={{ width: "100%", height: "auto", display: "block" }}
                   >
-                    <rect x="0" y="0" width="182" height="145" fill="#fff1f1" stroke="#e0e0e0" />
-                    <text x="14" y="22" fill="#a2191f" fontSize="12" fontWeight="700">
-                      a) Không chiếu xạ (sau bảo quản)
+                    {/* Bên trái: a) Vải thiều được chiếu xạ (đỏ tươi) */}
+                    <rect x="0" y="0" width="182" height="145" fill="#defbe6" stroke="#42be65" />
+                    <text x="12" y="22" fill="#198038" fontSize="12" fontWeight="700">
+                      a) Vải thiều được chiếu xạ
                     </text>
-                    <circle cx="62" cy="78" r="22" fill="#78350f" />
-                    <circle cx="96" cy="86" r="22" fill="#713f12" />
-                    <circle cx="126" cy="74" r="21" fill="#57534e" />
-                    <circle cx="58" cy="72" r="6" fill="#d6d3d1" />
-                    <circle cx="102" cy="92" r="5" fill="#d6d3d1" />
-                    <text x="18" y="130" fill="#525252" fontSize="11">
-                      Vi sinh vật, nấm mốc phát triển nhanh
+                    <circle cx="58" cy="76" r="22" fill="#e11d48" />
+                    <circle cx="94" cy="84" r="22" fill="#be123c" />
+                    <circle cx="126" cy="72" r="21" fill="#f43f5e" />
+                    <circle cx="94" cy="84" r="11" fill="#fff1f2" />
+                    <text x="12" y="130" fill="#161616" fontSize="11" fontWeight="600">
+                      Sau 7 ngày: tươi đỏ · không nhiễm xạ
                     </text>
 
-                    <rect x="198" y="0" width="182" height="145" fill="#defbe6" stroke="#42be65" />
-                    <text x="210" y="22" fill="#198038" fontSize="12" fontWeight="700">
-                      b) Đã chiếu xạ (cùng thời gian)
+                    {/* Bên phải: b) Vải thiều thường (thâm hỏng) */}
+                    <rect x="198" y="0" width="182" height="145" fill="#fff1f1" stroke="#e0e0e0" />
+                    <text x="210" y="22" fill="#a2191f" fontSize="12" fontWeight="700">
+                      b) Vải thiều thường
                     </text>
-                    <circle cx="258" cy="78" r="22" fill="#e11d48" />
-                    <circle cx="292" cy="86" r="22" fill="#be123c" />
-                    <circle cx="322" cy="74" r="21" fill="#f43f5e" />
-                    <text x="210" y="130" fill="#161616" fontSize="11" fontWeight="600">
-                      Vỏ tươi đỏ · Không mang tính phóng xạ
+                    <circle cx="258" cy="76" r="22" fill="#78350f" />
+                    <circle cx="294" cy="84" r="22" fill="#57534e" />
+                    <circle cx="326" cy="72" r="21" fill="#44403c" />
+                    <circle cx="294" cy="84" r="10" fill="#d6d3d1" />
+                    <text x="210" y="130" fill="#525252" fontSize="11">
+                      Sau 7 ngày: vi sinh vật làm thâm hỏng
                     </text>
                   </svg>
                   <figcaption style={{ fontSize: "13px", lineHeight: 1.5, marginTop: "8px" }}>
-                    <strong>Hình 24.5 (SGK tr. 118):</strong> Đối chiếu kết quả bảo quản trái cây bằng chiếu xạ bức xạ năng lượng phù hợp.
+                    <strong>Hình 24.5 (SGK tr. 117):</strong> Vải thiều được chiếu xạ <strong>(a)</strong> và vải thiều thường <strong>(b)</strong> sau 7 ngày kể từ khi thu hoạch.
                   </figcaption>
                 </figure>
 
                 <div className={styles.tableScroll} style={{ margin: 0 }}>
                   <table className={styles.cdsTable}>
-                    <caption>Ứng dụng trong nông nghiệp &amp; công nghệ sinh học (SGK tr. 117–118)</caption>
+                    <caption>Ứng dụng trong công nghệ sinh học &amp; bảo quản thực phẩm (SGK tr. 117–118)</caption>
                     <thead>
                       <tr>
                         <th scope="col">Ứng dụng</th>
-                        <th scope="col">Cơ chế &amp; bằng chứng an toàn</th>
+                        <th scope="col">Cơ chế &amp; lưu ý khoa học</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <th scope="row">Đồng vị đánh dấu (<Nuclide sym="P" a={32} z={15} />)</th>
-                        <td>Pha lượng vết <Nuclide sym="P" a={32} z={15} /> vào phân lân để đo tốc độ cây hấp thụ ở từng bộ phận, tối ưu liều lượng bón phân.</td>
+                        <th scope="row">Đánh dấu phóng xạ (<Nuclide sym="P" a={32} z={15} />)</th>
+                        <td>Bón phân có đồng vị phóng xạ β <Nuclide sym="P" a={32} z={15} /> và chụp ảnh phóng xạ cây tại các thời điểm cách đều nhau để nghiên cứu đường đi của phân bón, tối ưu chăm sóc cây trồng.</td>
                       </tr>
                       <tr>
-                        <th scope="row">Chọn giống đột biến</th>
-                        <td>Chiếu xạ hạt giống tạo biến dị di truyền có lợi (năng suất cao, chín sớm, kháng sâu bệnh); cây trồng thương phẩm không phóng xạ.</td>
+                        <th scope="row">Gây đột biến tạo giống</th>
+                        <td>Tạo giống mới kháng sâu bệnh, năng suất cao, quả trái mùa hoặc không hạt (tuy nhiên cần đánh giá kĩ tác động tới côn trùng và hệ sinh thái).</td>
                       </tr>
                       <tr>
-                        <th scope="row">Chiếu xạ thực phẩm</th>
-                        <td>Chùm tia γ hoặc electron đi xuyên qua tiêu diệt vi khuẩn, nấm mốc, côn trùng kiểm dịch mà <strong>không để lại nguồn phóng xạ trong thực phẩm</strong>.</td>
+                        <th scope="row">Chiếu xạ bảo quản (Hình 24.5–24.6)</th>
+                        <td>Chùm tia năng lượng phù hợp đi xuyên qua diệt vi sinh vật gây hại giúp kéo dài thời hạn sử dụng thực phẩm mà <strong>không để lại chất phóng xạ trong thực phẩm</strong>.</td>
                       </tr>
                     </tbody>
                   </table>
@@ -4762,7 +5624,7 @@ export function Chapter4SectionBody({
                   htmlFor="b24-food-essay"
                   style={{ display: "block", fontSize: "14px", fontWeight: 700, marginBottom: "6px" }}
                 >
-                  Câu hỏi lập luận có bằng chứng: Từ Hình 24.5 và cơ chế vật lí trên, em hãy nêu bằng chứng giải thích vì sao trái cây chiếu xạ vừa giữ tươi lâu hơn, vừa an toàn (không làm người ăn bị nhiễm phóng xạ)?
+                  Câu hỏi lập luận có bằng chứng: Từ Hình 24.5 (so sánh mẫu a và mẫu b sau 7 ngày) và cơ chế chiếu xạ ngoài, em hãy nêu bằng chứng giải thích vì sao trái cây chiếu xạ vừa giữ tươi lâu hơn, vừa không làm người ăn bị nhiễm phóng xạ?
                 </label>
                 <textarea
                   id="b24-food-essay"
@@ -4781,7 +5643,7 @@ export function Chapter4SectionBody({
                       },
                     }));
                   }}
-                  placeholder="Nêu rõ 2 ý: (1) Tác dụng của chùm tia γ/electron lên vi sinh vật/nấm mốc trên Hình 24.5; (2) Thực phẩm có tiếp xúc hay giữ lại chất phóng xạ không…"
+                  placeholder="Nêu rõ 2 ý: (1) Tác dụng của chùm bức xạ lên vi sinh vật/nấm mốc giữa mẫu (a) và (b) trên Hình 24.5; (2) Thực phẩm có tiếp xúc hay giữ lại nguồn phóng xạ không…"
                 />
                 <div style={{ marginTop: "10px", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
                   <button
@@ -4913,10 +5775,10 @@ export function Chapter4SectionBody({
                 }}
               >
                 <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
-                  Bước 1 · Câu hỏi mở đầu từ hiện tượng tĩnh điện kế phóng điện (Bài 25.1 · Hình 25.1 SGK tr. 119)
+                  Bước 1 · Câu hỏi mở đầu từ bài tập ví dụ tĩnh điện kế (Hình 25.1 · SGK tr. 119–120)
                 </h4>
                 <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
-                  Tích điện cho bản góp <strong>(2)</strong> của tĩnh điện kế để kim <strong>(3)</strong> lệch một góc ổn định. Khi đưa nguồn phóng xạ <strong>(1)</strong> lại gần bản góp <strong>(2)</strong> (không chạm vào bản góp), góc lệch của kim <strong>(3)</strong> giảm dần về <code>0</code> — và hiện tượng này xảy ra <strong>cả khi bản góp tích điện dương (+) lẫn khi tích điện âm (−)</strong>.
+                  Một tĩnh điện kế đã được tích điện nên kim điện kế <strong>(3)</strong> đang lệch một góc lớn. Khi nhấc mẫu phóng xạ <strong>(1)</strong> từ bình chì đưa lại gần đầu thu điện <strong>(2)</strong> (chưa chạm vào đầu thu điện), độ lệch của kim điện kế <strong>(3)</strong> giảm rất nhanh về vị trí <code>0</code> rồi dừng lại — hiện tượng xảy ra như nhau dù ban đầu tĩnh điện kế tích điện dương hay âm.
                 </p>
                 <div
                   style={{
@@ -4931,15 +5793,15 @@ export function Chapter4SectionBody({
                     Câu hỏi mở đầu cần suy nghĩ:
                   </strong>
                   <em>
-                    “Phải chăng nguồn (1) chỉ phát ra một loại hạt mang điện trái dấu bay tới trung hòa điện tích của tĩnh điện kế, hay do nguyên nhân vật lí nào khác?”
+                    “Độ lệch kim giảm nhanh chứng tỏ tĩnh điện kế nhận thêm điện tích trái dấu hoặc mất bớt điện tích. Đó là do các hạt mang điện trái dấu từ mẫu (1) bay trực tiếp vào tích điện cho (2), hay do không khí quanh (2) đã biến đổi tính chất dẫn điện?”
                   </em>
                 </div>
               </section>
 
-              {/* Bước 2: Sơ đồ tĩnh điện kế kim chỉ Hình 25.1 đúng kí hiệu (1), (2), (3) + Video */}
+              {/* Bước 2: Sơ đồ Hình 25.1 đúng bố cục SGK tr. 119 (chưa in chữ lộ đáp án trước Bước 3) */}
               <section style={{ marginBottom: "18px" }}>
                 <h4 style={{ margin: "0 0 10px", fontSize: "16px" }}>
-                  Bước 2 · Quan sát Hình 25.1 SGK với đúng 3 bộ phận (1), (2), (3)
+                  Bước 2 · Quan sát Hình 25.1 SGK tr. 119 với đúng 3 kí hiệu (1), (2), (3)
                 </h4>
                 <div
                   style={{
@@ -4952,11 +5814,10 @@ export function Chapter4SectionBody({
                     lineHeight: 1.55,
                   }}
                 >
-                  <strong>Chỉ dẫn quan sát trọng tâm:</strong>{" "}
+                  <strong>Chỉ dẫn quan sát trọng tâm (chưa lộ đáp án):</strong>{" "}
                   <em>
-                    “Quan sát kim tĩnh điện kế (3) khi đưa nguồn (1) lại gần bản góp (2) trên Hình 25.1 và chú ý lớp không khí nằm giữa (1) và (2)”
+                    “Quan sát mẫu phóng xạ (1) được nhấc từ bình chì đưa lại gần đầu thu điện (2), khoảng không khí giữa (1) và (2), và chuyển động của kim điện kế (3) về vạch 0 (mà không lệch tăng trở lại về phía bên kia).”
                   </em>
-                  .
                 </div>
 
                 <figure
@@ -4972,57 +5833,48 @@ export function Chapter4SectionBody({
                     width="460"
                     height="220"
                     role="img"
-                    aria-label="Hình 25.1 SGK trang 119: (1) Nguồn phóng xạ chiếu chùm tia vào vùng không khí trước (2) Bản góp điện tích nối với trục và (3) Kim tĩnh điện kế trên thước chia độ đang giảm góc lệch về 0"
+                    aria-label="Hình 25.1 SGK trang 119: Thí nghiệm đưa mẫu phóng xạ (1) nhấc từ bình chì bên phải lại gần đầu thu điện (2) của tĩnh điện kế bên trái làm kim điện kế (3) giảm nhanh độ lệch về vị trí 0"
                     style={{ width: "100%", maxWidth: "480px", height: "auto", display: "block", margin: "0 auto" }}
                   >
-                    {/* (1) Nguồn phóng xạ */}
-                    <rect x="24" y="42" width="76" height="36" rx="4" fill="#334155" stroke="#161616" strokeWidth="1.6" />
-                    <text x="36" y="64" fill="#ffffff" fontSize="12" fontWeight="700">
-                      Nguồn α/β
-                    </text>
-                    <circle cx="62" cy="24" r="12" fill="#0f62fe" />
-                    <text x="62" y="28" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">
-                      1
-                    </text>
+                    {/* Tĩnh điện kế ở bên trái đúng bố cục Hình 25.1 SGK tr. 119 */}
+                    {/* (2) Đầu thu điện trên đỉnh tĩnh điện kế */}
+                    <rect x="128" y="68" width="44" height="7" rx="3" fill="#da1e28" />
+                    <line x1="150" y1="75" x2="150" y2="184" stroke="#b91c1c" strokeWidth="3.5" />
+                    <text x="116" y="60" fontSize="13" fontWeight="700" fill="#161616">(2)</text>
+                    <line x1="128" y1="62" x2="142" y2="68" stroke="#161616" strokeWidth="1.2" />
 
-                    {/* Chùm tia ion hóa không khí giữa (1) và (2) */}
-                    <line x1="102" y1="52" x2="216" y2="54" stroke="#da1e28" strokeWidth="2.2" strokeDasharray="5 3" />
-                    <line x1="102" y1="68" x2="216" y2="66" stroke="#da1e28" strokeWidth="2.2" strokeDasharray="5 3" />
-                    <text x="116" y="40" fill="#a2191f" fontSize="11.5" fontWeight="700">
-                      Ion hóa không khí (+ / −)
-                    </text>
+                    {/* Vỏ tròn tĩnh điện kế & chân đế */}
+                    <circle cx="150" cy="138" r="50" fill="#ffffff" stroke="#0284c7" strokeWidth="3" />
+                    <rect x="114" y="190" width="72" height="10" rx="2" fill="#94a3b8" />
+                    <rect x="142" y="186" width="16" height="6" fill="#64748b" />
 
-                    {/* (2) Bản góp điện tích (đĩa kim loại đứng/ngang trên đỉnh trụ) */}
-                    <rect x="220" y="34" width="12" height="52" rx="3" fill="#facc15" stroke="#854d0e" strokeWidth="2" />
-                    <line x1="232" y1="60" x2="290" y2="60" stroke="#525252" strokeWidth="4" />
-                    <circle cx="226" cy="18" r="12" fill="#0f62fe" />
-                    <text x="226" y="22" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">
-                      2
-                    </text>
+                    {/* (3) Kim điện kế đang giảm góc lệch về vị trí thẳng đứng 0 */}
+                    <line x1="112" y1="108" x2="188" y2="168" stroke="#fca5a5" strokeWidth="2.4" strokeDasharray="4 3" />
+                    <line x1="132" y1="96" x2="168" y2="180" stroke="#da1e28" strokeWidth="3.4" strokeLinecap="round" />
+                    <circle cx="150" cy="138" r="4" fill="#161616" />
+                    <path d="M 182 162 Q 176 172 168 176" fill="none" stroke="#0f62fe" strokeWidth="1.8" />
+                    <text x="176" y="128" fontSize="13" fontWeight="700" fill="#161616">(3)</text>
+                    <line x1="174" y1="130" x2="160" y2="140" stroke="#161616" strokeWidth="1.2" />
 
-                    {/* Thân tĩnh điện kế & thước chia độ */}
-                    <circle cx="290" cy="138" r="56" fill="#ffffff" stroke="#525252" strokeWidth="2.5" />
-                    {/* Thước chia độ cung tròn */}
-                    <path d="M 290 184 A 46 46 0 0 0 334 152" fill="none" stroke="#8d8d8d" strokeWidth="2" />
-                    <line x1="290" y1="60" x2="290" y2="184" stroke="#525252" strokeWidth="3.2" />
-                    {/* Chân đế cách điện */}
-                    <rect x="248" y="194" width="84" height="12" rx="2" fill="#334155" />
+                    {/* Bình chì bảo vệ nguồn ở góc phải dưới + đường chấm nhấc mẫu (1) lên */}
+                    <path d="M 358 156 L 368 156 L 368 148 L 384 148 L 384 156 L 394 156 L 398 198 L 354 198 Z" fill="#cbd5e1" stroke="#475569" strokeWidth="1.6" />
+                    <polygon points="376,166 388,186 364,186" fill="#facc15" stroke="#161616" strokeWidth="1.2" />
+                    <circle cx="376" cy="180" r="2.2" fill="#161616" />
 
-                    {/* (3) Kim tĩnh điện kế: nét đứt ban đầu → nét liền quay về 0 */}
-                    <line x1="290" y1="138" x2="332" y2="162" stroke="#94a3b8" strokeWidth="2.4" strokeDasharray="4 3" />
-                    <line x1="290" y1="138" x2="306" y2="178" stroke="#0f62fe" strokeWidth="3.5" strokeLinecap="round" />
-                    <circle cx="290" cy="138" r="4.5" fill="#161616" />
-                    <path d="M 326 164 Q 318 174 310 176" fill="none" stroke="#0f62fe" strokeWidth="2" />
-                    <circle cx="364" cy="138" r="12" fill="#0f62fe" />
-                    <text x="364" y="142" textAnchor="middle" fill="#ffffff" fontSize="12" fontWeight="700">
-                      3
-                    </text>
-                    <text x="354" y="168" fill="#002d9c" fontSize="11.5" fontWeight="700">
-                      Kim (3) về 0
-                    </text>
+                    {/* Quỹ đạo nhấc mẫu phóng xạ (1) từ bình chì đưa lại gần (2) */}
+                    <path d="M 376 146 Q 368 48 228 56" fill="none" stroke="#64748b" strokeWidth="1.3" strokeDasharray="4 3" />
+                    <path d="M 228 56 Q 194 60 176 70" fill="none" stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="3 3" />
+
+                    {/* Giá treo & (1) Mẫu phóng xạ màu đỏ phát bức xạ ra xung quanh */}
+                    <rect x="216" y="18" width="24" height="7" fill="#94a3b8" />
+                    <line x1="228" y1="25" x2="228" y2="54" stroke="#475569" strokeWidth="1.8" />
+                    <circle cx="228" cy="56" r="8" fill="#fca5a5" opacity="0.55" />
+                    <circle cx="228" cy="56" r="4.5" fill="#da1e28" />
+                    <text x="248" y="42" fontSize="13" fontWeight="700" fill="#161616">(1)</text>
+                    <line x1="246" y1="40" x2="230" y2="45" stroke="#161616" strokeWidth="1.2" />
                   </svg>
                   <figcaption style={{ fontSize: "13px", lineHeight: 1.5, marginTop: "8px", textAlign: "center" }}>
-                    <strong>Hình 25.1 (SGK tr. 119):</strong> <strong>(1)</strong> Nguồn phóng xạ · <strong>(2)</strong> Bản góp điện tích · <strong>(3)</strong> Kim tĩnh điện kế trên thước chia độ.
+                    <strong>Hình 25.1 (SGK tr. 119) · Thí nghiệm đưa mẫu phóng xạ lại gần tĩnh điện kế:</strong> Hãy khóa dự đoán nguyên nhân ở Bước 3 và ghép đúng tên gọi <code>(1), (2), (3)</code> ở Bước 4!
                   </figcaption>
                 </figure>
 
@@ -5112,7 +5964,7 @@ export function Chapter4SectionBody({
                     setPredReasonDraft(e.target.value);
                     setPredSavedMsg("");
                   }}
-                  placeholder="Giải thích vì sao hiện tượng vẫn xảy ra ngay cả khi ta đổi dấu điện tích ban đầu của tĩnh điện kế…"
+                  placeholder="Giải thích điều gì sẽ xảy ra với kim (3) sau khi về 0 nếu chỉ có hạt trái dấu bay thẳng vào tích điện cho (2)…"
                 />
                 <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", marginTop: "10px" }}>
                   <button
@@ -5220,12 +6072,12 @@ export function Chapter4SectionBody({
 
                 <fieldset style={{ border: "none", padding: 0, margin: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "6px" }}>
-                    Thử đặt một tờ giấy bìa mỏng chắn giữa nguồn thuần α (1) và bản góp (2):
+                    Thử đặt một tờ giấy mỏng (~1 mm) chắn giữa mẫu phóng xạ thuần α (1) và đầu thu điện (2):
                   </legend>
                   {[
                     [
                       "stop",
-                      "Kim (3) ngừng giảm nhanh vì tờ giấy chặn hầu hết hạt α, lớp không khí sát bản góp (2) không còn bị ion hóa mạnh.",
+                      "Kim (3) ngừng giảm nhanh vì tờ giấy chặn hầu hết hạt α, lớp không khí quanh đầu thu điện (2) không còn bị ion hóa mạnh.",
                     ],
                     [
                       "faster",
@@ -5253,7 +6105,7 @@ export function Chapter4SectionBody({
                 </fieldset>
               </section>
 
-              {/* Bước 5: Câu tự kiểm tra có phản hồi */}
+              {/* Bước 5: Phân tích bác bỏ trường hợp sai (SGK tr. 119–120) & Câu tự kiểm tra */}
               <section
                 style={{
                   border: "1px solid #d0d7de",
@@ -5263,11 +6115,23 @@ export function Chapter4SectionBody({
                 }}
               >
                 <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
-                  Bước 5 · Câu tự kiểm tra trước giờ học
+                  Bước 5 · Lập luận loại trừ hai trường hợp theo SGK tr. 119–120 &amp; tự kiểm tra
                 </h4>
+                <div
+                  style={{
+                    marginBottom: "12px",
+                    padding: "10px 12px",
+                    background: "#f8fafc",
+                    border: "1px solid #d0d7de",
+                    fontSize: "13.5px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  <strong>Phân tích hai trường hợp trong SGK tr. 119–120:</strong> Nếu điện tích của hạt trong tia phóng xạ trực tiếp trái dấu với điện tích trên tĩnh điện kế và bay vào tích cho nó, thì sau khi trung hòa điện về <code>0</code>, tĩnh điện kế sẽ <strong>tiếp tục tích điện trái dấu làm độ lệch kim (3) lại tăng dần lên</strong> — trái với hiện tượng thực tế! Do đó nguyên nhân chính là <strong>tia phóng xạ làm ion hóa không khí</strong> xung quanh, khiến không khí trở nên dẫn điện tốt và dẫn điện tích của tĩnh điện kế thoát ra môi trường làm kim về <code>0</code>.
+                </div>
                 <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
                   <legend style={{ fontWeight: 700, fontSize: "14px", marginBottom: "8px" }}>
-                    Bằng chứng nào bác bỏ giả thuyết sai “chỉ có một loại hạt mang điện từ nguồn (1) bay vào trung hòa bản góp (2)”?
+                    Bằng chứng nào bác bỏ giả thuyết sai “chỉ có một loại hạt mang điện trái dấu từ mẫu (1) bay vào tích điện cho đầu thu (2)”?
                   </legend>
                   {B25_PRE_SELF_CHECK_OPTIONS.map((opt) => (
                     <label
@@ -5337,9 +6201,9 @@ export function Chapter4SectionBody({
                   }}
                 >
                   <strong style={{ display: "block", color: "#5e4600", marginBottom: "4px" }}>
-                    Hướng dẫn giải &amp; Đáp án chi tiết cho Giáo viên · Bài 25.1 (Hình 25.1 SGK tr. 119)
+                    Hướng dẫn giải &amp; Đáp án chi tiết cho Giáo viên · Bài tập ví dụ 1 (Hình 25.1 SGK tr. 119–120)
                   </strong>
-                  Tia phóng xạ từ nguồn <strong>(1)</strong> không trung hòa tĩnh điện kế bằng điện tích riêng lẻ của chùm tia, mà do <strong>ion hóa các phân tử không khí</strong> tạo thành vô số ion dương và electron/ion âm tự do. Nếu bản góp <strong>(2)</strong> tích điện dương, nó hút electron/ion âm; nếu tích điện âm, nó hút ion dương → cả hai trường hợp kim <strong>(3)</strong> đều trở về <code>0</code>.
+                  Xét hai khả năng: (1) Tia phóng xạ từ mẫu <strong>(1)</strong> làm <strong>ion hóa không khí</strong> xung quanh khiến không khí dẫn điện tốt hơn, điện tích từ đầu thu <strong>(2)</strong> thoát ra môi trường nên kim <strong>(3)</strong> dịch nhanh về <code>0</code> và dừng ở <code>0</code>; (2) Nếu do hạt mang điện trái dấu từ tia phóng xạ tích trực tiếp vào tĩnh điện kế, nó sẽ trung hòa điện rồi lại tích điện trái dấu khiến kim giảm về <code>0</code> sau đó <em>tăng dần lên lại</em> (trái thực tế) — hơn nữa hiện tượng giảm về <code>0</code> xảy ra với cả hai dấu điện tích ban đầu của tĩnh điện kế.
                 </div>
               )}
 
@@ -5419,9 +6283,9 @@ export function Chapter4SectionBody({
               />
 
               <p style={{ margin: "0 0 10px", fontSize: "14.5px", lineHeight: 1.55 }}>
-                <strong>Bảng 25.1 (SGK Vật lí 12, trang 121)</strong> ghi kết quả đo độ phóng xạ thực nghiệm{" "}
-                <code>H</code> (đơn vị <code>Bq</code>) của một mẫu chất phóng xạ theo thời gian{" "}
-                <code>t</code> (đơn vị <code>s</code>). Hãy tự đọc 8 cặp số liệu <code>(t, H)</code> dưới đây để ước lượng chu kì bán rã <code>T</code>:
+                <strong>Bài 2 · Bảng 25.1 (SGK Vật lí 12, trang 121):</strong> Người ta đo độ phóng xạ{" "}
+                <code>H</code> (đơn vị <code>Bq</code>) của một đồng vị theo thời gian{" "}
+                <code>t</code> (đơn vị <code>s</code>) và điền kết quả vào Bảng 25.1. Hãy quan sát 8 cặp dữ liệu gốc dưới đây để: <em>a) Vẽ/đối chiếu đồ thị độ phóng xạ theo thời gian</em> và <em>b) Ước lượng chu kì bán rã T của đồng vị này</em>:
               </p>
 
               <div
@@ -5435,14 +6299,14 @@ export function Chapter4SectionBody({
                   color: "#161616",
                 }}
               >
-                Bảng 25.1 — Độ phóng xạ H (Bq) theo thời gian t (s) (SGK tr. 121)
+                Bảng 25.1. Độ phóng xạ theo thời gian (SGK tr. 121 — dữ liệu gốc thực nghiệm)
               </div>
               <div className={styles.tableScroll} style={{ marginTop: 0 }} data-testid="b25-table-scroll">
                 <table className={styles.cdsTable} aria-label="Bảng 25.1 Độ phóng xạ theo thời gian SGK trang 121">
                   <thead>
                     <tr>
-                      <th scope="col" className={styles.numCell}>Thời gian t (s)</th>
-                      <th scope="col" className={styles.numCell}>Độ phóng xạ H (Bq)</th>
+                      <th scope="col" className={styles.numCell}>t(s)</th>
+                      <th scope="col" className={styles.numCell}>H (Bq)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -5454,9 +6318,9 @@ export function Chapter4SectionBody({
                           style={highlightTeacher ? { background: "#edf5ff", fontWeight: 600 } : undefined}
                         >
                           <th scope="row" className={styles.numCell}>
-                            {t} s
+                            {t}
                           </th>
-                          <td className={styles.numCell}>{h} Bq</td>
+                          <td className={styles.numCell}>{h}</td>
                         </tr>
                       );
                     })}
@@ -5464,7 +6328,7 @@ export function Chapter4SectionBody({
                 </table>
               </div>
 
-              {/* Phiếu học sinh tự ước lượng T trước (KHÔNG lộ sẵn đáp án khi ở chế độ Học sinh) */}
+              {/* Phiếu học sinh tự ước lượng T trước (tách rõ dữ liệu gốc vs giá trị học sinh ước lượng vs lời giải mẫu GV) */}
               <div
                 style={{
                   border: "1px solid #8d8d8d",
@@ -5485,7 +6349,7 @@ export function Chapter4SectionBody({
                   }}
                 >
                   <label style={{ display: "block", fontSize: "13.5px", fontWeight: 700 }}>
-                    1. Giá trị một nửa hoạt độ ban đầu <code>H₀ / 2</code> (đơn vị <code>Bq</code>):
+                    1. Một nửa độ phóng xạ ban đầu <code>H₀ / 2</code> (đơn vị <code>Bq</code>):
                     <input
                       type="text"
                       inputMode="decimal"
@@ -5498,7 +6362,7 @@ export function Chapter4SectionBody({
                           inClassWork: { ...cur.inClassWork, b25HalfH0Input: val, b25TableChecked: false },
                         }));
                       }}
-                      placeholder="Tính từ H₀ tại t = 0 s (Bq)…"
+                      placeholder="Tính từ H₀ tại t = 0 s…"
                       style={{
                         display: "block",
                         width: "100%",
@@ -5602,7 +6466,7 @@ export function Chapter4SectionBody({
                         ...cur,
                         inClassWork: { ...cur.inClassWork, b25TableChecked: true },
                       }));
-                      if (allB25TableOk) onMarkSectionComplete(section.id, true);
+                      onMarkSectionComplete(section.id, allB25TableOk);
                     }}
                   >
                     Kiểm tra ước lượng của em
@@ -5617,8 +6481,18 @@ export function Chapter4SectionBody({
                       }}
                     >
                       {allB25TableOk
-                        ? "✓ Hợp lí! Mức H₀/2 = 75,5 Bq nằm trong khoảng 30 s – 60 s (gần mốc 30 s hơn mốc 60 s) và ước lượng của em khớp tốt với dữ liệu thực nghiệm."
-                        : "Hãy kiểm tra lại: H₀ tại t = 0 s là 151 Bq → tính H₀/2, tìm hai mốc kẹp trên Bảng 25.1, ước lượng T trong khoảng đó và ghi rõ cách làm."}
+                        ? "✓ Hợp lí! Một nửa độ phóng xạ ban đầu nằm trong khoảng 30 s – 60 s (gần mốc 30 s hơn mốc 60 s) và giá trị ước lượng T của em khớp tốt với dữ liệu thực nghiệm."
+                        : `Cần điều chỉnh: ${
+                            !halfOk ? "Tính lại H₀/2 từ giá trị H₀ tại t = 0 s trên Bảng 25.1. " : ""
+                          }${
+                            bracketChoice === ""
+                              ? "Em chưa chọn khoảng hai mốc thời gian kẹp H₀/2. "
+                              : !bracketOk
+                                ? "Khoảng kẹp đã chọn chưa chứa mức H₀/2 (hãy so sánh H tại hai đầu khoảng với H₀/2). "
+                                : ""
+                          }${
+                            !tOk ? "Giá trị ước lượng T chưa nằm hợp lí gần giao điểm mức H₀/2 với đường cong. " : ""
+                          }${!noteOk ? "Hãy ghi ngắn gọn cách ước lượng (ít nhất 1 câu)." : ""}`}
                     </span>
                   )}
                 </div>
@@ -5638,17 +6512,17 @@ export function Chapter4SectionBody({
                   }}
                 >
                   <strong style={{ display: "block", color: "#5e4600", marginBottom: "4px" }}>
-                    Hướng dẫn giải &amp; Đáp án chi tiết cho Giáo viên · Bảng 25.1 (SGK tr. 121)
+                    Hướng dẫn giải &amp; Đáp án mẫu tham khảo cho Giáo viên · Bài 2 Bảng 25.1 (SGK tr. 121)
                   </strong>
-                  Hoạt độ ban đầu tại <code>t = 0 s</code> là <code>H₀ = 151 Bq</code> ⇒{" "}
-                  <code>H₀ / 2 = 75,5 Bq</code>. Trên Bảng 25.1, <code>75,5 Bq</code> nằm giữa hai cặp đo{" "}
+                  Độ phóng xạ ban đầu tại <code>t = 0 s</code> là <code>H₀ = 151 Bq</code> ⇒{" "}
+                  <code>H₀ / 2 = 75,5 Bq</code>. Trên Bảng 25.1, <code>75,5 Bq</code> nằm giữa hai cặp dữ liệu gốc{" "}
                   <strong>(30 s; 85 Bq)</strong> và <strong>(60 s; 55 Bq)</strong>. Nội suy tuyến tính đoạn đầu cho{" "}
-                  <code>T ≈ 30 + (85 − 75,5)/(85 − 55) × 30 = 39,5 s</code>; nếu vẽ đường cong hàm mũ trơn qua toàn bộ 8 điểm đo (có thăng giáng thống kê ở vùng hoạt độ thấp) thì thu được <code>T ≈ 40 – 45 s</code>.
+                  <code>T ≈ 30 + (85 − 75,5)/(85 − 55) × 30 = 39,5 s</code>; nếu vẽ đường cong hàm mũ trơn qua toàn bộ 8 điểm đo (có thăng giáng thống kê ở vùng độ phóng xạ thấp) thì thu được ước lượng <code>T ≈ 40 – 45 s</code>.
                 </div>
               )}
 
               <h4 style={{ margin: "20px 0 10px", fontSize: "16px" }}>
-                Đồ thị phân rã tương tác và xử lí số liệu Bảng 25.1
+                Đồ thị độ phóng xạ tương tác &amp; truy ngược từng điểm về dòng Bảng 25.1
               </h4>
               <FixedPhysicsActivityRenderer
                 activityKey="nuclear_physics_practice_lab"
@@ -5675,15 +6549,15 @@ export function Chapter4SectionBody({
               <strong style={{ display: "block", color: "#5e4600", marginBottom: "4px" }}>
                 Hướng dẫn giải &amp; Lưu ý chấm bài cho Giáo viên · Phương trình &amp; Eₗₖ, Eₗₖᵣ
               </strong>
-              Phần A: Kiểm tra tổng số khối <code>ΣA</code> và tổng điện tích <code>ΣZ</code> hai vế (phân rã α giảm A đi 4, Z đi 2; β⁻ giữ nguyên A, tăng Z thêm 1; β⁺ giữ nguyên A, giảm Z đi 1). Phần B: Áp dụng{" "}
-              <code>Δm = Z·m_p + (A − Z)·m_n − m_X</code>,{" "}
+              Phần A: Kiểm tra tổng số khối <code>ΣA</code> và tổng điện tích <code>ΣZ</code> hai vế (ví dụ Bài tập ví dụ 2 SGK tr. 120: <code>²³⁵₉₂U + ¹₀n → ¹⁴⁰₅₈Ce + ⁹⁴₄₀Zr + 2·¹₀n + 6·⁰₋₁e</code>). Phần B: Áp dụng thống nhất công thức độ hụt khối{" "}
+              <code>Δm = [Z·m_p + (A − Z)·m_n] − m_X</code>,{" "}
               <code>Eₗₖ = Δm · 931,5 (MeV)</code> và <code>Eₗₖᵣ = Eₗₖ / A (MeV/nucleon)</code>.
             </div>
           )}
 
           <div>
             <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
-              Phần A · Viết và cân bằng phương trình phân rã α, β⁻, β⁺
+              Phần A · Viết và cân bằng phương trình phản ứng &amp; phân rã α, β⁻, β⁺
             </h4>
             <NuclearEquationBalancer
               onSubDone={(done) => {
@@ -5709,18 +6583,37 @@ export function Chapter4SectionBody({
       {section.kind === "b25_after_transfer" &&
         (() => {
           const b25AfterDays = notebook.afterClassWork?.b25AfterDays ?? "";
-          const b25F18Ratio = notebook.afterClassWork?.b25F18RatioInput ?? "";
+          const b25F18Particle = notebook.afterClassWork?.b25F18ParticleChoice ?? "";
+          const b25F18Who = notebook.afterClassWork?.b25F18MoreWho ?? "";
+          const b25F18PctRaw =
+            notebook.afterClassWork?.b25F18PercentInput ?? "";
+          const legacyRatioRaw =
+            notebook.afterClassWork?.b25F18RatioInput ?? "";
           const b25Checked = Boolean(notebook.afterClassWork?.b25AfterChecked) || b25AfterCheckedLocal;
 
           const daysOk = Number(b25AfterDays.trim().replace(",", ".")) === 24;
-          const parsedRatio = Number(b25F18Ratio.trim().replace(",", "."));
-          const f18Ok = Number.isFinite(parsedRatio) && Math.abs(parsedRatio - 1.46) <= 0.03;
-          const allB25AfterOk = daysOk && f18Ok;
+          const particleOk = b25F18Particle === "proton";
+          const whoOk = b25F18Who === "later";
+          const cleanedPct = b25F18PctRaw.trim().replace("%", "").replace(",", ".");
+          const parsedPct = cleanedPct === "" ? NaN : Number(cleanedPct);
+          const enteredRatioInsteadOfPct =
+            Number.isFinite(parsedPct) && Math.abs(parsedPct - 1.46) <= 0.04;
+          const pctOk =
+            Number.isFinite(parsedPct) && parsedPct >= 45 && parsedPct <= 46.5;
+          const legacyRatioOk =
+            b25F18PctRaw === "" &&
+            b25F18Particle === "" &&
+            b25F18Who === "" &&
+            legacyRatioRaw !== "" &&
+            Math.abs(Number(legacyRatioRaw.trim().replace(",", ".")) - 1.46) <= 0.03;
+
+          const allB25AfterOk =
+            daysOk && ((particleOk && whoOk && pctOk) || legacyRatioOk);
 
           return (
             <div style={{ border: "1px solid #d0d7de", padding: "16px", background: "#ffffff" }}>
               <h4 style={{ margin: "0 0 10px", fontSize: "16px" }}>
-                Kiểm tra, đánh giá Pha 3: Hai bài toán y học hạt nhân thực tiễn (<Nuclide sym="I" a={131} z={53} /> &amp; Bài 6 tr. 122 <Nuclide sym="F" a={18} z={9} />-FDG)
+                Kiểm tra, đánh giá Pha 3: Bài toán y học hạt nhân (<Nuclide sym="I" a={131} z={53} /> &amp; Bài 6 SGK tr. 122 <Nuclide sym="F" a={18} z={9} />-FDG)
               </h4>
 
               {/* Câu 1: I-131 */}
@@ -5762,18 +6655,86 @@ export function Chapter4SectionBody({
                 </label>
               </div>
 
-              {/* Câu 2: Bài 6 SGK tr. 122 (18F-FDG chụp PET) */}
+              {/* Câu 2: Đúng nguyên văn Bài 6a & 6b SGK tr. 122 (18F-FDG chụp PET) */}
               <div style={{ marginBottom: "16px" }}>
-                <p style={{ margin: "0 0 8px", fontSize: "14.5px", lineHeight: 1.6 }}>
-                  <strong>Câu 2 (Bài 6 · SGK tr. 122 · Dược chất <Nuclide sym="F" a={18} z={9} />-FDG chụp PET):</strong>{" "}
-                  Đồng vị <Nuclide sym="F" a={18} z={9} /> có chu kì bán rã <code>T = 110 phút</code>. Trong khoa Y học hạt nhân, hai bệnh nhân A và B có cùng phác đồ cần nhận <strong>cùng một độ phóng xạ như nhau ngay tại thời điểm tiêm</strong>. Liều thuốc của cả hai được rút ra cùng một lúc từ một lô điều chế, nhưng bệnh nhân B được hẹn tiêm <strong>muộn hơn bệnh nhân A <code>60 phút</code></strong>. Hỏi ngay lúc pha chế chuẩn bị, liều hoạt độ (hoặc thể tích dung dịch) chuẩn bị cho bệnh nhân B phải <strong>gấp bao nhiêu lần</strong> của bệnh nhân A? <em>(Làm tròn đến 2 chữ số thập phân)</em>
+                <p style={{ margin: "0 0 10px", fontSize: "14.5px", lineHeight: 1.6 }}>
+                  <strong>Câu 2 (Bài 6 · SGK tr. 122 · Dược chất phóng xạ FDG chứa <Nuclide sym="F" a={18} z={9} /> chụp cắt lớp PET):</strong>{" "}
+                  Đồng vị <Nuclide sym="F" a={18} z={9} /> có chu kì bán rã <code>T = 110 phút</code>, được sản xuất bằng cách bắn phá các hạt đồng vị{" "}
+                  <Nuclide sym="O" a={18} z={8} /> nhờ một loại hạt được tăng tốc bằng máy gia tốc (Hình 25.4).
                 </p>
+
+                <fieldset style={{ border: "none", padding: 0, margin: "0 0 12px" }}>
+                  <legend style={{ fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}>
+                    6a) Xác định loại hạt được tăng tốc trong máy gia tốc biết rằng ngoài <Nuclide sym="F" a={18} z={9} />, sản phẩm bắn phá còn có 1 neutron (<Nuclide sym="n" a={1} z={0} />) và phát xạ tia gamma (γ):
+                  </legend>
+                  {[
+                    ["proton", "Hạt proton (¹₁p hay ¹₁H)"],
+                    ["alpha", "Hạt alpha (⁴₂He)"],
+                    ["neutron", "Hạt neutron (¹₀n)"],
+                  ].map(([val, label]) => (
+                    <label key={val} style={{ display: "flex", gap: "8px", marginBottom: "6px", fontSize: "14px", cursor: "pointer" }}>
+                      <input
+                        type="radio"
+                        name="b25-f18-particle"
+                        checked={b25F18Particle === val}
+                        onChange={() => {
+                          setB25AfterCheckedLocal(false);
+                          patchNotebook((cur) => ({
+                            ...cur,
+                            afterClassWork: {
+                              ...cur.afterClassWork,
+                              b25F18ParticleChoice: val,
+                              b25AfterChecked: false,
+                            },
+                          }));
+                        }}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+
+                <p style={{ margin: "0 0 8px", fontSize: "14px", lineHeight: 1.6 }}>
+                  <strong>6b)</strong> Trước khi chụp ảnh cắt lớp PET, bệnh nhân được tiêm liều lượng dược chất FDG để đảm bảo <strong>độ phóng xạ trên mỗi kg cân nặng tại thời điểm tiêm là <code>0,1 mCi</code> không đổi</strong>. Hai bệnh nhân cùng cân nặng, cùng sử dụng FDG trong <strong>cùng một đợt sản xuất</strong>, nhưng được tiêm ở <strong>2 thời điểm cách nhau <code>60 phút</code></strong>.
+                </p>
+
+                <fieldset style={{ border: "none", padding: 0, margin: "0 0 10px" }}>
+                  <legend style={{ fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}>
+                    • Người nào sẽ được tiêm lượng FDG nhiều hơn?
+                  </legend>
+                  {[
+                    ["later", "Người được tiêm ở thời điểm sau (muộn hơn 60 phút)"],
+                    ["earlier", "Người được tiêm ở thời điểm trước"],
+                    ["equal", "Hai người được tiêm lượng FDG bằng nhau"],
+                  ].map(([val, label]) => (
+                    <label key={val} style={{ display: "flex", gap: "8px", marginBottom: "6px", fontSize: "14px", cursor: "pointer" }}>
+                      <input
+                        type="radio"
+                        name="b25-f18-who"
+                        checked={b25F18Who === val}
+                        onChange={() => {
+                          setB25AfterCheckedLocal(false);
+                          patchNotebook((cur) => ({
+                            ...cur,
+                            afterClassWork: {
+                              ...cur.afterClassWork,
+                              b25F18MoreWho: val,
+                              b25AfterChecked: false,
+                            },
+                          }));
+                        }}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+
                 <label style={{ fontSize: "13.5px", fontWeight: 700, display: "block" }}>
-                  Tỉ số liều chuẩn bị ban đầu <code>H₀B / H₀A</code> (lần):
+                  • Xác định phần trăm lượng FDG nhiều hơn này cần được tiêm (đơn vị <code>%</code>, làm tròn đến hàng đơn vị hoặc 1 chữ số thập phân):
                   <input
                     type="text"
                     inputMode="decimal"
-                    value={b25F18Ratio}
+                    value={b25F18PctRaw}
                     onChange={(e) => {
                       const val = e.target.value;
                       setB25AfterCheckedLocal(false);
@@ -5781,16 +6742,16 @@ export function Chapter4SectionBody({
                         ...cur,
                         afterClassWork: {
                           ...cur.afterClassWork,
-                          b25F18RatioInput: val,
+                          b25F18PercentInput: val,
                           b25AfterChecked: false,
                         },
                       }));
                     }}
-                    placeholder="Ví dụ: 1,46"
+                    placeholder="Nhập phần trăm (%), ví dụ từ (2^(60/110) − 1) × 100%…"
                     style={{
                       display: "block",
                       width: "100%",
-                      maxWidth: "260px",
+                      maxWidth: "340px",
                       marginTop: "6px",
                       minHeight: "42px",
                       padding: "8px 12px",
@@ -5810,9 +6771,7 @@ export function Chapter4SectionBody({
                     ...cur,
                     afterClassWork: { ...cur.afterClassWork, b25AfterChecked: true },
                   }));
-                  if (allB25AfterOk) {
-                    onMarkSectionComplete(section.id, true);
-                  }
+                  onMarkSectionComplete(section.id, allB25AfterOk);
                 }}
               >
                 Kiểm tra kết quả Pha 3
@@ -5829,8 +6788,20 @@ export function Chapter4SectionBody({
                   }}
                 >
                   {allB25AfterOk
-                    ? "✓ Hoàn thành xuất sắc! Câu 1: t = 3 × 8,0 = 24 ngày; Câu 2 (¹⁸F-FDG): H₀B / H₀A = 2^(60/110) ≈ 1,46 lần."
-                    : `Kiểm tra lại: ${!daysOk ? "Câu 1 lập tỉ số H/H₀ = 50/400 = 1/8 = 2⁻³ để tìm t. " : ""}${!f18Ok ? "Câu 2 vì bệnh nhân B tiêm muộn hơn Δt = 60 phút nên H₀B · 2^(−(t_A + 60)/110) = H₀A · 2^(−t_A/110) ⇒ tính 2^(60/110)." : ""}`}
+                    ? "✓ Hoàn thành xuất sắc! Câu 1: t = 3 × 8,0 = 24 ngày; Câu 2a: hạt proton ¹₁p (¹⁸₈O + ¹₁p → ¹⁸₉F + ¹₀n + γ); Câu 2b: người tiêm sau 60 phút cần tiêm lượng FDG nhiều hơn (2^(60/110) − 1) × 100% ≈ 45,9% ≈ 46%."
+                    : `Kiểm tra lại: ${
+                        !daysOk ? "Câu 1 lập tỉ số H/H₀ = 50/400 = 1/8 = 2⁻³ để tìm t. " : ""
+                      }${
+                        !particleOk ? "Câu 6a bảo toàn A (A_X + 18 = 18 + 1) và Z (Z_X + 8 = 9 + 0). " : ""
+                      }${
+                        !whoOk ? "Câu 6b sau 60 phút đồng vị ¹⁸F trong lọ đã phân rã bớt nên người tiêm sau cần thể tích/lượng FDG lớn hơn để đạt cùng 0,1 mCi/kg. " : ""
+                      }${
+                        enteredRatioInsteadOfPct
+                          ? "1,46 là tỉ số gấp bao nhiêu lần (m₂/m₁ ≈ 1,46); đề bài hỏi PHẦN TRĂM nhiều hơn nên em hãy lấy (1,46 − 1) × 100% ≈ 46%! "
+                          : !pctOk
+                            ? "Tính tỉ số lượng FDG m₂/m₁ = 2^(60/110) rồi đổi ra phần trăm tăng thêm ((m₂ − m₁)/m₁ × 100%)."
+                            : ""
+                      }`}
                 </p>
               )}
 
@@ -5855,9 +6826,14 @@ export function Chapter4SectionBody({
                     <code>H / H₀ = 50 / 400 = 1/8 = 2^(−3) ⇒ t = 3T = 3 × 8,0 = 24 ngày</code>.
                   </div>
                   <div style={{ marginTop: "4px" }}>
-                    • <strong>Câu 2 (Bài 6 tr. 122 · ¹⁸F-FDG):</strong> Gọi <code>t_A</code> là thời gian từ lúc chuẩn bị liều đến lúc tiêm cho bệnh nhân A, thì thời điểm tiêm cho bệnh nhân B là <code>t_B = t_A + 60</code> (phút). Để hoạt độ lúc tiêm bằng nhau:{" "}
-                    <code>H₀B · 2^(−(t_A + 60)/110) = H₀A · 2^(−t_A/110)</code> ⇒{" "}
-                    <code>H₀B / H₀A = 2^(60/110) = 2^(6/11) ≈ 1,46</code> lần.
+                    • <strong>Bài 6a (SGK tr. 122):</strong> Phương trình{" "}
+                    <code>ᴬ_Z X + ¹⁸₈O → ¹⁸₉F + ¹₀n + γ</code> ⇒ <code>A = 1, Z = 1</code>: hạt được tăng tốc là <strong>proton (¹₁p hay ¹₁H)</strong>.
+                  </div>
+                  <div style={{ marginTop: "4px" }}>
+                    • <strong>Bài 6b (SGK tr. 122 — không gán cứng thời điểm tiêm người 1 bằng 0):</strong> Chọn mốc <code>t = 0</code> là lúc hoàn tất đợt sản xuất FDG (hoạt độ riêng ban đầu là <code>a₀</code> trên một đơn vị lượng FDG). Giả sử bệnh nhân 1 tiêm tại thời điểm <code>t₁ ≥ 0</code> với lượng FDG là <code>m₁</code> và bệnh nhân 2 (cùng cân nặng) tiêm tại <code>t₂ = t₁ + 60</code> (phút) với lượng FDG là <code>m₂</code>. Để độ phóng xạ ngay lúc tiêm của hai người bằng nhau (<code>0,1 mCi/kg</code>):{" "}
+                    <code>m₁ · a₀ · 2^(−t₁/110) = m₂ · a₀ · 2^(−(t₁ + 60)/110)</code> ⇒{" "}
+                    <code>m₂ / m₁ = 2^(60/110) = 2^(6/11) ≈ 1,459</code>. Vậy <strong>người tiêm sau 60 phút được tiêm lượng FDG nhiều hơn</strong>, và phần trăm lượng FDG nhiều hơn cần tiêm là{" "}
+                    <code>((m₂ − m₁) / m₁) × 100% = (2^(6/11) − 1) × 100% ≈ 45,9% ≈ 46%</code>.
                   </div>
                 </div>
               )}

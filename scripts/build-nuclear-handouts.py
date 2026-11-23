@@ -33,13 +33,7 @@ for l in lessons:
  story += [p('Đối chiếu sau khi tự làm',heading)]
  for i,q in enumerate(l['quiz']):story.append(p(f'{i+1}. {chr(65+q["answer"])}. '+q['explanation'],small))
  SimpleDocTemplate(str(root/f'public/learning/{l["code"]}-worksheet.pdf'),pagesize=(595.28,841.89),leftMargin=42,rightMargin=42,topMargin=42,bottomMargin=44).build(story,onFirstPage=footer,onLaterPages=footer)
-# Extract the supplied textbook's Chapter IV: physical pages 92-124 correspond to printed pages 90-122.
-source=root/'SGK VẬT LÍ 12 KNTT.pdf'
-if source.exists():
- reader=PdfReader(source);writer=PdfWriter()
- for page in reader.pages[91:124]:writer.add_page(page)
- writer.add_metadata({'/Title':'SGK Vật lí 12 KNTT - Chương IV','/Subject':'Trích từ tệp SGK người dùng cung cấp; trang in 90-122'})
- with (root/'public/learning/SGK-chuong-IV.pdf').open('wb') as f:writer.write(f)
+# Quy định bản quyền (QUY_DINH_CHUNG.md Mục 3): Không trích xuất bản quét nguyên chương SGK vào thư mục công khai public/learning/.
 # An executable notebook with labelled synthetic data, not a fabricated experiment.
 nb={'nbformat':4,'nbformat_minor':5,'metadata':{'kernelspec':{'display_name':'Python 3','language':'python','name':'python3'}},'cells':[
  {'cell_type':'markdown','id':'guide','metadata':{},'source':['# Phân tích dữ liệu phân rã B23-B25\n','Dữ liệu mẫu do mô hình N(t) = N0*2**(-t/T) tạo ra, không phải dữ liệu đo. Thay N0, T, rồi so sánh ba giả thuyết. Chạy bằng Jupyter hoặc tải tệp lên Google Colab.\n','Đơn vị: t và T theo giây; N là số hạt.']},

@@ -641,7 +641,7 @@ export function BindingEnergyCalculator({ onSubDone }: { onSubDone: (done: boole
   return (
     <Lab
       intro="Tính độ hụt khối và năng lượng liên kết từng bước. So sánh ít nhất ba hạt nhân."
-      note="Ở đây dùng khối lượng nguyên tử trung hòa của hiđrô và đồng vị, bỏ qua năng lượng liên kết electron. SGK trình bày công thức tương ứng khi dùng khối lượng hạt nhân và proton."
+      note="Trong SGK tr. 99, công thức (22.2) dùng khối lượng hạt nhân trần: Δm = [Z·m_p + (A − Z)·m_n] − m_X. Khi tra bảng khối lượng nguyên tử trung hòa (OpenStax), Z khối lượng electron ở hai vế tự triệt tiêu nên Δm = Z·m(¹H) + N·m_n − m_nguyên_tử cho cùng độ hụt khối (bỏ qua năng lượng liên kết electron cỡ eV)."
     >
       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
         {nuclides.map((n, i) => (
@@ -663,7 +663,7 @@ export function BindingEnergyCalculator({ onSubDone }: { onSubDone: (done: boole
         <LatexMath block math={String.raw`A=${nuc.a},\quad Z=${nuc.z},\quad N=${nuc.a - nuc.z}`} />
         <LatexMath
           block
-          math={String.raw`\Delta m=Z m({}^{1}\mathrm{H})+N m_n-m_{\mathrm{nguyên\ tử}}`}
+          math={String.raw`\Delta m=Z m({}^{1}\mathrm{H})+N m_n-m_{\text{nguyên tử}}`}
         />
         <LatexMath block math={String.raw`\Delta m=\left(${sumFree.toFixed(6)}-${nuc.mx}\right)\,\mathrm{u}`} />
         <LatexMath block math={String.raw`E_{\mathrm{lk}}=\Delta m\,c^2\approx${elk.toFixed(1)}\,\mathrm{MeV}`} />
@@ -798,7 +798,7 @@ export function NuclearPhysicsPracticeLab({ onProgress }: ActivityProps) {
         </p>
         <ol>
           <li>
-            <strong>Đồ thị Bảng 25.1:</strong> Đánh dấu mốc kẹp H₀/2 = 75,5 Bq, tự ước lượng T và viết giải thích trước khi đối chiếu.
+            <strong>Đồ thị Bảng 25.1:</strong> Tự tính mức H₀/2 từ t = 0 s, chọn hai mốc kẹp, ước lượng T và viết giải thích trước khi đối chiếu.
           </li>
           <li>
             <strong>Phương trình hạt nhân:</strong> Tự nhập A, Z và giải đúng ít nhất 2 phương trình (phân rã α, β⁻, β⁺ hoặc phân hạch ²³⁵U).

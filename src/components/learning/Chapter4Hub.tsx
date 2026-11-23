@@ -68,7 +68,7 @@ function LessonCardVisual({ lesson }: { readonly lesson: Chapter4LessonSpec }) {
               ⁵⁶Fe (8,8 MeV)
             </text>
             <text x="196" y="16" fill="#cbd5e1" fontSize="10" fontWeight="600">
-              Đồ thị Wₗₖ/A (MeV/nucleon)
+              Đồ thị Eₗₖᵣ = Eₗₖ/A (MeV/nucleon)
             </text>
           </svg>
         </div>
@@ -127,9 +127,9 @@ function LessonCardVisual({ lesson }: { readonly lesson: Chapter4LessonSpec }) {
             }}
           >
             {[
-              ["1. Tâm lò", "Phân hạch ²³⁵U"],
-              ["2. Vòng sơ cấp", "Tải nhiệt kín"],
-              ["3. Bình sinh hơi", "Quay tua-bin"],
+              ["1. Lò phản ứng", "Phân hạch ²³⁵U"],
+              ["2. Chu trình 1", "Tải nhiệt kín"],
+              ["3. Bộ sinh hơi", "Chu trình 2 quay tua-bin"],
               ["4. Máy phát", "Phát điện lưới"],
             ].map(([step, desc]) => (
               <div
@@ -149,7 +149,7 @@ function LessonCardVisual({ lesson }: { readonly lesson: Chapter4LessonSpec }) {
             ))}
           </div>
           <div style={{ marginTop: "6px", fontSize: "11px", color: "#525252" }}>
-            Ngoài phát điện: Chẩn đoán hình ảnh (<Nuclide sym="Tc" a="99m" z={43} />), chọn giống &amp; bảo quản thực phẩm.
+            Y học &amp; nông nghiệp: Chẩn đoán – xạ trị (<Nuclide sym="Ra" a={223} z={88} />, <Nuclide sym="Lu" a={177} z={71} />), phân bón (<Nuclide sym="P" a={32} z={15} />), chiếu xạ vải thiều.
           </div>
         </div>
       );

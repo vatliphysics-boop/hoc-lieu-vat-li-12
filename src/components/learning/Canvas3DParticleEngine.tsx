@@ -556,30 +556,31 @@ export function Scientist3DModelCanvas({
         drawCalloutLabel(ctx, cx + 42, cy - 2, cx + 48, cy - 46, "Quỹ đạo dừng n=1,2,3", "#2dd4bf");
         drawCalloutLabel(ctx, cx, cy - 2, cx - 32, cy + 48, "Bức xạ photon hν", "#facc15");
       } else if (scientistId === "schrodinger") {
-        // Quantum electron probability cloud (3D orbital density dots + wave ring)
-        const cloudGrad = ctx.createRadialGradient(cx, cy - 2, 6, cx, cy - 2, 58);
+        // Quantum electron probability cloud (static |ψ|² sampled density dots — no orbital paths)
+        const pulse = 1 + 0.04 * Math.sin(t * 2.2);
+        const cloudGrad = ctx.createRadialGradient(cx, cy - 2, 6, cx, cy - 2, 58 * pulse);
         cloudGrad.addColorStop(0, "rgba(168, 85, 247, 0.65)");
         cloudGrad.addColorStop(0.45, "rgba(56, 189, 248, 0.35)");
         cloudGrad.addColorStop(1, "rgba(15, 23, 42, 0)");
         ctx.fillStyle = cloudGrad;
         ctx.beginPath();
-        ctx.arc(cx, cy - 2, 58, 0, Math.PI * 2);
+        ctx.arc(cx, cy - 2, 58 * pulse, 0, Math.PI * 2);
         ctx.fill();
 
-        for (let i = 0; i < 68; i++) {
-          const seed = i * 137.5;
-          const r = 14 + ((seed + t * 28) % 44);
-          const theta = seed + t * (1.2 + (i % 5) * 0.3);
+        for (let i = 0; i < 84; i++) {
+          const u = ((i * 0.61803398875) % 1 + 1) % 1;
+          const r = 8 + Math.pow(u, 1.45) * 48;
+          const theta = i * 2.3999632297;
           const px = cx + Math.cos(theta) * r;
-          const py = cy - 2 + Math.sin(theta * 1.3) * r * 0.78;
-          const alpha = 0.25 + 0.65 * (1 - r / 60);
+          const py = cy - 2 + Math.sin(theta) * r * 0.86;
+          const alpha = 0.25 + 0.68 * (1 - r / 60);
           ctx.fillStyle = i % 3 === 0 ? `rgba(56, 189, 248, ${alpha})` : `rgba(192, 132, 252, ${alpha})`;
           ctx.beginPath();
-          ctx.arc(px, py, 2.3, 0, Math.PI * 2);
+          ctx.arc(px, py, 2.1, 0, Math.PI * 2);
           ctx.fill();
         }
-        drawNucleusCluster3D(ctx, cx, cy - 2, 6, 0.5, 5.2, t);
-        drawCalloutLabel(ctx, cx + 32, cy - 22, cx + 42, cy - 46, "Đám mây electron (Orbital)", "#a855f7");
+        drawNucleusCluster3D(ctx, cx, cy - 2, 6, 0.5, 5.2, 0);
+        drawCalloutLabel(ctx, cx + 32, cy - 22, cx + 42, cy - 46, "Mật độ xác suất |ψ|² (tĩnh)", "#a855f7");
         drawCalloutLabel(ctx, cx, cy - 2, cx - 36, cy + 46, "Hạt nhân ở tâm", "#38bdf8");
       } else if (scientistId === "chadwick") {
         drawFloorShadow(ctx, cx, height - 16, 46, 0.35);

@@ -1573,7 +1573,7 @@ export function ModularLessonBuilder({ code = "B21" }: { code?: string }) {
         }}
       >
         <span>
-          Tài liệu in kèm bài <strong>{lesson.code}</strong>: Phiếu học tập PDF &amp; SGK trang{" "}
+          Tài liệu kèm bài <strong>{lesson.code}</strong>: Phiếu học tập PDF &amp; đối chiếu SGK Vật lí 12 KNTT trang{" "}
           {vLesson.bookPage}
         </span>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
@@ -1587,11 +1587,9 @@ export function ModularLessonBuilder({ code = "B21" }: { code?: string }) {
           </a>
           <a
             className="btn small"
-            href={`/learning/SGK-chuong-IV.pdf#page=${vLesson.pdfPage}`}
-            target="_blank"
-            rel="noreferrer"
+            href={`/hoc-lieu/truc-quan?bai=${lesson.code}`}
           >
-            Mở SGK trang {vLesson.bookPage} ↗
+            Mở bài trực quan {lesson.code} (SGK tr. {vLesson.bookPage}) →
           </a>
         </div>
       </div>

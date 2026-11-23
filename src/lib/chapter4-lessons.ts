@@ -123,13 +123,15 @@ export const SGK_TABLE_23_1: readonly SgkTable23GeigerRow[] = [
   { windowSeconds: "25 – 30", counts: 1 },
 ] as const;
 
+/** Bảng 23.2 SGK Vật lí 12 KNTT tr. 108 — Chu kì bán rã của một số đồng vị phóng xạ (đủ 7 đồng vị gốc SGK) */
 export const SGK_TABLE_23_2_SAMPLES = [
-  { sym: "I", a: 131, z: 53, name: "Iodine-131", halfLife: "8,0 ngày", radiation: "β⁻, γ (y học hạt nhân)" },
-  { sym: "Po", a: 210, z: 84, name: "Polonium-210", halfLife: "138 ngày", radiation: "α" },
-  { sym: "Co", a: 60, z: 27, name: "Cobalt-60", halfLife: "5,27 năm", radiation: "β⁻, γ (xạ trị & công nghiệp)" },
-  { sym: "H", a: 3, z: 1, name: "Tritium (³₁H)", halfLife: "12,3 năm", radiation: "β⁻" },
-  { sym: "C", a: 14, z: 6, name: "Carbon-14", halfLife: "5 730 năm", radiation: "β⁻ (định tuổi khảo cổ)" },
-  { sym: "U", a: 238, z: 92, name: "Uranium-238", halfLife: "4,47 tỉ năm", radiation: "α" },
+  { sym: "C", a: 14, z: 6, name: "Carbon", halfLife: "5,7·10³ năm", radiation: "β⁻ (định tuổi cổ vật · tr. 109–110)" },
+  { sym: "I", a: 131, z: 53, name: "Iodine", halfLife: "8,0 ngày", radiation: "β⁻, γ (y học hạt nhân tuyến giáp)" },
+  { sym: "O", a: 15, z: 8, name: "Oxygen", halfLife: "1,2·10² giây", radiation: "β⁺ (câu hỏi ? tr. 108: sau 244 s phân rã 75%)" },
+  { sym: "Po", a: 210, z: 84, name: "Polonium", halfLife: "1,4·10² ngày", radiation: "α (nguồn hạt α thực nghiệm)" },
+  { sym: "Ra", a: 226, z: 88, name: "Radium", halfLife: "1,6·10³ năm", radiation: "α, γ (1 g ²²⁶₈₈Ra có H ≈ 1 Ci = 3,7·10¹⁰ Bq)" },
+  { sym: "Rn", a: 219, z: 86, name: "Radon", halfLife: "4,0 giây", radiation: "α (khí hiếm phóng xạ tự nhiên)" },
+  { sym: "U", a: 235, z: 92, name: "Uranium", halfLife: "7,0·10⁸ năm", radiation: "α (nhiên liệu phân hạch hạt nhân)" },
 ] as const;
 
 export interface Chapter4SectionSpec {
@@ -491,28 +493,28 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         phase: "in_class",
         title: "Độ hụt khối Δm, năng lượng liên kết Eₗₖ và đồ thị năng lượng liên kết riêng Eₗₖᵣ",
         shortTocTitle: "Độ hụt khối & đồ thị Eₗₖᵣ",
-        sgkPages: "tr. 99–101",
+        sgkPages: "tr. 98–100",
         minutes: 15,
         phenomenonPrompt:
-          "So sánh tổng khối lượng các nucleon rời rạc với khối lượng hạt nhân thực tế (Hình 22.5) và khảo sát đường cong năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A theo số khối A (Hình 22.3).",
+          "So sánh tổng khối lượng các nucleon rời rạc với khối lượng hạt nhân thực tế trên cân hai đĩa (Hình 22.4, tr. 99) và khảo sát đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A theo số khối A (Hình 22.3 tr. 98 & Hình 22.5 tr. 100).",
         evidencePrompt:
-          "Tính Δm, Eₗₖ, Eₗₖᵣ = Eₗₖ/A và chỉ ra vùng số khối bền vững nhất (50 < A < 95, đỉnh quanh ⁵⁶₂₆Fe – ⁸⁹₃₉Y ≈ 8,8 MeV/nucleon).",
+          "Tính Δm, Eₗₖ, Eₗₖᵣ = Eₗₖ/A và chỉ ra vùng số khối bền vững nhất (đỉnh quanh ⁵⁶₂₆Fe – ⁸⁹₃₉Y ≈ 8,8 MeV/nucleon).",
         activityKey: "binding_energy_lab",
         teacherTip:
-          "Dành 15 phút trọng tâm: thống nhất kí hiệu chuẩn SGK KNTT là Eₗₖ và Eₗₖᵣ = Eₗₖ/A; dùng Hình 22.3 giải thích cả phân hạch lẫn nhiệt hạch.",
+          "Dành 15 phút trọng tâm: thống nhất kí hiệu chuẩn SGK KNTT là Eₗₖ và Eₗₖᵣ = Eₗₖ/A; dùng Hình 22.3 (tr. 98) và Hình 22.5 (tr. 100) để giải thích cả phân hạch lẫn tổng hợp hạt nhân.",
         teacherGuide: {
           learningObjective:
             "Tính được độ hụt khối Δm = [Z·m_p + (A − Z)·m_n] − m_X, năng lượng liên kết Eₗₖ = Δm·c² và dùng năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A để so sánh mức độ bền vững giữa các hạt nhân.",
           projectorStrategy:
-            "Chiếu đồ thị Hình 22.3 SGK (trục tung Eₗₖᵣ = Eₗₖ/A, trục hoành số khối A) cạnh sơ đồ cân khối lượng nucleon rời vs hạt nhân tạo thành để học sinh thấy trực quan nguồn gốc Eₗₖ.",
+            "Chiếu đồ thị Hình 22.3 – Hình 22.5 SGK (trục tung Eₗₖᵣ = Eₗₖ/A, trục hoành số khối A) cạnh sơ đồ cân hai đĩa Hình 22.4 (⁴₂He nhẹ hơn 2p + 2n) để học sinh thấy trực quan nguồn gốc Eₗₖ.",
           openQuestions: [
             "Hạt nhân ²³⁸₉₂U có năng lượng liên kết Eₗₖ rất lớn (~1800 MeV), vì sao nó lại kém bền hơn hạt nhân ⁵⁶₂₆Fe (Eₗₖ ≈ 492 MeV)?",
-            "Muốn tách một hạt nhân bền thành các proton và neutron riêng rẽ như Hình 22.5, hệ phải thu vào hay tỏa ra năng lượng tối thiểu bằng bao nhiêu?",
+            "Muốn tách hạt nhân ⁴₂He trên đĩa cân Hình 22.4 thành 2 proton và 2 neutron riêng rẽ, hệ phải thu vào hay tỏa ra năng lượng tối thiểu bằng bao nhiêu?",
           ],
           commonMisconceptions:
             "Học sinh thường đánh giá độ bền hạt nhân dựa vào Eₗₖ thay vì tính trên một nucleon Eₗₖᵣ = Eₗₖ/A, hoặc nhầm dấu trong công thức Δm. Cách gỡ: Luôn lấy tổng khối lượng các nucleon tự do trừ khối lượng hạt nhân thực tế (Δm > 0).",
           noVideoFallback:
-            "Dùng trực tiếp đồ thị SVG Hình 22.3 chuẩn kí hiệu Eₗₖᵣ, sơ đồ đối chiếu Hình 22.5 và phòng thí nghiệm tính Eₗₖ, Eₗₖᵣ ngay trên trang.",
+            "Dùng trực tiếp đồ thị SVG Hình 22.3 – 22.5 chuẩn kí hiệu Eₗₖᵣ, sơ đồ cân hai đĩa Hình 22.4 và phòng thí nghiệm tính Eₗₖ, Eₗₖᵣ ngay trên trang.",
           completionCriteriaNote:
             "Hoàn thành khi học sinh khảo sát và hoàn tất bài toán tính Δm, Eₗₖ, Eₗₖᵣ trên phòng thí nghiệm năng lượng liên kết.",
         },
@@ -523,20 +525,20 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         phase: "in_class",
         title: "Phản ứng phân hạch hạt nhân ²³⁵₉₂U",
         shortTocTitle: "Phân hạch hạt nhân",
-        sgkPages: "tr. 101–102",
+        sgkPages: "tr. 100–102",
         minutes: 12,
         phenomenonPrompt:
-          "Theo dõi một neutron chậm bị ²³⁵₉₂U bắt giữ tạo trạng thái kích thích ²³⁶₉₂U* không bền rồi vỡ thành hai mảnh trung bình kèm 2–3 neutron thứ cấp và tỏa ~200 MeV.",
+          "Theo dõi một neutron nhiệt (< 0,1 eV) bị ²³⁵₉₂U hấp thụ tạo trạng thái kích thích ²³⁶₉₂U* rồi vỡ thành hai mảnh trung bình kèm k = 1, 2, 3 neutron thứ cấp và tỏa ~200 MeV (Hình 22.6).",
         evidencePrompt:
-          "Ghi lại vai trò của neutron kích thích, trung gian ²³⁶₉₂U* và điều kiện hệ số nhân neutron k để duy trì phản ứng dây chuyền.",
+          "Ghi lại vai trò của neutron nhiệt, trung gian ²³⁶₉₂U* và điều kiện hệ số nhân neutron k kèm khối lượng tới hạn m_th (ô Em có biết Hình 22.7, tr. 102).",
         activityKey: "nuclear_fission",
         teacherTip:
-          "Dành 12 phút: cho học sinh phân biệt 1 phân hạch đơn lẻ với phản ứng phân hạch dây chuyền qua hệ số nhân neutron k.",
+          "Dành 12 phút: cho học sinh phân biệt 1 phân hạch đơn lẻ (Hình 22.6) với phản ứng phân hạch dây chuyền qua hệ số nhân neutron k (Hình 22.7).",
         teacherGuide: {
           learningObjective:
-            "Mô tả được cơ chế phân hạch hạt nhân nặng (²³⁵₉₂U, ²³⁹₉₄Pu) khi hấp thụ neutron chậm và phân tích được 3 chế độ phản ứng dây chuyền (k < 1, k = 1, k > 1).",
+            "Mô tả được cơ chế phân hạch hạt nhân nặng (²³⁵₉₂U, ²³⁹₉₄Pu) khi hấp thụ neutron nhiệt và phân tích được các chế độ phản ứng dây chuyền (k < 1 tắt dần, k ≥ 1 tự duy trì).",
           projectorStrategy:
-            "Chiếu mô phỏng phân hạch từng bước (neutron tới → ²³⁶₉₂U* → hai hạt nhân trung bình + k neutron) và đối chiếu năng lượng tỏa ra với sự tăng Eₗₖᵣ từ ~7,6 MeV lên ~8,5 MeV/nucleon.",
+            "Chiếu mô phỏng phân hạch từng bước (neutron tới → ²³⁶₉₂U* → hai hạt nhân trung bình + k neutron) và đối chiếu năng lượng tỏa ra với đoạn PQ → QT trên Hình 22.5.",
           openQuestions: [
             "Vì sao phân hạch ²³⁵₉₂U là phản ứng hạt nhân kích thích nhưng vẫn có thể tự duy trì thành dây chuyền sau lần kích thích đầu tiên?",
             "Điều gì xảy ra với công suất tỏa nhiệt nếu hệ số nhân neutron giữ ở k = 1 so với k > 1?",
@@ -558,25 +560,25 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 102–103",
         minutes: 8,
         phenomenonPrompt:
-          "Tìm hiểu thí nghiệm Oliphant 1934 (²₁H + ²₁H → ³₂He + ¹₀n) và điều kiện nhiệt độ 10⁷ – 10⁸ K kèm mật độ × thời gian giam giữ để hai hạt nhân nhẹ kết hợp thành hạt nhân nặng hơn.",
+          "Tìm hiểu phản ứng tổng hợp hạt nhân bằng máy gia tốc của Oliphant (²₁H + ²₁H → ³₂He + ¹₀n, tỏa ~4 MeV) và điều kiện nhiệt độ 10⁷ – 10⁸ K kèm tiêu chuẩn Lawson n·Δt > 10¹⁴ s/cm³ (Em có biết, tr. 103).",
         evidencePrompt:
-          "Nêu điều kiện thực hiện phản ứng nhiệt hạch (trạng thái plasma, nhiệt độ cực cao, mật độ và thời gian giam giữ) và liên hệ năng lượng của Mặt Trời.",
+          "Giải thích vì sao cần nhiệt độ cực cao 10⁷ – 10⁸ K để thắng lực đẩy tĩnh điện Coulomb giữa hai hạt nhân nhẹ và so sánh với phản ứng phân hạch.",
         activityKey: "nuclear_fusion",
         teacherTip:
           "Dành 8 phút cuối tiết trên lớp: nhấn mạnh vì sao gọi là phản ứng “nhiệt hạch” (cần động năng nhiệt cực lớn để thắng lực đẩy Coulomb giữa hai hạt nhân dương).",
         teacherGuide: {
           learningObjective:
-            "Nêu được bản chất phản ứng tổng hợp hạt nhân (ví dụ ²₁H + ²₁H và ²₁H + ³₁H), các điều kiện khắc nghiệt về nhiệt độ (hàng chục đến hàng trăm triệu độ K), mật độ hạt nhân và thời gian duy trì plasma.",
+            "Nêu được bản chất phản ứng tổng hợp hạt nhân (đoạn MN → NT trên Hình 22.5), điều kiện nhiệt độ 10⁷ – 10⁸ K để thắng lực đẩy Coulomb và hai điều kiện bổ sung của Lawson (mật độ n, thời gian duy trì Δt).",
           projectorStrategy:
-            "Chiếu thẻ phản ứng lịch sử Oliphant (1934) và mô phỏng hai hạt nhân Hydrogen tiến lại gần nhau ở nhiệt độ thấp (bật ra do lực đẩy tĩnh điện) so với ở 10⁸ K (vượt rào Coulomb hợp nhất).",
+            "Chiếu phản ứng ²₁H + ²₁H → ³₂He + ¹₀n và mô phỏng hai hạt nhân nhẹ tiến lại gần nhau ở nhiệt độ thấp (bật ra do lực đẩy tĩnh điện) so với ở 10⁷ – 10⁸ K (tiến vào phạm vi lực hạt nhân).",
           openQuestions: [
-            "Vì sao để phản ứng phân hạch xảy ra người ta dùng neutron (không mang điện), còn phản ứng tổng hợp hai hạt nhân nhẹ lại cần nhiệt độ tới hàng chục triệu độ Kelvin?",
-            "Tính trên cùng 1 gam nhiên liệu, vì sao nhiệt hạch tỏa năng lượng lớn gấp nhiều lần phân hạch?",
+            "Vì sao để phản ứng phân hạch xảy ra người ta dùng neutron (không mang điện), còn phản ứng tổng hợp hai hạt nhân nhẹ lại cần nhiệt độ tới 10⁷ – 10⁸ K?",
+            "So sánh phản ứng phân hạch và tổng hợp hạt nhân về nhiên liệu phản ứng và điều kiện xảy ra?",
           ],
           commonMisconceptions:
-            "Học sinh tưởng chỉ cần đun nóng thoáng qua là duy trì được nhiệt hạch. Cách gỡ: Chỉ rõ phải đồng thời đạt 3 điều kiện (nhiệt độ 10⁷–10⁸ K chuyển sang plasma, mật độ hạt nhân đủ lớn và thời gian giam giữ đủ lâu).",
+            "Học sinh tưởng chỉ cần đun nóng thoáng qua là duy trì được tổng hợp hạt nhân. Cách gỡ: Chỉ rõ ngoài nhiệt độ 10⁷–10⁸ K còn cần mật độ hạt nhân n đủ lớn và thời gian duy trì Δt đủ dài (n·Δt > 10¹⁴ s/cm³).",
           noVideoFallback:
-            "Dùng thẻ dữ kiện Oliphant 1934 + điều kiện plasma SGK tr. 102–103 kết hợp mô phỏng tổng hợp hạt nhân trên trang.",
+            "Dùng thẻ dữ kiện SGK tr. 102–103 kết hợp mô phỏng tổng hợp hạt nhân trên trang.",
           completionCriteriaNote:
             "Hoàn thành khi học sinh hoàn tất khảo sát điều kiện nhiệt hạch và câu hỏi kiểm tra trên mô phỏng.",
         },
@@ -766,10 +768,10 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         phase: "after",
         title: "Kiểm tra, đánh giá: Định tuổi mẫu gỗ cổ bằng đồng vị ¹⁴₆C",
         shortTocTitle: "Kiểm tra, đánh giá (¹⁴₆C)",
-        sgkPages: "tr. 113 · Vận dụng",
+        sgkPages: "tr. 109–110 · Em có biết & Vận dụng",
         minutes: 15,
         phenomenonPrompt:
-          "Đo độ phóng xạ ¹⁴₆C của mẫu gỗ khảo cổ so với mẫu gỗ đang sống cùng khối lượng (T ≈ 5 730 năm).",
+          "Đo độ phóng xạ ¹⁴₆C của mẫu gỗ khảo cổ so với mẫu gỗ đang sống cùng khối lượng (T ≈ 5 730 năm · ô Em có biết SGK tr. 109–110).",
         evidencePrompt:
           "Tính tuổi gần đúng của mẫu cổ vật từ tỉ số H/H₀ và nêu giả thiết cơ sở của phương pháp định tuổi ¹⁴₆C.",
         activityKey: "carbon14_dating",
@@ -802,12 +804,12 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
     guidingQuestion:
       "Năng lượng phân hạch trong lò phản ứng đi qua những vòng truyền nào để phát điện và đồng vị phóng xạ phục vụ y học, nông nghiệp ra sao?",
     hubHighlight:
-      "Sơ đồ 3 vòng lưu chất Hình 24.1, điều khiển lò phản ứng, y học hạt nhân, công nghệ sinh học và bảo quản thực phẩm Hình 24.5.",
+      "Sơ đồ 3 vòng lưu chất Hình 24.1, điều khiển lò phản ứng Hình 24.3, lưu trữ nhiên liệu Hình 24.2, y học hạt nhân và chiếu xạ thực phẩm Hình 24.5.",
     lessonGoals: {
       knowledge:
-        "Trình bày được nguyên lí chuyển hóa năng lượng và thiết kế an toàn 3 vòng lưu chất tách biệt trong nhà máy điện hạt nhân (Hình 24.1), vai trò thanh điều khiển và lưu trữ nhiên liệu đã qua sử dụng (Hình 24.2); nêu được ứng dụng phóng xạ trong y học hạt nhân, công nghệ sinh học – nông nghiệp (³²P) và chiếu xạ bảo quản thực phẩm (Hình 24.5, SGK tr. 114–118).",
+        "Trình bày được nguyên lí chuyển hóa năng lượng và thiết kế an toàn các chu trình lưu chất tách biệt trong nhà máy điện hạt nhân (Hình 24.1), cấu tạo thiết bị lưu trữ nhiên liệu đã qua sử dụng (Hình 24.2) và vai trò thanh điều khiển hấp thụ neutron (Hình 24.3); nêu được ứng dụng phóng xạ trong y học hạt nhân, công nghệ sinh học – nông nghiệp (³²P) và chiếu xạ bảo quản thực phẩm (Hình 24.5, SGK tr. 114–118).",
       competence:
-        "Chỉ rõ được bộ phận thực sự làm quay tua-bin (hơi nước áp suất cao ở vòng thứ cấp); giải thích cơ chế giữ hệ số nhân neutron k = 1; lập luận bằng bằng chứng cụ thể vì sao thực phẩm chiếu xạ giữ tươi lâu mà không bị nhiễm phóng xạ.",
+        "Chỉ rõ được bộ phận thực sự làm quay tua-bin (hơi nước áp suất cao ở chu trình thứ hai); giải thích cơ chế giữ hệ số nhân neutron k = 1; lập luận bằng bằng chứng cụ thể vì sao thực phẩm chiếu xạ giữ tươi lâu mà không bị nhiễm phóng xạ.",
       quality:
         "Nhìn nhận khách quan, khoa học về lợi ích kinh tế – y tế của công nghệ hạt nhân gắn liền với quy trình kiểm soát an toàn bức xạ nghiêm ngặt.",
     },
@@ -821,17 +823,17 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 114–115",
         minutes: 12,
         phenomenonPrompt:
-          "Quan sát mặt cắt Hình 24.1 SGK: lần theo đường ống từ bình sinh hơi đến tua-bin và phân biệt rõ 3 dòng lưu chất tách biệt (vòng tải nhiệt sơ cấp khép kín, vòng hơi nước – nước ngưng thứ cấp, và nguồn nước làm mát bên ngoài).",
+          "Quan sát mặt cắt Hình 24.1 SGK: lần theo đường ống từ bộ phận sinh hơi đến tua-bin và phân biệt rõ 3 dòng lưu chất tách biệt (chu trình thứ nhất khép kín, chu trình thứ hai hơi nước – bộ ngưng tụ hơi, và nguồn nước làm mát ngoài).",
         evidencePrompt:
-          "Khóa dự đoán ban đầu về bộ phận làm quay tua-bin, ghép đúng vai trò 3 vòng lưu chất trên Hình 24.1 và trả lời câu tự kiểm tra Pha 1.",
+          "Khóa dự đoán ban đầu về bộ phận làm quay tua-bin, ghép đúng vai trò 3 dòng lưu chất trên Hình 24.1 và trả lời câu tự kiểm tra Pha 1.",
         activityKey: "nuclear_power_energy_flow",
         teacherTip:
           "Giao trước giờ học (12 phút). Đầu giờ dùng ngay câu hỏi “Bộ phận nào thực sự làm quay tua-bin?” để gỡ hiểu nhầm tia phóng xạ hay nước nhiễm xạ đập trực tiếp vào tua-bin.",
         teacherGuide: {
           learningObjective:
-            "Xác định chính xác hơi nước áp suất cao ở vòng thứ cấp là tác nhân trực tiếp làm quay tua-bin, và giải thích lí do an toàn bức xạ khi tách kín 3 dòng lưu chất trên Hình 24.1.",
+            "Xác định chính xác hơi nước áp suất cao ở chu trình thứ hai là tác nhân trực tiếp làm quay tua-bin, và giải thích lí do an toàn bức xạ khi tách kín các chu trình lưu chất trên Hình 24.1.",
           projectorStrategy:
-            "Chiếu mặt cắt màu Hình 24.1 và gọi học sinh chỉ tay theo 3 màu đường ống: (1) vòng sơ cấp cam/đỏ khép kín qua lò phản ứng, (2) vòng thứ cấp lam nhạt sinh hơi quay tua-bin, (3) nước làm mát lục lam từ sông/biển qua bình ngưng.",
+            "Chiếu mặt cắt màu Hình 24.1 và gọi học sinh chỉ tay theo 3 màu đường ống: (1) chu trình thứ nhất cam/đỏ khép kín qua lò phản ứng, (2) chu trình thứ hai lam nhạt từ bộ phận sinh hơi quay tua-bin rồi về bộ ngưng tụ hơi, (3) nước làm mát lục lam qua bộ ngưng tụ/tháp làm mát.",
           openQuestions: [
             "Bộ phận nào thực sự làm quay tua-bin để kéo máy phát điện trên Hình 24.1?",
             "Điều gì sẽ xảy ra về mặt an toàn phóng xạ nếu dẫn thẳng chất tải nhiệt từ tâm lò phản ứng ra tua-bin và xả thẳng ra sông, biển?",
@@ -848,30 +850,30 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         id: "b24-reactor-control",
         kind: "b24_reactor_control",
         phase: "in_class",
-        title: "Điều khiển phản ứng dây chuyền bằng thanh hấp thụ neutron",
-        shortTocTitle: "Điều khiển lò phản ứng",
-        sgkPages: "tr. 115–116",
+        title: "Điều khiển phản ứng dây chuyền (Hình 24.3) & lưu trữ nhiên liệu đã qua sử dụng (Hình 24.2)",
+        shortTocTitle: "Điều khiển lò & lưu trữ (Hình 24.2–24.3)",
+        sgkPages: "tr. 115",
         minutes: 16,
         phenomenonPrompt:
-          "Đối chiếu Sản phẩm Pha 1; điều chỉnh độ ngập thanh điều khiển (Boron/Cadmium) để giữ k = 1 và tìm hiểu bể nước lưu trữ thanh nhiên liệu đã qua sử dụng (Hình 24.2).",
+          "Đối chiếu Sản phẩm Pha 1; điều chỉnh độ ngập thanh điều khiển chứa Bo/Cd để giữ k = 1 (ô Em có biết Hình 24.3) và tìm hiểu cấu tạo thiết bị lưu trữ nhiên liệu hạt nhân đã qua sử dụng (Hình 24.2).",
         evidencePrompt:
-          "Giải thích cơ chế giữ k = 1, vai trò chất làm chậm và lí do thanh nhiên liệu đã qua sử dụng phải ngâm sâu trong bể nước che chắn.",
+          "Giải thích cơ chế giữ k = 1 bằng thanh điều khiển hấp thụ neutron nhiệt, phân biệt với chất làm chậm, và nêu cấu tạo bảo vệ nhiều lớp của thiết bị lưu trữ nhiên liệu Hình 24.2.",
         activityKey: "reactor_control_concept",
         teacherTip:
-          "Dành 16 phút trên lớp: kết nối vòng sơ cấp ở Pha 1 với tâm lò phản ứng và giải thích thêm Hình 24.2 (quản lí chất thải hạt nhân an toàn).",
+          "Dành 16 phút trên lớp: kết nối chu trình thứ nhất ở Pha 1 với tâm lò phản ứng (Hình 24.3) và phân tích thiết bị lưu trữ nhiên liệu đã qua sử dụng (Hình 24.2, có đồng vị ⁹⁰Sr, ¹³⁷Cs chu kì bán rã ~30 năm).",
         teacherGuide: {
           learningObjective:
-            "Giải thích được cơ chế điều chỉnh hệ số nhân neutron k quanh giá trị k = 1 bằng thanh điều khiển hấp thụ neutron và nguyên tắc lưu trữ an toàn thanh nhiên liệu đã qua sử dụng (Hình 24.2).",
+            "Giải thích được cơ chế điều chỉnh hệ số nhân neutron k = 1 bằng thanh điều khiển chứa Bo/Cd (Hình 24.3) và nguyên tắc thiết kế thiết bị lưu trữ nhiên liệu hạt nhân đã qua sử dụng có độ bền cao (Hình 24.2).",
           projectorStrategy:
-            "Mở hộp Sản phẩm Pha 1 để nối từ vòng sơ cấp vào tâm lò, sau đó cho học sinh kéo thanh điều khiển xử lí tình huống công suất tăng vọt và quan sát chú thích bể chứa nhiên liệu Hình 24.2.",
+            "Mở hộp Sản phẩm Pha 1 để nối từ chu trình thứ nhất vào tâm lò Hình 24.3, cho học sinh kéo thanh điều khiển xử lí khi k > 1 và quan sát sơ đồ thiết bị lưu trữ nhiên liệu Hình 24.2 (tường thép mạ nickel bọc quả cầu than chì, khe tản nhiệt, cửa hai lớp chốt kim loại).",
           openQuestions: [
-            "Khi muốn giảm công suất lò phản ứng hoặc dừng lò khẩn cấp, hệ thống tự động phải nâng lên hay hạ sâu các thanh Boron/Cadmium vào vùng tâm lò?",
-            "Vì sao thanh nhiên liệu lấy ra khỏi lò (Hình 24.2) không còn duy trì phân hạch dây chuyền nhưng vẫn tỏa nhiệt và phát bức xạ mạnh cần ngâm dưới bể nước sâu?",
+            "Khi số neutron trong lò tăng quá nhiều (k > 1), hệ thống phải rút lên hay cho các thanh điều khiển chứa Bo/Cd ngập sâu vào khu vực nhiên liệu phân hạch?",
+            "Vì sao thiết bị lưu trữ thanh nhiên liệu đã qua sử dụng (Hình 24.2) phải dùng tường thép mạ nickel bọc than chì, cửa hai lớp và khe tản nhiệt để cất giữ hàng trăm năm?",
           ],
           commonMisconceptions:
-            "Học sinh hay nhầm thanh điều khiển dùng để “làm chậm neutron” hoặc tưởng nhiên liệu dùng xong là hết sạch tính phóng xạ. Cách gỡ: Chất làm chậm là nước nhẹ/nước nặng/than chì, còn thanh điều khiển hấp thụ bớt neutron; các mảnh phân hạch trong thanh nhiên liệu cũ vẫn đang phóng xạ β, γ.",
+            "Học sinh hay nhầm thanh điều khiển dùng để “làm chậm neutron” hoặc tưởng nhiên liệu dùng xong là hết sạch tính phóng xạ. Cách gỡ: Chất làm chậm (mục 2 Hình 24.3) giảm tốc độ neutron, còn thanh điều khiển (mục 6) hấp thụ neutron thừa; thanh nhiên liệu cũ vẫn chứa ⁹⁰Sr, ¹³⁷Cs có T ≈ 30 năm tỏa nhiệt và phóng xạ mạnh.",
           noVideoFallback:
-            "Sử dụng thẻ thông tin Hình 24.2 SGK tr. 115 và mô phỏng điều khiển lò phản ứng ngay trên trang.",
+            "Sử dụng sơ đồ Hình 24.2 – Hình 24.3 SGK tr. 115 và mô phỏng điều khiển lò phản ứng ngay trên trang.",
           completionCriteriaNote:
             "Hoàn thành khi học sinh vận hành ổn định lò phản ứng và hoàn tất câu hỏi kiểm tra trên mô phỏng.",
         },
@@ -1094,26 +1096,26 @@ const RAW_CHAPTER4_LESSONS: readonly RawChapter4LessonSpec[] = [
         sgkPages: "tr. 121–122",
         minutes: 15,
         phenomenonPrompt:
-          "Giải quyết hai bài toán y học hạt nhân thực tiễn: (1) thời gian giảm hoạt độ mẫu ¹³¹₅₃I (T = 8,0 ngày) và (2) tỉ số liều chuẩn bị dược chất ¹⁸₉F-FDG chụp PET (T = 110 phút, Bài 6 SGK tr. 122) cho hai bệnh nhân tiêm cách nhau 60 phút.",
+          "Giải quyết hai bài toán y học hạt nhân thực tiễn: (1) thời gian giảm độ phóng xạ mẫu ¹³¹₅₃I (T = 8,0 ngày) và (2) Bài 6 SGK tr. 122 về dược chất ¹⁸₉F-FDG chụp PET (T = 110 phút): hai bệnh nhân cùng cân nặng dùng FDG cùng đợt sản xuất, tiêm cách nhau 60 phút để đảm bảo độ phóng xạ lúc tiêm là 0,1 mCi/kg không đổi — xác định ai tiêm nhiều hơn và phần trăm lượng FDG nhiều hơn cần tiêm.",
         evidencePrompt:
-          "Tính đúng thời gian t = 24 ngày cho mẫu ¹³¹₅₃I và tỉ số hoạt độ ban đầu cần chuẩn bị cho bệnh nhân tiêm muộn hơn 60 phút với ¹⁸₉F-FDG.",
+          "Tính đúng thời gian t = 24 ngày cho mẫu ¹³¹₅₃I; xác định bệnh nhân tiêm sau 60 phút cần lượng FDG nhiều hơn khoảng 46% (và lập phương trình bắn phá ¹⁸₈O tạo ¹⁸₉F ở câu 6a).",
         teacherTip:
-          "Giao sau giờ học (15 phút) để khép lại toàn Chương IV bằng bài toán thực tế bệnh viện rất hay của SGK tr. 122.",
+          "Giao sau giờ học (15 phút) để khép lại toàn Chương IV bằng đúng Bài 6 thực tế bệnh viện của SGK tr. 122.",
         teacherGuide: {
           learningObjective:
-            "Vận dụng linh hoạt công thức H(t) = H₀·2^(−t/T) cho cả bài toán xuôi (tìm thời gian giảm hoạt độ ¹³¹I) và bài toán ngược chuẩn bị liều tiêm ¹⁸F-FDG theo giờ hẹn bệnh nhân (Bài 6 SGK tr. 122).",
+            "Vận dụng linh hoạt công thức H(t) = H₀·2^(−t/T) cho bài toán tìm thời gian giảm độ phóng xạ ¹³¹I và bài toán thực tế chuẩn bị lượng dược chất ¹⁸F-FDG cho hai bệnh nhân tiêm cách nhau 60 phút (Bài 6 SGK tr. 122).",
           projectorStrategy:
-            "Khi chữa bài, bật Chế độ Giáo viên để chiếu sơ đồ trục thời gian điều chế thuốc lúc 0 phút → tiêm bệnh nhân A → tiêm bệnh nhân B muộn hơn Δt = 60 phút, giúp học sinh hiểu vì sao lọ thuốc của người B lúc đầu phải lấy nhiều gấp 2^(60/110) ≈ 1,46 lần.",
+            "Khi chữa Bài 6b tr. 122, bật Chế độ Giáo viên chiếu trục thời gian tổng quát: đợt thuốc sản xuất tại t = 0 → tiêm bệnh nhân 1 tại thời điểm t₁ → tiêm bệnh nhân 2 tại t₂ = t₁ + 60 phút. Vì nồng độ hoạt độ giảm theo 2^(−60/110) trong 60 phút chờ, để lúc tiêm cả hai đều nhận đúng 0,1 mCi/kg thì lượng FDG tiêm cho người thứ hai phải gấp 2^(60/110) ≈ 1,46 lần, tức nhiều hơn ≈ 46%.",
           openQuestions: [
-            "Hai bệnh nhân A và B có cùng cân nặng và cần nhận cùng một độ phóng xạ H như nhau ngay lúc tiêm; vì sao lọ thuốc chuẩn bị sẵn từ sáng cho bệnh nhân B (tiêm muộn hơn 60 phút) lại phải có hoạt độ ban đầu lớn hơn lọ của A?",
-            "Với T = 110 phút của ¹⁸F, sau Δt = 60 phút hoạt độ đã giảm đi theo hệ số 2^(−60/110); vậy lúc pha chế cần lấy gấp bao nhiêu lần?",
+            "Ở câu 6a (SGK tr. 122), bắn phá ¹⁸₈O bằng hạt tăng tốc tạo ra ¹⁸₉F kèm 1 neutron và tia γ: bảo toàn A và Z cho biết hạt được tăng tốc là hạt gì?",
+            "Ở câu 6b, không giả sử người thứ nhất tiêm ngay lúc vừa sản xuất xong (t₁ > 0 bất kì), vì sao tỉ số lượng FDG giữa hai người tiêm cách nhau 60 phút vẫn luôn bằng 2^(60/110) ≈ 1,46 (nhiều hơn ~46%)?",
           ],
           commonMisconceptions:
-            "Học sinh hay lấy nhầm 2^(−60/110) ≈ 0,685 (lấy ít thuốc hơn cho người tiêm muộn!) thay vì giải H_0B · 2^(−60/110) = H_0A ⇒ H_0B / H_0A = 2^(60/110) ≈ 1,46. Cách gỡ: Kiểm tra tính hợp lí vật lí — để lâu thuốc bị phân rã bớt nên lúc đầu phải lấy nhiều hơn.",
+            "Học sinh hay gán cứng thời điểm tiêm người thứ nhất trùng lúc sản xuất t = 0, hoặc nhầm tỉ số gấp 1,46 lần với phần trăm nhiều hơn ((1,46 − 1)×100% ≈ 46%). Cách gỡ: Viết rõ hai thời điểm tiêm t₁ và t₂ = t₁ + 60 phút và trừ đi 100% để ra phần trăm chênh lệch.",
           noVideoFallback:
             "Phiếu bài tập định lượng tương tác có lưu localStorage và khung lời giải chi tiết cho giáo viên.",
           completionCriteriaNote:
-            "Hoàn thành khi học sinh giải đúng cả câu ¹³¹I (24 ngày) và câu ¹⁸F-FDG Bài 6 SGK tr. 122 (~1,46 lần).",
+            "Hoàn thành khi học sinh giải đúng câu ¹³¹I (24 ngày) và câu 6b ¹⁸F-FDG SGK tr. 122 (người tiêm sau nhiều hơn ~46%).",
         },
       },
     ],
@@ -1518,6 +1520,9 @@ export interface AfterClassWorkData {
   readonly b24AfterChoice?: string;
   readonly b25ElecChoice?: string;
   readonly b25AfterDays?: string;
+  readonly b25F18ParticleChoice?: string;
+  readonly b25F18MoreWho?: string;
+  readonly b25F18PercentInput?: string;
   readonly b25F18RatioInput?: string;
   readonly b25AfterChecked?: boolean;
 }

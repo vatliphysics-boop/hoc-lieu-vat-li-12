@@ -417,15 +417,16 @@ export const CANONICAL_SYSTEM_MATERIALS: MaterialItem[] = [
   // --- Tài liệu PDF & Phiếu học tập SGK ---
   {
     id: "system-doc-sgk-chapter4",
-    title: "Tài liệu học tập: SGK Vật lí 12 KNTT — Chương IV Vật lí hạt nhân",
-    description: "Bản trích trang in 90–122 từ tệp SGK người dùng cung cấp; gồm B21–B25, lí thuyết, câu hỏi và bảng số liệu.",
+    title: "Tài liệu tham chiếu: Chương trình GDPT 2018 (tr. 27–28) & chỉ mục trang SGK Chương IV",
+    description:
+      "Yêu cầu cần đạt mạch Vật lí hạt nhân và phóng xạ lớp 12 (Thông tư 32/2018/TT-BGDĐT) kèm chỉ mục đối chiếu trang in 90–122 SGK Vật lí 12 KNTT (không phát tán bản quét nguyên chương sách giáo khoa công khai).",
     material_type: "document",
     category: "nuclear_physics",
     lesson_tag: "general",
-    content_url: "/learning/SGK-chuong-IV.pdf",
+    content_url: "/learning/physics-curriculum-2018.pdf#page=27",
     metadata: {
-
-      sourceBook: "SGK Vật lí 12 Kết nối tri thức với cuộc sống (tr. 90-122)",
+      sourceBook:
+        "Thông tư 32/2018/TT-BGDĐT (tr. 27–28, 37) · Đối chiếu SGK Vật lí 12 KNTT (tr. 90–122)",
     },
     is_published: true,
     is_system: true,

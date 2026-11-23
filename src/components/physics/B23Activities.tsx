@@ -186,12 +186,15 @@ export function GeigerRandomDecay({ onProgress }: ActivityProps) {
         }}
       >
         <h4 style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 700, color: "var(--text-primary)" }}>
-          Sơ đồ nguyên lí ống đếm Geiger–Müller (Hình 23.2 SGK tr. 105)
+          [Sơ đồ phóng đại nguyên lí đầu dò (2)] Ống đếm Geiger–Müller — đối chiếu bộ đếm 5 bộ phận Hình 23.2 SGK tr. 105
         </h4>
+        <p style={{ margin: "0 0 8px", fontSize: "12.5px", color: "var(--text-secondary)", lineHeight: 1.5 }}>
+          Bộ đếm thực nghiệm <strong>Hình 23.2 SGK tr. 105</strong> gồm: <strong>(1)</strong> nguồn phóng xạ, <strong>(2)</strong> đầu thu phóng xạ (ống GM), <strong>(3)</strong> bộ chuyển đổi tín hiệu, <strong>(4)</strong> loa phát âm thanh cảnh báo và <strong>(5)</strong> đồng hồ hiển thị số đếm. Sơ đồ dưới đây phóng đại mặt cắt bên trong đầu thu <strong>(2)</strong>.
+        </p>
         <svg
           viewBox="0 0 560 195"
           role="img"
-          aria-label="Sơ đồ cấu tạo và nguyên lí tạo xung điện của ống đếm Geiger–Müller"
+          aria-label="Sơ đồ phóng đại cấu tạo và nguyên lí tạo xung điện bên trong đầu thu ống đếm Geiger–Müller"
           style={{
             width: "100%",
             height: "auto",
@@ -201,7 +204,7 @@ export function GeigerRandomDecay({ onProgress }: ActivityProps) {
             border: "1px solid var(--border-light)",
           }}
         >
-          <title>Hình 23.2 — Sơ đồ ống đếm Geiger–Müller và mạch đếm xung</title>
+          <title>Sơ đồ phóng đại nguyên lí ống đếm Geiger–Müller bên trong đầu thu (2) của Hình 23.2 SGK tr. 105</title>
 
           {/* Nguồn phóng xạ đặt trước cửa sổ */}
           <rect x="16" y="64" width="44" height="40" rx="5" fill="#334155" />
@@ -587,7 +590,7 @@ const RAY_INFO: Record<RayType, RayMeta> = {
     nature: "Dòng hạt nhân ⁴₂He chuyển động ~ 2·10⁷ m/s",
     ionization: "Mạnh nhất",
     penetration: "Vài cm trong không khí",
-    stoppedBy: "Tờ giấy mỏng (hoặc lớp sừng da ngoài)",
+    stoppedBy: "Tờ bìa giấy dày ~1 mm (hoặc lớp sừng da ngoài, Hình 23.4 SGK tr. 106)",
     equationLatex: String.raw`{}_{Z}^{A}\mathrm{X} \rightarrow {}_{Z-2}^{A-4}\mathrm{Y} + {}_{2}^{4}\mathrm{He}`,
   },
   beta_neg: {
@@ -600,7 +603,7 @@ const RAY_INFO: Record<RayType, RayMeta> = {
     nature: "Dòng electron ⁰₋₁e tốc độ gần bằng c, kèm phản neutrino ν̄ₑ",
     ionization: "Trung bình",
     penetration: "Vài mét trong không khí",
-    stoppedBy: "Lá nhôm dày vài mm",
+    stoppedBy: "Tấm nhôm dày ~1 mm (Hình 23.4 SGK tr. 106)",
     equationLatex: String.raw`{}_{Z}^{A}\mathrm{X} \rightarrow {}_{Z+1}^{A}\mathrm{Y} + {}_{-1}^{0}\mathrm{e} + \bar{\nu}_e`,
   },
   beta_pos: {
@@ -613,7 +616,7 @@ const RAY_INFO: Record<RayType, RayMeta> = {
     nature: "Dòng positron ⁰₊₁e tốc độ gần bằng c, kèm neutrino νₑ",
     ionization: "Trung bình",
     penetration: "Vài mét trong không khí",
-    stoppedBy: "Lá nhôm dày vài mm",
+    stoppedBy: "Tấm nhôm dày ~1 mm (Hình 23.4 SGK tr. 106)",
     equationLatex: String.raw`{}_{Z}^{A}\mathrm{X} \rightarrow {}_{Z-1}^{A}\mathrm{Y} + {}_{+1}^{0}\mathrm{e} + \nu_e`,
   },
   gamma: {
@@ -626,7 +629,7 @@ const RAY_INFO: Record<RayType, RayMeta> = {
     nature: "Bức xạ điện từ (photon năng lượng cao, λ < 10⁻¹¹ m)",
     ionization: "Yếu nhất",
     penetration: "Đâm xuyên mạnh nhất",
-    stoppedBy: "Suy giảm mạnh qua tấm chì dày vài cm hoặc bê tông dày",
+    stoppedBy: "Suy giảm mạnh qua tấm chì dày ~10 cm hoặc bê tông dày (Hình 23.4 SGK tr. 106)",
     equationLatex: String.raw`{}_{Z}^{A}\mathrm{X}^* \rightarrow {}_{Z}^{A}\mathrm{X} + \gamma`,
   },
 };
@@ -647,7 +650,7 @@ const INITIAL_RADIATION_PROPS_STATE: RadiationPropsPersistedState = {
   viewedRays: ["alpha"],
   fieldType: "electric",
   topPlatePositive: true,
-  bIntoScreen: true,
+  bIntoScreen: false,
   hasAnswered: false,
 };
 
@@ -1221,7 +1224,7 @@ export function Carbon14Dating({ onProgress }: ActivityProps) {
 
   return (
     <Lab
-      intro="Ứng dụng định luật phóng xạ định tuổi mẫu vật hữu cơ cổ bằng đồng vị Carbon-14 (¹⁴₆C, chu kì bán rã T ≈ 5 730 năm — SGK tr. 113)."
+      intro="[Ô đọc thêm Em có biết — SGK tr. 109–110] Ứng dụng định luật phóng xạ định tuổi mẫu vật hữu cơ cổ bằng đồng vị Carbon-14 (¹⁴₆C, chu kì bán rã T ≈ 5 730 năm)."
       note="Giả thiết cơ sở: Khi sinh vật còn sống, trao đổi chất giữ tỉ lệ ¹⁴C/¹²C không đổi như khí quyển. Khi sinh vật chết, ¹⁴C ngừng bổ sung và phân rã β⁻ theo H(t) = H₀·2^(−t/T). Phạm vi tin cậy thực tế khoảng vài trăm đến ~50 000 năm."
     >
       <div className="physics-guide">

@@ -38,6 +38,7 @@ import {
   parseRutherfordV3State,
   resolveRutherfordRaycastPart,
   RUTHERFORD_COMPONENTS,
+  sampleEqualTimeFlashCount,
 } from "./parts";
 import { evaluateRutherfordInquiry } from "./inquiry";
 import {
@@ -169,6 +170,9 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
     showScintillation,
     showBeam,
     observerAngleDeg,
+    countPos1 = null,
+    countPos2 = null,
+    countTrialSeed = 1,
   } = persisted;
 
   const settings = useMemo<RutherfordSettings>(
@@ -181,9 +185,26 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
 
   const [isRunning, setIsRunning] = useState(false);
   const [elapsedZs, setElapsedZs] = useState(0);
+  const [eyepiecePaused, setEyepiecePaused] = useState(false);
+  const [flashBeat, setFlashBeat] = useState(0);
   const [histogram] = useState<HistogramBin[]>(() =>
     generateRutherfordDistribution(1000, 10, 42),
   );
+
+  useEffect(() => {
+    if (!showScintillation || eyepiecePaused) return;
+    if (
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      return;
+    }
+    const id = window.setInterval(() => {
+      setFlashBeat((b) => (b + 1) % 24);
+    }, 680);
+    return () => window.clearInterval(id);
+  }, [showScintillation, eyepiecePaused]);
 
   const run = useMemo(() => {
     try {
@@ -743,12 +764,12 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
             color: "#334155",
           }}
         >
-          <strong>Tóm tắt chức năng (Hình 21.2):</strong>{" "}
-          <strong>Nguồn R</strong> phát chùm hạt α (+2e) đi qua <strong>khe chì P</strong> →{" "}
-          <strong>Lá vàng D</strong> là bia tán xạ siêu mỏng (~4·10⁻⁷ m) →{" "}
-          <strong>Màn ZnS (S)</strong> là nơi lóe lên đốm sáng xanh lục khi hạt α chạm vào →{" "}
-          <strong>Kính hiển vi M</strong> là nơi người làm thí nghiệm đặt mắt quan sát đốm sáng ở từng góc, toàn bộ đặt trong{" "}
-          <strong>Hộp chân không G</strong>.
+          <strong>Tóm tắt chức năng (Hình 21.2 SGK tr. 91):</strong>{" "}
+          <strong>Nguồn R</strong> phát chùm hạt α (+2e) →{" "}
+          <strong>Lá vàng D</strong> là bia tán xạ rất mỏng (~4·10⁻⁷ m) →{" "}
+          <strong>Màn huỳnh quang S (ZnS)</strong> gắn trước vật kính lóe lên một đốm sáng rồi tắt khi hạt α chạm vào →{" "}
+          <strong>Kính hiển vi M</strong> xoay quanh trục D để đếm đốm sáng ở từng góc; toàn bộ đặt trong{" "}
+          <strong>Hộp chân không G</strong> nối với <strong>Chân đế / ống hút chân không P</strong> ở đáy (Hình 21.2a). Trên bàn 3D đặt nguồn R bên trái bắn sang phải tới vị trí (1) 0° (đối xứng gương với Hình 21.2b SGK vẽ R bên phải bắn sang trái tới (1), giữ nguyên quan hệ góc lệch tới vị trí (2) &gt; 90°).
         </div>
       </section>
 
@@ -1009,19 +1030,19 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
             />
             <span>
               <strong style={{ display: "block", color: "#0c4a6e" }}>
-                Lớp 2: Quỹ đạo hạt α (hình minh họa giải thích)
+                Lớp 2: Quỹ đạo hạt α (Mô hình giải thích)
               </strong>
               <span style={{ fontSize: "12px", color: "#475569" }}>
-                Đường cong hyperbol Coulomb giải thích góc lệch (mắt thường không thấy trực tiếp trong thí nghiệm thật).
+                Đường cong hyperbol Coulomb dùng suy luận điều xảy ra gần tâm hạt nhân (mắt không thấy trực tiếp qua kính M).
               </span>
             </span>
           </label>
         </div>
       </div>
 
-      {/* 4. Điều khiển Xoay kính quan sát M (0° Vị trí 1 → 160° Vị trí 2) + Sơ đồ 21.2a ↔ 21.2b & Thị trường M */}
+      {/* 4. Điều khiển Xoay kính quan sát M (0° Vị trí 1 → 160° Vị trí 2) + Đếm cùng thời gian Δt = 10 s */}
       <section
-        aria-label="Xoay vị trí kính hiển vi M và đối chiếu Hình 21.2a - 21.2b"
+        aria-label="Xoay vị trí kính hiển vi M, đếm đốm sáng cùng thời gian và đối chiếu Hình 21.2a - 21.2b"
         style={{
           padding: "16px",
           background: "#0f172a",
@@ -1033,7 +1054,7 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
         }}
       >
         <div>
-          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "8px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "6px" }}>
             <label htmlFor="rutherford-observer-slider" style={{ fontSize: "14px", fontWeight: 700, color: "#38bdf8" }}>
               Xoay vị trí kính quan sát M quanh lá vàng D: {observerAngleDeg}° ({observerAngleDeg <= 15 ? "Vị trí (1)" : observerAngleDeg > 90 ? "Vị trí (2)" : "Góc trung gian"})
             </label>
@@ -1058,10 +1079,13 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
                   minHeight: "32px",
                 }}
               >
-                Đưa kính M tới vết hạt hiện tại ({Math.min(160, Math.max(0, Math.round(Math.abs(run.detectorAngleDeg))))}°)
+                Đưa kính M tới vùng màn ứng với tia đang xét ({Math.min(160, Math.max(0, Math.round(Math.abs(run.detectorAngleDeg))))}°)
               </button>
             )}
           </div>
+          <p style={{ margin: "0 0 8px", fontSize: "12px", color: "#cbd5e1", lineHeight: 1.5 }}>
+            Đổi vị trí kính <strong>M</strong> chỉ đổi vùng màn <strong>S</strong> được quan sát, <strong>không điều khiển hay làm đổi quỹ đạo của hạt α</strong>. (Lưu ý góc nhìn: Hình 21.2b SGK vẽ nguồn R bên phải chiếu sang trái tới (1); bàn 3D đang nhìn từ phía đối diện nên R ở bên trái chiếu sang phải tới (1) — ở cả hai hình, <strong>(1) luôn đối diện nguồn phát</strong> và <strong>(2) luôn lệch ngược &gt; 90° về phía nguồn</strong>.)
+          </p>
 
           <input
             id="rutherford-observer-slider"
@@ -1122,7 +1146,7 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
             alignItems: "stretch",
           }}
         >
-          {/* Sơ đồ mặt cắt ngang Hình 21.2b đối chiếu với phối cảnh 3D Hình 21.2a */}
+          {/* Sơ đồ mặt cắt ngang đối chiếu với phối cảnh 3D */}
           <div
             style={{
               background: "#080e1a",
@@ -1132,20 +1156,20 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
             }}
           >
             <div style={{ fontSize: "12.5px", fontWeight: 700, color: "#e2e8f0", marginBottom: "6px" }}>
-              Đối chiếu Hình phối cảnh 3D (21.2a) ↔ Hình mặt cắt ngang (21.2b)
+              Mặt cắt ngang trên bàn 3D (đối chiếu Hình 21.2a – 21.2b SGK)
             </div>
             <svg
               viewBox="0 0 250 220"
               width="250"
               height="220"
               role="img"
-              aria-label={`Sơ đồ mặt cắt ngang Hình 21.2b với nguồn R, khe P, lá vàng D, màn S, hộp chân không G và kính hiển vi M đang ở góc ${observerAngleDeg} độ`}
+              aria-label={`Sơ đồ mặt cắt bộ thí nghiệm trên bàn 3D với nguồn R, lá vàng D, màn S, hộp chân không G trên chân đế P và kính hiển vi M đang ở góc ${observerAngleDeg} độ`}
               style={{ width: "100%", height: "auto", display: "block" }}
             >
               {/* Hộp chân không G */}
               <circle cx="125" cy="115" r="98" fill="none" stroke="#475569" strokeWidth="1.5" strokeDasharray="4 3" />
               <text x="125" y="12" textAnchor="middle" fill="#94a3b8" fontSize="10" fontWeight="600">
-                Hộp chân không G (nhìn từ trên xuống)
+                Hộp chân không G (đặt trên chân đế P)
               </text>
 
               {/* Màn phát quang ZnS (S) */}
@@ -1154,15 +1178,15 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
                 Màn phát quang ZnS (S)
               </text>
 
-              {/* Nguồn R & khe chì P bên trái */}
+              {/* Nguồn R & khe chuẩn trực bên trái */}
               <rect x="14" y="103" width="26" height="24" rx="3" fill="#475569" stroke="#fbbf24" strokeWidth="1.2" />
               <text x="27" y="119" textAnchor="middle" fill="#fef08a" fontSize="10" fontWeight="700">
                 R
               </text>
               <line x1="56" y1="98" x2="56" y2="111" stroke="#94a3b8" strokeWidth="3" />
               <line x1="56" y1="119" x2="56" y2="132" stroke="#94a3b8" strokeWidth="3" />
-              <text x="56" y="93" textAnchor="middle" fill="#cbd5e1" fontSize="9.5" fontWeight="600">
-                P
+              <text x="56" y="93" textAnchor="middle" fill="#cbd5e1" fontSize="8.8" fontWeight="600">
+                khe hẹp
               </text>
 
               {/* Lá vàng mỏng D tại tâm */}
@@ -1257,7 +1281,7 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
             </svg>
           </div>
 
-          {/* Thị trường kính hiển vi M & tỉ số tần suất 10⁴ lần */}
+          {/* Thị trường kính hiển vi M (đốm xuất hiện rồi tắt) & Phép đếm cùng thời gian Δt = 10 s */}
           <div
             style={{
               background: "#080e1a",
@@ -1276,25 +1300,42 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
                 width="104"
                 height="104"
                 role="img"
-                aria-label={`Thị trường qua thị kính M tại góc ${observerAngleDeg} độ`}
+                aria-label={`Thị trường qua thị kính M tại góc ${observerAngleDeg} độ: mỗi đốm sáng xuất hiện trên màn S rồi tắt`}
                 style={{ flexShrink: 0 }}
               >
                 <circle cx="0" cy="0" r="50" fill="#04130d" stroke="#64748b" strokeWidth="3" />
                 <line x1="-48" y1="0" x2="48" y2="0" stroke="#14532d" strokeWidth="0.8" />
                 <line x1="0" y1="-48" x2="0" y2="48" stroke="#14532d" strokeWidth="0.8" />
                 {showScintillation &&
-                  EYEPIECE_FLASH_SPOTS.slice(0, observerSummary.sampleFlashCount).map(
-                    ([cx, cy, r], idx) => (
-                      <circle
-                        key={idx}
-                        cx={cx}
-                        cy={cy}
-                        r={r}
-                        fill="#4ade80"
-                        fillOpacity={idx === 0 ? 1 : 0.85}
-                      />
-                    ),
-                  )}
+                  (() => {
+                    // Cái thấy qua kính M là các đốm rời rạc lóe lên rồi tắt (không phải vệt tia hay chấm dính cố định)
+                    const activeSpots: { cx: number; cy: number; r: number; opacity: number }[] = [];
+                    if (observerSummary.zone === "position_1") {
+                      for (let k = 0; k < 4; k++) {
+                        const spotIdx = (flashBeat * 3 + k * 5) % EYEPIECE_FLASH_SPOTS.length;
+                        const [cx, cy, r] = EYEPIECE_FLASH_SPOTS[spotIdx];
+                        activeSpots.push({ cx, cy, r, opacity: k === 0 ? 1 : 0.55 });
+                      }
+                    } else if (observerSummary.zone === "intermediate") {
+                      if (flashBeat % 2 === 0) {
+                        const spotIdx = (flashBeat * 2) % 8;
+                        const [cx, cy, r] = EYEPIECE_FLASH_SPOTS[spotIdx];
+                        activeSpots.push({ cx, cy, r, opacity: 0.95 });
+                      }
+                    } else {
+                      // Vị trí (2) (> 90°): rất thưa, chỉ lóe 1 đốm đơn lẻ ở một số nhịp rồi tắt hẳn
+                      if (flashBeat % 6 === 0) {
+                        const [cx, cy, r] = EYEPIECE_FLASH_SPOTS[(flashBeat / 6) % 4];
+                        activeSpots.push({ cx, cy, r: r + 0.6, opacity: 1 });
+                      }
+                    }
+                    return activeSpots.map((sp, idx) => (
+                      <g key={idx}>
+                        <circle cx={sp.cx} cy={sp.cy} r={sp.r * 1.9} fill="#4ade80" fillOpacity={sp.opacity * 0.24} />
+                        <circle cx={sp.cx} cy={sp.cy} r={sp.r} fill="#86efac" fillOpacity={sp.opacity} />
+                      </g>
+                    ));
+                  })()}
                 {!showScintillation && (
                   <text x="0" y="4" textAnchor="middle" fill="#94a3b8" fontSize="9.5">
                     Đã tắt Lớp 1
@@ -1302,31 +1343,159 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
                 )}
               </svg>
 
-              <div style={{ fontSize: "13px", lineHeight: 1.5 }}>
-                <div style={{ fontWeight: 700, color: "#86efac", marginBottom: "4px" }}>
+              <div style={{ fontSize: "13px", lineHeight: 1.5, flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, color: "#86efac", marginBottom: "2px" }}>
                   Thị trường kính M: {observerSummary.positionTitle}
                 </div>
-                <div style={{ color: "#fde047", fontWeight: 600, fontSize: "12.5px" }}>
+                <div style={{ color: "#fde047", fontWeight: 600, fontSize: "12px", marginBottom: "6px" }}>
                   {observerSummary.relativeFrequencyLabel}
                 </div>
+                <div style={{ fontSize: "11.5px", color: "#cbd5e1", marginBottom: "6px" }}>
+                  Dấu hiệu qua kính: từng đốm sáng nhỏ xuất hiện rồi tắt (không có vệt tia bay).
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEyepiecePaused((p) => !p)}
+                  style={{
+                    padding: "4px 10px",
+                    minHeight: "30px",
+                    fontSize: "11.5px",
+                    borderRadius: "5px",
+                    border: "1px solid #475569",
+                    background: "rgba(30, 41, 59, 0.9)",
+                    color: "#e2e8f0",
+                    cursor: "pointer",
+                  }}
+                >
+                  {eyepiecePaused ? "Tiếp tục chớp đốm qua kính" : "Tạm dừng chớp đốm"}
+                </button>
               </div>
             </div>
 
+            {/* Phép đếm cùng khoảng thời gian Δt = 10 s, giữ nguyên điều kiện nguồn R */}
             <div
+              data-rutherford-equal-time-counter
               style={{
-                padding: "9px 11px",
-                background: "rgba(30, 41, 59, 0.75)",
-                borderLeft: "3px solid #38bdf8",
-                borderRadius: "4px",
+                padding: "10px 12px",
+                background: "rgba(15, 23, 42, 0.92)",
+                border: "1px solid #334155",
+                borderRadius: "6px",
                 fontSize: "12.5px",
                 lineHeight: 1.55,
-                color: "#e2e8f0",
               }}
             >
-              {observerSummary.physicalMeaning}{" "}
-              <strong>
-                Đối chiếu SGK tr. 91–92: Tần suất đốm sáng ở vị trí (2) (&gt; 90°) nhỏ hơn ở vị trí (1) (0°) cỡ 10⁴ lần (chỉ ~10⁻⁴).
-              </strong>
+              <div style={{ fontWeight: 700, color: "#bae6fd", marginBottom: "6px" }}>
+                So sánh tần suất đốm sáng trong cùng thời gian đếm Δt = 10 s (giữ nguyên nguồn R, lượt #{countTrialSeed}):
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+                <button
+                  type="button"
+                  data-count-pos1-btn
+                  onClick={() => {
+                    const s1 = sampleEqualTimeFlashCount(0, countTrialSeed);
+                    writeRutherfordV3State((prev) => ({
+                      ...prev,
+                      observerAngleDeg: 0,
+                      countPos1: s1.count,
+                    }));
+                  }}
+                  style={{
+                    padding: "6px 10px",
+                    minHeight: "34px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    borderRadius: "5px",
+                    border: "1px solid #22c55e",
+                    background: "rgba(34, 197, 94, 0.18)",
+                    color: "#bbf7d0",
+                    cursor: "pointer",
+                  }}
+                >
+                  Đếm 10 s ở Vị trí (1) (0°)
+                </button>
+                <button
+                  type="button"
+                  data-count-pos2-btn
+                  onClick={() => {
+                    const s2 = sampleEqualTimeFlashCount(140, countTrialSeed);
+                    writeRutherfordV3State((prev) => ({
+                      ...prev,
+                      observerAngleDeg: 140,
+                      countPos2: s2.count,
+                    }));
+                  }}
+                  style={{
+                    padding: "6px 10px",
+                    minHeight: "34px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    borderRadius: "5px",
+                    border: "1px solid #fb7185",
+                    background: "rgba(251, 113, 133, 0.18)",
+                    color: "#fecdd3",
+                    cursor: "pointer",
+                  }}
+                >
+                  Đếm 10 s ở Vị trí (2) (140°)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextSeed = countTrialSeed + 1;
+                    writeRutherfordV3State((prev) => ({
+                      ...prev,
+                      countTrialSeed: nextSeed,
+                      countPos1:
+                        prev.countPos1 !== null
+                          ? sampleEqualTimeFlashCount(0, nextSeed).count
+                          : null,
+                      countPos2:
+                        prev.countPos2 !== null
+                          ? sampleEqualTimeFlashCount(140, nextSeed).count
+                          : null,
+                    }));
+                  }}
+                  style={{
+                    padding: "6px 10px",
+                    minHeight: "34px",
+                    fontSize: "12px",
+                    borderRadius: "5px",
+                    border: "1px solid #64748b",
+                    background: "transparent",
+                    color: "#cbd5e1",
+                    cursor: "pointer",
+                  }}
+                >
+                  Lặp lượt đếm 10 s mới
+                </button>
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                  gap: "8px",
+                  fontVariantNumeric: "tabular-nums",
+                  marginBottom: "6px",
+                }}
+              >
+                <div style={{ padding: "6px 8px", background: "#0b1324", border: "1px solid #1e293b", borderRadius: "4px" }}>
+                  <span style={{ color: "#94a3b8", display: "block", fontSize: "11px" }}>Vị trí (1) · Δt = 10 s</span>
+                  <strong style={{ color: "#86efac", fontSize: "14px" }}>
+                    {countPos1 !== null ? `${countPos1.toLocaleString("vi-VN")} đốm` : "Chưa đếm"}
+                  </strong>
+                  <span style={{ color: "#64748b", display: "block", fontSize: "11px" }}>Kì vọng thống kê: ~10 000 đốm</span>
+                </div>
+                <div style={{ padding: "6px 8px", background: "#0b1324", border: "1px solid #1e293b", borderRadius: "4px" }}>
+                  <span style={{ color: "#94a3b8", display: "block", fontSize: "11px" }}>Vị trí (2) · Δt = 10 s</span>
+                  <strong style={{ color: "#fda4af", fontSize: "14px" }}>
+                    {countPos2 !== null ? `${countPos2.toLocaleString("vi-VN")} đốm` : "Chưa đếm"}
+                  </strong>
+                  <span style={{ color: "#64748b", display: "block", fontSize: "11px" }}>Kì vọng thống kê: ~1 đốm</span>
+                </div>
+              </div>
+              <div style={{ fontSize: "11.5px", color: "#cbd5e1" }}>
+                Một lượt 10 s ở vị trí (2) có thể ghi 0, 1, 2… đốm do tính ngẫu nhiên; khi xét xu hướng thống kê nhiều lượt cùng thời gian và nguồn R, tần suất đốm sáng ở (2) nhỏ hơn ở (1) cỡ <strong>10⁴ lần (~10⁻⁴)</strong> (SGK tr. 91–92).
+              </div>
             </div>
           </div>
         </div>

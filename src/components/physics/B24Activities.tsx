@@ -1336,26 +1336,26 @@ const CLINICAL_CASES: ReadonlyArray<{
   {
     id: "case_bone_spect",
     scenario:
-      "Tình huống 1: Cần ghi hình chức năng tưới máu cơ tim hoặc xương bằng camera gamma bên ngoài cơ thể, đồng vị đánh dấu giảm nhanh hoạt độ sau vài giờ (T = 6 giờ).",
+      "Tình huống 1 [Ô Em có biết SGK tr. 116]: Cần ghi hình chức năng cơ quan (như gan – mật, tưới máu cơ tim hoặc xương) bằng đầu thu/camera tia γ bên ngoài cơ thể với đồng vị đánh dấu chu kì bán rã ngắn.",
     expected: "spect",
     feedback:
-      "SPECT dùng ⁹⁹ᵐTc (T = 6 giờ) phát tia γ thoát xuyên qua mô ra ngoài cơ thể để camera gamma thu nhận, liều chiếu thấp.",
+      "SPECT [Ô Em có biết SGK tr. 116] ghi nhận tia γ đơn photon thoát ra ngoài cơ thể (ví dụ mở rộng thực tế lâm sàng dùng ⁹⁹₄₃Tc* / ⁹⁹ᵐTc, T = 6 giờ, liều chiếu thấp).",
   },
   {
     id: "case_glucose_pet",
     scenario:
-      "Tình huống 2: Tiêm dược chất gắn đồng vị phát positron (T = 110 phút) để máy thu vòng tròn ghi nhận cặp tia γ 511 keV bay ngược chiều, phát hiện ổ mô tiêu thụ mạnh đường glucose.",
+      "Tình huống 2 [Ô Em có biết SGK tr. 116 & Bài 6 tr. 122]: Tiêm dược chất FDG gắn ¹⁸₉F phát positron (T = 110 phút) để máy chụp cắt lớp phát xạ positron phát hiện ổ mô tiêu thụ mạnh đường glucose.",
     expected: "pet",
     feedback:
-      "PET dùng ¹⁸F-FDG (T = 110 phút): positron hủy cặp với electron phát 2 photon γ ngược chiều thoát ra ngoài giúp định vị 3D chính xác.",
+      "PET [Ô Em có biết SGK tr. 116] dùng ¹⁸₉F-FDG (T = 110 phút). [Giải thích vật lí mở rộng]: positron hủy cặp với electron phát 2 photon γ (511 keV) bay ngược chiều 180° giúp định vị 3D chính xác.",
   },
   {
     id: "case_tumor_therapy",
     scenario:
-      "Tình huống 3: Tập trung liều bức xạ ion hóa cao để tiêu diệt tế bào ung thư (bằng dược chất gắn đích ²²³Ra / ¹⁷⁷Lu / ¹³¹I liều điều trị hoặc chiếu hội tụ chùm tia γ ngoài từ nguồn ⁶⁰Co có che chắn mô lành).",
+      "Tình huống 3 [Mục II.2 SGK tr. 117]: Tập trung liều bức xạ ion hóa cao để tiêu diệt tế bào ung thư (tiêm dược chất Xofigo chứa ²²³₈₈Ra, Lutathera chứa ¹⁷⁷₇₁Lu hoặc chiếu chùm tia từ máy xạ trị ngoài).",
     expected: "therapy",
     feedback:
-      "Xạ trị tập trung năng lượng bức xạ vào mô bệnh (quãng chạy ngắn của α, β⁻ tại đích hoặc hội tụ nhiều chùm γ ⁶⁰Co qua ống chuẩn trực chì để bảo vệ mô lành).",
+      "Điều trị ung thư (SGK tr. 117): tập trung năng lượng bức xạ vào mô bệnh bằng dược chất gắn đích (²²³₈₈Ra — lưu ý bản in SGK tr. 117 in nhầm chỉ số dưới là 86; ¹⁷⁷₇₁Lu) hoặc chiếu tia từ ngoài có che chắn mô lành.",
   },
 ];
 
@@ -1940,13 +1940,13 @@ export function RadiationApplications({ onProgress }: ActivityProps) {
           role="img"
           aria-label={`Đối chiếu hai lô vải thiều ở thời điểm ${day === 7 ? "sau 7 ngày bảo quản" : "ngày đầu"} và minh họa đánh dấu phân bón P-32`}
         >
-          {/* Khung 1: Lô không chiếu xạ */}
-          <rect x="12" y="12" width="196" height="191" rx="10" fill={day === 7 ? "#fef2f2" : "#fffbeb"} stroke="#cbd5e1" />
-          <text x="110" y="34" textAnchor="middle" fontSize="12.5" fontWeight="700" fill="#1e293b">
-            Lô A · Không chiếu xạ
+          {/* Khung 1 (trái): (a) Vải thiều được chiếu xạ — chuẩn Hình 24.5a SGK tr. 117 */}
+          <rect x="12" y="12" width="196" height="191" rx="10" fill="#f0fdf4" stroke="#86efac" />
+          <text x="110" y="34" textAnchor="middle" fontSize="12.5" fontWeight="700" fill="#14532d">
+            (a) Đã chiếu xạ tia γ (⁶⁰Co)
           </text>
-          <text x="110" y="51" textAnchor="middle" fontSize="11.5" fill="#64748b">
-            {day === 7 ? "Sau 7 ngày: thâm vỏ, nấm mốc" : "Ngày 1: còn mầm nấm & vi khuẩn"}
+          <text x="110" y="51" textAnchor="middle" fontSize="11.5" fill="#166534">
+            {day === 7 ? "Sau 7 ngày: giữ vỏ đỏ tươi" : "Tia γ xuyên qua diệt vi khuẩn"}
           </text>
           {[
             [72, 102],
@@ -1954,6 +1954,33 @@ export function RadiationApplications({ onProgress }: ActivityProps) {
             [148, 108],
             [90, 134],
             [132, 136],
+          ].map(([cx, cy], idx) => (
+            <g key={idx}>
+              <circle cx={cx} cy={cy} r="17" fill="#e11d48" stroke="#be123c" strokeWidth="1.5" />
+              <circle cx={cx - 5} cy={cy - 5} r="3.5" fill="#fda4af" opacity="0.7" />
+            </g>
+          ))}
+          <text x="110" y="176" textAnchor="middle" fontSize="11.5" fontWeight="600" fill="#15803d">
+            ✓ Tươi nguyên, không nấm mốc
+          </text>
+          <text x="110" y="193" textAnchor="middle" fontSize="11" fill="#166534">
+            0 Bq tồn dư (Hình 24.5a SGK tr. 117)
+          </text>
+
+          {/* Khung 2 (phải): (b) Vải thiều thường không chiếu xạ — chuẩn Hình 24.5b SGK tr. 117 */}
+          <rect x="222" y="12" width="196" height="191" rx="10" fill={day === 7 ? "#fef2f2" : "#fffbeb"} stroke="#cbd5e1" />
+          <text x="320" y="34" textAnchor="middle" fontSize="12.5" fontWeight="700" fill="#1e293b">
+            (b) Vải thiều thường
+          </text>
+          <text x="320" y="51" textAnchor="middle" fontSize="11.5" fill="#64748b">
+            {day === 7 ? "Sau 7 ngày: thâm vỏ, nấm mốc" : "Ngày 1: còn mầm nấm & vi khuẩn"}
+          </text>
+          {[
+            [282, 102],
+            [324, 96],
+            [358, 108],
+            [300, 134],
+            [342, 136],
           ].map(([cx, cy], idx) => (
             <g key={idx}>
               <circle
@@ -1972,38 +1999,11 @@ export function RadiationApplications({ onProgress }: ActivityProps) {
               )}
             </g>
           ))}
-          <text x="110" y="176" textAnchor="middle" fontSize="11.5" fontWeight="600" fill={day === 7 ? "#b91c1c" : "#475569"}>
+          <text x="320" y="176" textAnchor="middle" fontSize="11.5" fontWeight="600" fill={day === 7 ? "#b91c1c" : "#475569"}>
             {day === 7 ? "✗ Nấm mốc phát triển mạnh" : "Vi sinh vật chưa bị ức chế"}
           </text>
-          <text x="110" y="193" textAnchor="middle" fontSize="11" fill="#475569">
-            Nhanh thối hỏng khi vận chuyển
-          </text>
-
-          {/* Khung 2: Lô chiếu xạ tia gamma */}
-          <rect x="222" y="12" width="196" height="191" rx="10" fill="#f0fdf4" stroke="#86efac" />
-          <text x="320" y="34" textAnchor="middle" fontSize="12.5" fontWeight="700" fill="#14532d">
-            Lô B · Chiếu xạ tia γ (⁶⁰Co)
-          </text>
-          <text x="320" y="51" textAnchor="middle" fontSize="11.5" fill="#166534">
-            {day === 7 ? "Sau 7 ngày: giữ vỏ đỏ tươi" : "Tia γ xuyên qua diệt vi khuẩn"}
-          </text>
-          {[
-            [282, 102],
-            [324, 96],
-            [358, 108],
-            [300, 134],
-            [342, 136],
-          ].map(([cx, cy], idx) => (
-            <g key={idx}>
-              <circle cx={cx} cy={cy} r="17" fill="#e11d48" stroke="#be123c" strokeWidth="1.5" />
-              <circle cx={cx - 5} cy={cy - 5} r="3.5" fill="#fda4af" opacity="0.7" />
-            </g>
-          ))}
-          <text x="320" y="176" textAnchor="middle" fontSize="11.5" fontWeight="600" fill="#15803d">
-            ✓ Tươi nguyên, không nấm mốc
-          </text>
-          <text x="320" y="193" textAnchor="middle" fontSize="11" fill="#166534">
-            0 Bq tồn dư (không nhiễm xạ)
+          <text x="320" y="193" textAnchor="middle" fontSize="11" fill="#475569">
+            Nhanh hỏng (Hình 24.5b SGK tr. 117)
           </text>
 
           {/* Khung 3: Đánh dấu phóng xạ ³²P tối ưu phân bón */}

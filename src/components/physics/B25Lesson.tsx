@@ -149,27 +149,37 @@ export function B25Lesson() {
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge}>Bài 3</span>
-              <strong>Định tuổi mẫu gỗ cổ bằng đồng vị carbon-14</strong>
+              <strong>Xác định số nguyên tử ¹⁴₆C và độ tuổi mẫu gỗ cổ (SGK tr. 121)</strong>
             </div>
-            <p>Mẫu gỗ cổ chứa 25 g carbon có độ phóng xạ 240 phân rã/phút (4,0 Bq); T(¹⁴C) = 5730 năm. Tỉ lệ số nguyên tử ¹²C : ¹⁴C khi sinh vật còn sống là 10¹² : 1.</p>
+            <p>
+              Mẫu gỗ của một cổ vật phát hiện được 240 phóng xạ mỗi phút (H = 4,0 Bq). Thành phần mẫu gỗ chứa 25 g ¹⁴₆C và ¹²₆C, chu kì bán rã của ¹⁴₆C là T = 5 730 năm, tỉ lệ nguyên tử ¹²₆C : ¹⁴₆C khi sinh vật còn sống là 10¹² : 1.
+              <br />a) Xác định số nguyên tử ¹⁴₆C hiện có trong mẫu gỗ.
+              <br />b) Xác định độ tuổi của mẫu gỗ này.
+            </p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Số nguyên tử ¹²C trong 25 g carbon là N(¹²C) ≈ (25/12)·6,022·10²³ ≈ 1,255·10²⁴ hạt ⇒ lúc còn sống mẫu có N₀(¹⁴C) ≈ 1,255·10¹² hạt. Độ phóng xạ ban đầu H₀ = (ln 2 / T)·N₀ ≈ 4,81 Bq (≈ 289 phân rã/phút). So với H = 4,0 Bq hiện tại: t = T·log₂(H₀/H) ≈ 5730 · log₂(289/240) ≈ 1,5·10³ năm.</p>
+              <p>
+                • <strong>a) Số nguyên tử ¹⁴₆C hiện có trong mẫu gỗ:</strong> Đổi <code>T = 5 730 × 365,25 × 86 400 ≈ 1,808·10¹¹ s</code> và <code>H = 240 / 60 = 4,0 Bq</code>. Từ <code>H = λ·N = (ln 2 / T)·N ⇒ N = H·T / ln 2 ≈ 4,0 × 1,808·10¹¹ / 0,693 ≈ <strong>1,04·10¹² nguyên tử ¹⁴₆C</strong></code>.
+                <br />• <strong>b) Độ tuổi mẫu gỗ:</strong> Trong 25 g carbon (chủ yếu là ¹²₆C) có <code>N(¹²₆C) ≈ (25/12)·6,022·10²³ ≈ 1,255·10²⁴</code> nguyên tử ⇒ lúc sinh vật còn sống có <code>N₀(¹⁴₆C) ≈ 1,255·10¹²</code> nguyên tử. Vậy <code>t = T · log₂(N₀ / N) ≈ 5 730 · log₂(1,255 / 1,043) ≈ <strong>1,5·10³ năm</strong></code>.
+              </p>
             </details>
           </div>
 
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge} data-level="vận dụng">Bài 4</span>
-              <strong>Nhiên liệu U-235 cho nhà máy điện hạt nhân trong 1 ngày, 1 năm và đối chiếu than đá</strong>
+              <strong>Nhiên liệu ²³⁵U cho nhà máy điện hạt nhân trong 1 năm và đối chiếu than đá (SGK tr. 121)</strong>
             </div>
-            <p>Nhà máy điện hạt nhân có công suất phát điện 1400 MW, hiệu suất 36 %, mỗi phân hạch ²³⁵U tỏa năng lượng trung bình 200 MeV. Tính khối lượng ²³⁵U tiêu thụ trong 1 ngày, trong 1 năm hoạt động (365 ngày) và đối chiếu với khối lượng than đá (năng suất tỏa nhiệt khoảng 30 MJ/kg, cùng hiệu suất 36 %).</p>
+            <p>
+              Một nhà máy điện hạt nhân sử dụng nguyên liệu ²³⁵U, mỗi phân hạch tỏa năng lượng 200 MeV. Hiệu suất phát điện của nhà máy là 36 %, công suất phát điện 1 400 MW.
+              <br />a) Tính khối lượng nguyên liệu ²³⁵U nhà máy tiêu thụ trong 1 năm (365 ngày).
+              <br />b) Tính lượng than đá tiêu thụ để sản xuất ra năng lượng điện tương đương, biết năng suất tỏa nhiệt của than đá là 30 MJ/kg.
+            </p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
               <p>
-                • <strong>Trong 1 ngày (86 400 s):</strong> Điện năng sản xuất A<sub>điện</sub> = 1400·10⁶ · 86 400 ≈ 1,21·10¹⁴ J. Nhiệt lượng phân hạch cần cung cấp Q<sub>ngày</sub> = A<sub>điện</sub> / 0,36 ≈ 3,36·10¹⁴ J. Mỗi phân hạch tỏa E₁ = 200 MeV = 3,2·10⁻¹¹ J ⇒ số hạt phân hạch N<sub>ngày</sub> = 3,36·10¹⁴ / 3,2·10⁻¹¹ = 1,05·10²⁵ hạt. Khối lượng ²³⁵U cần mỗi ngày: m<sub>U, ngày</sub> = (1,05·10²⁵ / 6,022·10²³) · 0,235 kg ≈ <strong>4,10 kg/ngày</strong>.
-                <br />• <strong>Trong 1 năm (365 ngày):</strong> Nhiệt lượng phân hạch Q<sub>năm</sub> = 365 · 3,36·10¹⁴ ≈ 1,226·10¹⁷ J; khối lượng ²³⁵U tiêu thụ cả năm: m<sub>U, năm</sub> = 365 · 4,10 kg ≈ <strong>1,50·10³ kg ≈ 1,5 tấn/năm</strong>.
-                <br />• <strong>Đối chiếu than đá (q ≈ 30 MJ/kg = 3,0·10⁷ J/kg):</strong> Để sinh cùng nhiệt lượng trên cần m<sub>than, ngày</sub> = 3,36·10¹⁴ / 3,0·10⁷ ≈ <strong>11 200 tấn than/ngày</strong> và trong 1 năm cần m<sub>than, năm</sub> ≈ <strong>4,09 triệu tấn than đá/năm</strong> — lớn gấp khoảng 2,7 triệu lần khối lượng ²³⁵U!
+                • <strong>a) Khối lượng ²³⁵U tiêu thụ trong 1 năm (365 ngày = 3,1536·10⁷ s):</strong> Điện năng sản xuất cả năm <code>A_điện = 1400·10⁶ × 3,1536·10⁷ ≈ 4,415·10¹⁶ J</code>. Năng lượng phân hạch toàn phần cần cung cấp <code>Q = A_điện / 0,36 ≈ 1,226·10¹⁷ J</code>. Mỗi phân hạch tỏa <code>200 MeV ≈ 3,2·10⁻¹¹ J</code> ⇒ số hạt phân hạch <code>N ≈ 3,83·10²⁷</code> hạt ⇒ <code>m(²³⁵U) = (N / 6,022·10²³) × 0,235 kg ≈ <strong>1,50·10³ kg ≈ 1,5 tấn/năm</strong></code> (tức ~4,1 kg/ngày).
+                <br />• <strong>b) Khối lượng than đá (q = 30 MJ/kg = 3,0·10⁷ J/kg):</strong> Tính trực tiếp từ năng lượng điện tương đương theo dữ kiện đề bài (khi giả thiết chuyển hóa hoàn toàn nhiệt của than thành <code>A_điện</code>): <code>m_than = A_điện / q ≈ 4,415·10¹⁶ / 3,0·10⁷ ≈ <strong>1,47·10⁹ kg ≈ 1,47 triệu tấn than</strong></code> (lưu ý thực tế nếu nhà máy nhiệt điện than cũng có hiệu suất ~36 % thì cần <code>Q / q ≈ 4,09 triệu tấn than/năm</code>).
               </p>
             </details>
           </div>
@@ -177,41 +187,43 @@ export function B25Lesson() {
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge} data-level="vận dụng">Bài 5</span>
-              <strong>Thời gian chiếu xạ tăng dần theo tuổi nguồn Co-60</strong>
+              <strong>Thời gian chiếu xạ tăng dần theo tuổi nguồn Co-60 (SGK tr. 122)</strong>
             </div>
-            <p>Nguồn ⁶⁰Co có T = 5,3 năm. Tháng 1/2022 cần chiếu 150 phút để đạt liều quy định. Tính thời gian chiếu cần thiết vào tháng 6/2024 (sau 29 tháng) để đạt cùng liều đó.</p>
+            <p>Nguồn ⁶⁰₂₇Co có T = 5,3 năm. Tháng 1/2022 cần chiếu 150 phút để bảo quản lượng thuốc đông y đầy thùng xe tải tại Trung tâm chiếu xạ Hà Nội. Hỏi vào tháng 6/2024 (sau 29 tháng) người lái xe phải chờ bao nhiêu lâu để chiếu xạ cùng lượng thuốc như vậy?</p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
-              <p>Với khoảng thời gian chiếu ngắn hơn rất nhiều so với T = 5,3 năm, liều chiếu xấp xỉ tỉ lệ với H · Δt. Do độ phóng xạ giảm còn H = H₀ · 2<sup>−29/(12·5,3)</sup>, thời gian chiếu phải tăng tỉ lệ nghịch với H: Δt<sub>mới</sub> = 150 · 2<sup>29/63,6</sup> ≈ <strong>206 phút</strong>.</p>
+              <p>Với khoảng thời gian chiếu ngắn hơn rất nhiều so với T = 5,3 năm, liều chiếu xấp xỉ tỉ lệ với H · Δt. Do độ phóng xạ giảm còn H = H₀ · 2<sup>−29/(12·5,3)</sup>, thời gian chiếu phải tăng tỉ lệ nghịch với H: Δt<sub>mới</sub> = 150 · 2<sup>29/63,6</sup> ≈ <strong>206 phút</strong> (≈ 3,4 giờ).</p>
             </details>
           </div>
 
           <div className={styles.exercise}>
             <div className={styles.exerciseHeader}>
               <span className={styles.exerciseBadge} data-level="vận dụng">Bài 6</span>
-              <strong>Điều chế ¹⁸F và phân liều thuốc ¹⁸F-FDG cho hai bệnh nhân PET (SGK tr. 122)</strong>
+              <strong>Điều chế ¹⁸₉F và xác định phần trăm lượng dược chất ¹⁸₉F-FDG tiêm chụp PET (SGK tr. 122)</strong>
             </div>
             <p>
-              a) Viết phương trình hạt nhân điều chế ¹⁸₉F khi bắn phá bia nước giàu đồng vị ¹⁸₈O bằng chùm proton ¹₁p (kèm phát tia γ).
+              Dược chất phóng xạ FDG có thành phần là đồng vị ¹⁸₉F với chu kì bán rã T = 110 phút, được sản xuất bằng cách bắn phá các hạt đồng vị ¹⁸₈O nhờ một loại hạt được tăng tốc bằng máy gia tốc (Hình 25.4).
               <br />
-              b) Đồng vị ¹⁸F trong dược chất FDG có T = 110 phút. Cùng một mẻ thuốc chuẩn bị lúc ban đầu (t = 0) được chia liều cho hai bệnh nhân A và B có cùng cân nặng; người B được tiêm <strong>muộn hơn người A 60 phút</strong>. Để <strong>tại thời điểm tiêm của mỗi người</strong> cả hai đều nhận cùng hoạt độ điều trị (0,1 mCi/kg), lúc chuẩn bị ban đầu cần lấy lượng thuốc cho ai nhiều hơn và gấp bao nhiêu lần?
+              a) Xác định loại hạt được tăng tốc trong máy gia tốc biết rằng ngoài ¹⁸₉F, sản phẩm bắn phá còn có neutron và phát xạ tia gamma.
+              <br />
+              b) Trước khi chụp ảnh cắt lớp PET, bệnh nhân được tiêm liều lượng dược chất FDG để đảm bảo độ phóng xạ trên mỗi kg cân nặng là 0,1 mCi không đổi. Hai bệnh nhân cùng cân nặng, cùng sử dụng FDG trong cùng một đợt sản xuất, nhưng được tiêm ở 2 thời điểm cách nhau 60 phút. Hỏi người nào sẽ được tiêm lượng FDG nhiều hơn? Xác định phần trăm lượng FDG nhiều hơn này cần được tiêm.
             </p>
             <details className={styles.exerciseAnswer}>
               <summary>Gợi ý và đáp án</summary>
               <div>
                 <p>
-                  <strong>a) Phương trình hạt nhân điều chế ¹⁸₉F</strong> (bảo toàn số khối A: 18 + 1 = 18 + 1 + 0 = 19; bảo toàn điện tích Z: 8 + 1 = 9 + 0 + 0 = 9):
+                  <strong>a) Loại hạt được tăng tốc</strong> (gọi hạt là <sup>A</sup><sub>Z</sub>X: bảo toàn A cho A + 18 = 18 + 1 ⇒ A = 1; bảo toàn Z cho Z + 8 = 9 + 0 ⇒ Z = 1, vậy hạt được tăng tốc là <strong>proton ¹₁p hay ¹₁H</strong>):
                 </p>
-                <LatexMath block math={String.raw`{}^{18}_{8}\mathrm{O}+{}^{1}_{1}\mathrm{p}\rightarrow{}^{18}_{9}\mathrm{F}+{}^{1}_{0}\mathrm{n}+\gamma`} />
+                <LatexMath block math={String.raw`{}^{1}_{1}\mathrm{p}+{}^{18}_{8}\mathrm{O}\rightarrow{}^{18}_{9}\mathrm{F}+{}^{1}_{0}\mathrm{n}+\gamma`} />
                 <p>
-                  <strong>b) So sánh liều chuẩn bị lúc ban đầu (t = 0):</strong> Giả sử người A tiêm tại thời điểm t<sub>A</sub>, còn người B tiêm muộn hơn 60 phút tại t<sub>B</sub> = t<sub>A</sub> + 60 (phút). Để tại đúng lúc tiêm mỗi người đều nhận cùng hoạt độ H<sub>tiêm</sub> (vì cùng cân nặng và cùng liều 0,1 mCi/kg), hoạt độ cần lấy từ mẻ thuốc lúc chuẩn bị ban đầu (t = 0) cho từng người phải bù phần phân rã trong thời gian chờ:
+                  <strong>b) So sánh lượng FDG tại hai thời điểm tiêm cách nhau 60 phút:</strong> Chọn mốc <code>t = 0</code> là lúc hoàn tất đợt sản xuất FDG (hoạt độ riêng ban đầu trên mỗi đơn vị khối lượng FDG là <code>a₀</code>). Giả sử bệnh nhân 1 tiêm tại thời điểm <code>t₁ ≥ 0</code> với lượng FDG là <code>m₁</code> và bệnh nhân 2 tiêm tại <code>t₂ = t₁ + 60</code> (phút) với lượng FDG là <code>m₂</code>. Vì hai người cùng cân nặng nên độ phóng xạ ngay lúc tiêm của hai người phải bằng nhau:
                 </p>
                 <LatexMath
                   block
-                  math={String.raw`H_{0\mathrm{A}}=H_{\text{tiêm}}\cdot 2^{\frac{t_{\mathrm{A}}}{110}},\qquad H_{0\mathrm{B}}=H_{\text{tiêm}}\cdot 2^{\frac{t_{\mathrm{A}}+60}{110}}\implies\frac{H_{0\mathrm{B}}}{H_{0\mathrm{A}}}=2^{\frac{60}{110}}=2^{\frac{6}{11}}\approx 1{,}46`}
+                  math={String.raw`m_1 a_0 \cdot 2^{-\frac{t_1}{110}} = m_2 a_0 \cdot 2^{-\frac{t_1+60}{110}} \implies \frac{m_2}{m_1}=2^{\frac{60}{110}}=2^{\frac{6}{11}}\approx 1{,}459`}
                 />
                 <p>
-                  <strong>Kết luận:</strong> Phần thuốc của <strong>bệnh nhân B (tiêm muộn hơn 60 phút)</strong> bị phân rã lâu hơn trước khi tiêm, nên lúc chuẩn bị ban đầu phải lấy cho <strong>bệnh nhân B lượng hoạt độ (thể tích thuốc ¹⁸F-FDG) LỚN HƠN bệnh nhân A gấp 2<sup>60/110</sup> ≈ 1,46 lần (tức nhiều hơn khoảng 46 %)</strong>.
+                  <strong>Kết luận:</strong> <strong>Người được tiêm sau (muộn hơn 60 phút)</strong> cần được tiêm lượng FDG nhiều hơn, và phần trăm lượng FDG nhiều hơn cần tiêm là <code>(m₂ − m₁)/m₁ × 100% = (2<sup>6/11</sup> − 1) × 100% ≈ <strong>45,9 % ≈ 46 %</strong></code>.
                 </p>
               </div>
             </details>

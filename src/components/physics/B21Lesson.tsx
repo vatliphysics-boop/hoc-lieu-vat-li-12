@@ -138,9 +138,9 @@ export function B21Lesson() {
               <span className={styles.factNote}>Điện tích +14e. Số khối A không phải số neutron — phải lấy A − Z.</span>
             </div>
             <div className={styles.factCard}>
-              <strong>2. Hai đồng vị của hiđro</strong>
-              <span className={styles.factValue}>¹H (0 n) và ²H (1 n)</span>
-              <span className={styles.factNote}>Cùng Z = 1 nên cùng là hiđro, nhưng khối lượng khác nhau. Đồng vị bền thứ ba ³H phóng xạ.</span>
+              <strong>2. Ba đồng vị của Hydrogen</strong>
+              <span className={styles.factValue}>¹₁H (0 n), ²₁H (1 n), ³₁H (2 n)</span>
+              <span className={styles.factNote}>Cùng Z = 1 nên cùng nguyên tố Hydrogen nhưng khác số neutron N (khác khối lượng riêng). Hai đồng vị ¹₁H, ²₁H bền; đồng vị ³₁H (tritium) phóng xạ (không bền).</span>
             </div>
             <div className={styles.factCard}>
               <strong>3. Vì sao tán xạ là bằng chứng</strong>

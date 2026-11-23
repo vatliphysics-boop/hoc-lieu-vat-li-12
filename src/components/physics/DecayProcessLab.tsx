@@ -109,11 +109,13 @@ const decayEquations = (
 );
 
 const SGK_TABLE_23_2 = [
-  { nuclide: "¹³¹₅₃I (Iodine-131)", halfLife: "8,02 ngày" },
-  { nuclide: "²¹⁰₈₄Po (Polonium-210)", halfLife: "138 ngày" },
-  { nuclide: "⁶⁰₂₇Co (Cobalt-60)", halfLife: "5,27 năm" },
-  { nuclide: "¹⁴₆C (Carbon-14)", halfLife: "5 730 năm" },
-  { nuclide: "²³⁸₉₂U (Uranium-238)", halfLife: "4,47·10⁹ năm" },
+  { nuclide: "¹⁴₆C (Carbon-14)", halfLife: "5,7·10³ năm" },
+  { nuclide: "¹³¹₅₃I (Iodine-131)", halfLife: "8,0 ngày" },
+  { nuclide: "¹⁵₈O (Oxygen-15)", halfLife: "1,2·10² giây" },
+  { nuclide: "²¹⁰₈₄Po (Polonium-210)", halfLife: "1,4·10² ngày" },
+  { nuclide: "²²⁶₈₈Ra (Radium-226)", halfLife: "1,6·10³ năm" },
+  { nuclide: "²¹⁹₈₆Rn (Radon-219)", halfLife: "4,0 giây" },
+  { nuclide: "²³⁵₉₂U (Uranium-235)", halfLife: "7,0·10⁸ năm" },
 ] as const;
 
 export function DecayProcessLab({

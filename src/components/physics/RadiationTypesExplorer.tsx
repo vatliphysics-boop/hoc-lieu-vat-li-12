@@ -38,7 +38,7 @@ const RAYS: readonly RaySpec[] = [
     equationNote:
       "Số khối A giảm 4, điện tích hạt nhân Z giảm 2. Khối lượng hạt α lớn gấp ~7 300 lần electron nên gia tốc ngang và độ cong quỹ đạo nhỏ hơn hẳn tia β⁺.",
     ionization: "Mạnh nhất (làm ion hóa hàng nghìn phân tử khí trên mỗi cm đường đi)",
-    penetration: "Yếu nhất — đi được vài cm trong không khí, bị chặn ngay bởi tờ giấy (Hình 23.4)",
+    penetration: "Yếu nhất — đi được vài cm trong không khí, bị chặn ngay bởi tờ bìa giấy dày ~1 mm (Hình 23.4 SGK tr. 106)",
     stoppedAtX: 118,
     color: "#c2410c",
   },
@@ -55,7 +55,7 @@ const RAYS: readonly RaySpec[] = [
     equationNote:
       "Trong hạt nhân: n → p + e⁻ + ν̄ₑ. Số khối A giữ nguyên, Z tăng 1. Khối lượng electron rất nhỏ nên tia β⁻ bị lệch rất mạnh.",
     ionization: "Trung bình (yếu hơn tia α nhưng mạnh hơn tia γ)",
-    penetration: "Trung bình — xuyên qua tờ giấy, đi vài mét trong không khí, bị chặn bởi lá nhôm dày vài mm",
+    penetration: "Trung bình — xuyên qua giấy, đi vài mét trong không khí, bị chặn bởi tấm nhôm dày ~1 mm (Hình 23.4 SGK tr. 106)",
     stoppedAtX: 214,
     color: "#1d4ed8",
   },
@@ -72,7 +72,7 @@ const RAYS: readonly RaySpec[] = [
     equationNote:
       "Trong hạt nhân: p → n + e⁺ + νₑ. Số khối A giữ nguyên, Z giảm 1. Lệch cùng phía tia α nhưng cong mạnh đối xứng với tia β⁻ vì m_e ≪ m_α.",
     ionization: "Trung bình",
-    penetration: "Trung bình — xuyên qua tờ giấy, bị chặn bởi lá nhôm dày vài mm",
+    penetration: "Trung bình — xuyên qua giấy, bị chặn bởi tấm nhôm dày ~1 mm (Hình 23.4 SGK tr. 106)",
     stoppedAtX: 214,
     color: "#7c3aed",
   },
@@ -89,7 +89,7 @@ const RAYS: readonly RaySpec[] = [
     equationNote:
       "Thường đi kèm sau phân rã α hoặc β khi hạt nhân con ở trạng thái kích thích (*) chuyển về mức năng lượng thấp hơn. Không làm thay đổi A và Z.",
     ionization: "Yếu nhất trong ba loại tia",
-    penetration: "Mạnh nhất — xuyên qua giấy và nhôm, chỉ suy giảm mạnh khi qua tấm chì dày vài cm hoặc bê tông dày",
+    penetration: "Mạnh nhất — xuyên qua giấy và nhôm, suy giảm mạnh khi qua tấm chì dày ~10 cm (Hình 23.4 SGK tr. 106)",
     stoppedAtX: 404,
     color: "#15803d",
   },
@@ -110,13 +110,11 @@ function computeRayDeltaY(
     const eDownwardSign = topPlatePositive ? 1 : -1;
     return spec.chargeSign * eDownwardSign * spec.deflectionMagnitude;
   }
-  // Magnetic field mode (Hình 23.3b): v0 points horizontally to the right (+x).
-  // Screen coordinates: +x right, +y_phys up (-y_svg), +z out of screen (⊙), -z into screen (⊗).
-  // Left-hand rule:
-  // - If B is into screen (⊗, -z): v0 × B = (+x) × (-z) = +y_phys (UPWARD = -y_svg).
-  //   So q > 0 curves UPWARD (-y_svg), q < 0 curves DOWNWARD (+y_svg).
-  // - If B is out of screen (⊙, +z): v0 × B = (+x) × (+z) = -y_phys (DOWNWARD = +y_svg).
-  //   So q > 0 curves DOWNWARD (+y_svg), q < 0 curves UPWARD (-y_svg).
+  // Magnetic field mode (đối chiếu Hình 23.3b SGK tr. 105): trên mô phỏng chùm tia v₀ bay ngang sang phải (+x)
+  // (Hình 23.3b SGK vẽ nguồn bắn từ dưới lên trên trong từ trường B ⊙ hướng ra ngoài).
+  // Quy tắc bàn tay trái với v₀ sang phải (+x):
+  // - Khi B hướng vào trong (⊗, -z): q > 0 cong LÊN TRÊN (-y_svg), q < 0 cong XUỐNG DƯỚI (+y_svg).
+  // - Khi B hướng ra ngoài (⊙, +z): q > 0 cong XUỐNG DƯỚI (+y_svg), q < 0 cong LÊN TRÊN (-y_svg).
   const positiveForceSvgSign = bIntoScreen ? -1 : 1;
   return spec.chargeSign * positiveForceSvgSign * spec.deflectionMagnitude;
 }
@@ -154,7 +152,7 @@ function describeActiveDeflection(
     spec.key === "alpha"
       ? "Cong nhẹ (bán kính R = mv/|q|B rất lớn do m_α ≈ 7 300 m_e)"
       : "Cong mạnh (bán kính R nhỏ do m_e rất nhỏ)";
-  const bSymbol = bIntoScreen ? "⊗ vào trong" : "⊙ ra ngoài";
+  const bSymbol = bIntoScreen ? "⊗ vào trong" : "⊙ ra ngoài (như Hình 23.3b SGK)";
   return `${strength}, hướng ${dirText} theo quy tắc bàn tay trái (v₀ sang phải, B ${bSymbol})`;
 }
 
@@ -167,7 +165,7 @@ export function RadiationTypesExplorer({
   const [viewed, setViewed] = useState<ReadonlySet<RayKey>>(() => new Set(["alpha"]));
   const [fieldMode, setFieldMode] = useState<FieldMode>("electric");
   const [topPlatePositive, setTopPlatePositive] = useState(true);
-  const [bIntoScreen, setBIntoScreen] = useState(true);
+  const [bIntoScreen, setBIntoScreen] = useState(false);
   const [showAllRays, setShowAllRays] = useState(true);
   const [compared, setCompared] = useState(false);
 

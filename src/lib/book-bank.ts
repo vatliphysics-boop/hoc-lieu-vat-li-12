@@ -13,8 +13,8 @@ export const DEFAULT_BOOK_BANK_DIR = "data/book-bank";
 export const TRACED_BOOK_BANK_DIR = `${DEFAULT_BOOK_BANK_DIR}/.next-runtime`;
 
 export function indexedBookAssetFiles(index: BookBankIndex): Set<string> {
+  // Never index full-page scans (`index.pages`) per copyright & QUY_DINH_CHUNG.md §3.
   return new Set([
-    ...index.pages.map(page => page.file),
     ...index.questions.flatMap(question => question.images.map(image => image.file)),
     ...index.figures.flatMap(figure => [figure.image.file, ...(figure.colorImage ? [figure.colorImage.file] : [])]),
     ...index.equations.map(equation => equation.image.file),

@@ -196,7 +196,15 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
     EMPTY_RAW,
   );
   const persisted = useMemo(() => parseRutherfordV3State(storedRaw), [storedRaw]);
-  const { prediction, run1, run2, lastCapturedSlot, conclusion } = persisted;
+  const {
+    prediction,
+    run1,
+    run2,
+    lastCapturedSlot,
+    conclusion,
+    countPos1 = null,
+    countPos2 = null,
+  } = persisted;
 
   const evaluation = useMemo(
     () =>
@@ -268,15 +276,43 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
       }}
     >
       <h3 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "6px" }}>
-        Nhiệm vụ điều tra: tham số va chạm b
+        Nhiệm vụ điều tra: Từ tần suất đốm sáng đến tham số va chạm b
       </h3>
-      <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "16px" }}>
-        Thực hiện đủ 4 bước dưới đây. Dữ liệu dự đoán, hai lượt đo và lời giải thích được tự động lưu trên trình duyệt để không mất khi chuyển mục hoặc tải lại trang.
+      <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "14px" }}>
+        Thực hiện đối chiếu từ dấu hiệu trên màn <strong>S</strong> (Lớp 1) sang <strong>Mô hình giải thích</strong> (Lớp 2). Dữ liệu dự đoán, lượt đo và lời giải thích được lưu trực tiếp trên trình duyệt.
       </p>
+
+      {/* Bước đối chiếu thực nghiệm: Hai khoảng đếm dài bằng nhau ở vị trí (1) và (2) */}
+      <div
+        style={{
+          ...cardStyle,
+          marginBottom: "16px",
+          background: "#f0fdf4",
+          borderColor: "#86efac",
+        }}
+      >
+        <div style={{ fontWeight: 600, fontSize: "14px", color: "#14532d", marginBottom: "4px" }}>
+          Dữ kiện quan sát trên màn S: Trong hai khoảng đếm dài bằng nhau (Δt = 10 s, cùng nguồn R) ở vị trí (1) và (2), em ghi được bao nhiêu đốm ở mỗi vị trí?
+        </div>
+        <div style={{ fontSize: "13.5px", color: "#166534", lineHeight: 1.6 }}>
+          <span>
+            <strong>Vị trí (1) (0°):</strong>{" "}
+            {countPos1 !== null ? `${countPos1.toLocaleString("vi-VN")} đốm / 10 s` : "Chưa bấm đếm ở khung kính M phía trên"}
+          </span>{" "}
+          ·{" "}
+          <span>
+            <strong>Vị trí (2) (140° &gt; 90°):</strong>{" "}
+            {countPos2 !== null ? `${countPos2.toLocaleString("vi-VN")} đốm / 10 s` : "Chưa bấm đếm ở khung kính M phía trên"}
+          </span>{" "}
+          <span style={{ color: "#374151" }}>
+            (Xu hướng thống kê nhiều lượt: tỉ số tần suất tại (2) so với (1) cỡ <code>10⁻⁴</code>).
+          </span>
+        </div>
+      </div>
 
       {/* Bước 1 — Dự đoán */}
       <div style={{ ...cardStyle, marginBottom: "16px" }}>
-        <div style={{ fontWeight: 500, marginBottom: "8px" }}>1. Dự đoán</div>
+        <div style={{ fontWeight: 500, marginBottom: "8px" }}>1. Dự đoán trên lớp Mô hình giải thích</div>
         <p style={{ fontSize: "14px", marginBottom: "12px", lineHeight: 1.7 }}>
           Giữ nguyên năng lượng hạt alpha. Khi hạt tới đi <strong>xa tâm hạt nhân hơn</strong> (b tăng),
           góc lệch sẽ thay đổi thế nào?
@@ -310,9 +346,9 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
 
       {/* Bước 2 — Hai lượt đo */}
       <div style={{ ...cardStyle, marginBottom: "16px" }}>
-        <div style={{ fontWeight: 500, marginBottom: "8px" }}>2. Lấy hai lượt đo cùng E, khác b</div>
+        <div style={{ fontWeight: 500, marginBottom: "8px" }}>2. Lấy hai lượt khảo sát cùng E, khác b</div>
         <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "12px", lineHeight: 1.6 }}>
-          Kéo thanh trượt <strong>b</strong> và <strong>E</strong> bên trên để lấy hai lượt đo ở{" "}
+          Kéo thanh trượt <strong>b</strong> và giữ cố định <strong>E</strong> bên trên để lưu hai lượt ở{" "}
           <strong>cùng một giá trị E</strong> nhưng <strong>khác giá trị b</strong> (ví dụ khoảng 10 fm và 60 fm, lưu theo thứ tự nào cũng được).
         </p>
         <div style={{ display: "grid", gap: "12px", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
@@ -376,7 +412,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
             border: "1px solid #fbbf24",
           }}
         >
-          <div style={{ fontWeight: 500, marginBottom: "8px" }}>3. So sánh</div>
+          <div style={{ fontWeight: 500, marginBottom: "8px" }}>3. So sánh hai lượt cùng động năng E</div>
           <div style={{ fontSize: "14px", lineHeight: 1.85 }}>
             <div>
               Đã ghi nhận: Lượt đo 1 (<strong>b = {run1.b} fm</strong>, E = {run1.e} MeV → <strong>θ = {run1.theta.toFixed(2)}°</strong>) ·{" "}
@@ -426,10 +462,10 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
       {/* Bước 4 — Giải thích */}
       {evaluation.validComparison && (
         <div style={{ ...cardStyle, marginBottom: "16px" }}>
-          <div style={{ fontWeight: 500, marginBottom: "8px" }}>4. Giải thích</div>
+          <div style={{ fontWeight: 500, marginBottom: "8px" }}>4. Giải thích dựa trên bằng chứng và Mô hình giải thích</div>
           <p style={{ fontSize: "14px", marginBottom: "10px", lineHeight: 1.7 }}>
-            Hai góc đo được có phù hợp với dự đoán ban đầu của em không? Dùng số liệu của hai lượt và
-            lực đẩy điện giữa hạt alpha với hạt nhân vàng để giải thích.
+            Dựa vào sự chênh lệch số đốm sáng giữa vị trí <strong>(1)</strong> và <strong>(2)</strong> cùng hai lượt khảo sát{" "}
+            <strong>b</strong> ở trên (Lớp Mô hình giải thích), em lí giải thế nào về những lần hiếm hoi hạt α lệch góc lớn và đối chiếu lại với dự đoán ban đầu của em?
           </p>
           <textarea
             value={conclusion}
@@ -440,7 +476,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
                 conclusion: nextConclusion,
               }));
             }}
-            placeholder="Khi b tăng, hạt alpha đi xa hạt nhân hơn nên lực đẩy Coulomb yếu hơn, do đó góc lệch giảm..."
+            placeholder="Ở vị trí (2) vẫn có đốm sáng nhưng rất hiếm (~10⁻⁴ lần vị trí (1)); kết hợp hai lượt đo cho thấy chỉ khi b rất nhỏ (hạt α tiến sát hạt nhân mang điện dương tập trung ở vùng rất nhỏ) lực đẩy tĩnh điện mới đủ mạnh làm hạt lệch góc lớn…"
             aria-label="Kết luận của học sinh"
             style={{
               width: "100%",
@@ -455,7 +491,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
             }}
           />
           <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "8px", marginBottom: 0 }}>
-            Gợi ý kiểm tra lại: lực Coulomb ~ 1/r²; khi b lớn hơn thì khoảng cách gần nhất lớn hơn.
+            Gợi ý kiểm tra lại: lực đẩy tĩnh điện Coulomb ~ 1/r²; hạt nhân mang điện dương tập trung ở vùng rất nhỏ (~10⁻⁴ kích thước nguyên tử) nên chỉ một tỉ lệ rất ít hạt α đi sát tâm mới lệch mạnh.
           </p>
         </div>
       )}

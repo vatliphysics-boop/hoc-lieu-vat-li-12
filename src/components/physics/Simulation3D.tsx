@@ -373,35 +373,35 @@ const SETTINGS: Record<BasicActivityKey, Activity3DConfig> = {
     },
   },
   radiation_properties: {
-    title: "Khả năng đâm xuyên và lệch trong từ trường của tia α, β, γ",
+    title: "Khả năng đâm xuyên và lệch trong từ trường của tia α, β⁻, β⁺, γ",
     label: "Bề dày tấm vật liệu che chắn",
     min: 1,
     max: 10,
     initial: 4,
     unit: "mm",
-    secondaryLabel: "Cảm ứng từ B vuông góc quỹ đạo",
+    secondaryLabel: "Cảm ứng từ B (⊗ hướng vào mặt phẳng hình)",
     secondaryMin: 0,
     secondaryMax: 10,
     secondaryInitial: 6,
     secondaryUnit: "0,1 T",
     modes: [
-      "Phát đồng thời cả 3 tia α, β⁻, γ",
-      "Tia α (⁴₂He²⁺) · Chắn bằng tờ giấy",
-      "Tia β⁻ (e⁻) · Chắn bằng tấm nhôm",
-      "Tia γ (photon) · Suy giảm qua tấm chì dày",
+      "Phát đồng thời cả 4 tia α, β⁻, β⁺, γ",
+      "Tia α (⁴₂He²⁺) · Chắn bằng bìa giấy ~1 mm",
+      "Tia β⁻ (e⁻) & β⁺ (e⁺) · Chắn bằng tấm nhôm ~1 mm",
+      "Tia γ (photon) · Suy giảm qua tấm chì dày ~10 cm",
     ],
     actionButtonLabel: "Phóng chùm tia qua vùng từ trường",
     caption:
-      "Điều chỉnh cảm ứng từ B để quan sát lực Lorentz làm lệch tia α (+2e) và β⁻ (-e) về hai phía ngược nhau, trong khi tia γ (q = 0) luôn truyền thẳng.",
+      "Chùm tia bay sang phải (+x), cảm ứng từ B⃗ hướng vào trong (−z, kí hiệu mũi tên tím). Ở cùng cỡ vận tốc/động năng, lực Lorentz làm α (+2e) cong nhẹ lên trên, β⁺ (+e) cong mạnh lên trên (do m_e ≪ m_α), β⁻ (−e) cong mạnh xuống dưới và γ (q = 0) truyền thẳng.",
     buildLatex: (p) => {
       return `\\vec{F}_{\\text{L}} = q(\\vec{v} \\times \\vec{B}), \\qquad R = \\frac{mv}{|q|B}, \\qquad I(d) = I_0 \\cdot e^{-\\mu d} \\quad (B = ${(p.secondary * 0.1).toFixed(1)}\\text{ T})`;
     },
     buildMetrics: (p) => {
       return [
-        { label: "Tia α (+2e)", value: "Lệch ít (m lớn) · Dừng bởi giấy" },
-        { label: "Tia β⁻ (-e)", value: "Lệch mạnh ngược chiều α · Dừng bởi Al" },
+        { label: "Tia α (+2e)", value: "Cong ít lên trên (m lớn) · Chắn bởi giấy ~1 mm" },
+        { label: "Tia β⁺ (+e) / β⁻ (−e)", value: "Cong mạnh ngược nhau · Chắn bởi Al ~1 mm" },
         { label: "Tia γ (q = 0)", value: `Không lệch · Xuyên qua ${p.amount} mm` },
-        { label: "Từ trường B", value: `${(p.secondary * 0.1).toFixed(1)} T` },
+        { label: "Từ trường B⃗ (−z)", value: `${(p.secondary * 0.1).toFixed(1)} T` },
       ];
     },
   },
@@ -1056,21 +1056,46 @@ function makeExperiment(
     box(emerald, detectorX, 0, 0, 0.25, 2.2, 2.2, "Đầu thu đo cường độ bức xạ truyền qua");
 
     const bField = safety ? 0 : (parameters.secondary || 0) * 0.08;
+    if (!safety && bField > 0) {
+      const bArrowColor = 0xa855f7;
+      for (const xPos of [-2.0, -0.4, 1.2]) {
+        for (const yPos of [-0.9, 0.9]) {
+          line(
+            [new THREE.Vector3(xPos, yPos, 1.35), new THREE.Vector3(xPos, yPos, -1.35)],
+            bArrowColor
+          );
+          const tip = ball(
+            bArrowColor,
+            0.09,
+            root,
+            "Vector cảm ứng từ B⃗ hướng dọc trục −z (⊗ vuông góc hướng vào mặt phẳng quỹ đạo xOy)"
+          );
+          tip.position.set(xPos, yPos, -1.35);
+        }
+      }
+    }
     const alphaLabel = safety
-      ? "Hạt α (⁴₂He²⁺): mang điện +2e, ion hóa mạnh, bị chặn ngay bởi vật cản mỏng"
+      ? "Hạt α (⁴₂He²⁺): mang điện +2e, ion hóa mạnh, bị chặn ngay bởi tờ bìa giấy ~1 mm"
       : bField > 0
-        ? "Hạt α (⁴₂He²⁺): mang điện +2e, khối lượng lớn (m_α ≈ 7300 m_e) nên chỉ lệch nhẹ theo lực Lorentz trong từ trường B"
+        ? "Hạt α (⁴₂He²⁺): mang điện +2e, khối lượng lớn (m_α ≈ 7300 m_e) nên chỉ cong nhẹ lên trên (+y) trong từ trường B⃗ (−z)"
         : "Hạt α (⁴₂He²⁺): mang điện +2e, truyền thẳng khi chưa bật từ trường (B = 0)";
     const betaLabel = safety
-      ? "Hạt β⁻ (⁰₋₁e): mang điện −e, đâm xuyên trung bình, bị chặn bởi tấm kim loại"
+      ? "Hạt β⁻ (⁰₋₁e): mang điện −e, đâm xuyên trung bình, bị chặn bởi tấm nhôm ~1 mm"
       : bField > 0
-        ? "Hạt β⁻ (⁰₋₁e): mang điện −e, khối lượng nhỏ (m_e) nên lệch mạnh ngược chiều hạt α trong từ trường B"
+        ? "Hạt β⁻ (⁰₋₁e): mang điện −e, khối lượng nhỏ (m_e) nên cong mạnh xuống dưới (−y) ngược phía hạt α trong từ trường B⃗ (−z)"
         : "Hạt β⁻ (⁰₋₁e): mang điện −e, truyền thẳng khi chưa bật từ trường (B = 0)";
+    const betaPosLabel =
+      bField > 0
+        ? "Hạt β⁺ (⁰₊₁e, positron): mang điện +e, cong mạnh lên trên (+y) cùng phía tia α nhưng độ cong lớn đối xứng tia β⁻ vì m_e ≪ m_α"
+        : "Hạt β⁺ (⁰₊₁e, positron): mang điện +e, truyền thẳng khi chưa bật từ trường (B = 0)";
     const alphaBeads = Array.from({ length: 6 }, () =>
       ball(crimson, 0.16, root, alphaLabel)
     );
     const betaBeads = Array.from({ length: 8 }, () =>
       ball(blue, 0.1, root, betaLabel)
+    );
+    const betaPosBeads = Array.from({ length: 8 }, () =>
+      ball(0xa855f7, 0.1, root, betaPosLabel)
     );
     const gammaBeads = Array.from({ length: 8 }, () =>
       ball(amber, 0.11, root, "Photon tia γ (q = 0): truyền thẳng, đâm xuyên mạnh")
@@ -1079,6 +1104,7 @@ function makeExperiment(
     updates.push((t) => {
       const showAlpha = safety || parameters.mode === 0 || parameters.mode === 1;
       const showBeta = safety || parameters.mode === 0 || parameters.mode === 2;
+      const showBetaPos = !safety && (parameters.mode === 0 || parameters.mode === 2);
       const showGamma = safety || parameters.mode === 0 || parameters.mode === 3;
 
       alphaBeads.forEach((b, i) => {
@@ -1091,7 +1117,7 @@ function makeExperiment(
         const stopped = shield.visible && x > shieldX;
         b.visible = !stopped;
         const deflect = x > -2.5 ? Math.pow(Math.max(0, x + 2.5) * 0.13, 1.8) * bField : 0;
-        b.position.set(x, 0.35 + deflect, 0);
+        b.position.set(x, 0.28 + deflect, 0);
       });
 
       betaBeads.forEach((b, i) => {
@@ -1104,7 +1130,20 @@ function makeExperiment(
         const stopped = shield.visible && parameters.amount >= 4 && x > shieldX;
         b.visible = !stopped;
         const deflect = x > -2.5 ? -Math.pow(Math.max(0, x + 2.5) * 0.48, 1.85) * bField : 0;
-        b.position.set(x, -0.25 + deflect, 0.25);
+        b.position.set(x, -0.22 + deflect, 0.25);
+      });
+
+      betaPosBeads.forEach((b, i) => {
+        if (!showBetaPos) {
+          b.visible = false;
+          return;
+        }
+        const u = (t * 0.55 + (i + 0.5) / 8) % 1;
+        const x = -3.2 + u * (detectorX + 3.2);
+        const stopped = shield.visible && parameters.amount >= 4 && x > shieldX;
+        b.visible = !stopped;
+        const deflect = x > -2.5 ? Math.pow(Math.max(0, x + 2.5) * 0.48, 1.85) * bField : 0;
+        b.position.set(x, 0.22 + deflect, -0.25);
       });
 
       gammaBeads.forEach((b, i) => {
@@ -1116,7 +1155,7 @@ function makeExperiment(
         const x = -3.2 + u * (detectorX + 3.2);
         const attenuated = shield.visible && x > shieldX && i % 2 === 1 && parameters.amount >= 6;
         b.visible = !attenuated;
-        b.position.set(x, Math.sin(x * 4 - t * 12) * 0.12, -0.25);
+        b.position.set(x, Math.sin(x * 4 - t * 12) * 0.12, 0);
       });
     });
   } else if (key === "nuclear_power_energy_flow") {

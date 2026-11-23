@@ -30,7 +30,7 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
     id: "source-housing",
     nameVi: "Hộp chì chứa nguồn phóng xạ (quanh R)",
     nameEn: "Lead source housing",
-    role: "Hộp chì bao quanh nguồn R (Hình 21.2 SGK): che chắn bức xạ mọi phía, chỉ để hạt α thoát ra theo hướng tới khe P",
+    role: "Hộp chì bao quanh nguồn R (Hình 21.2 SGK): che chắn bức xạ mọi phía, chỉ để chùm hạt α thoát ra hướng thẳng tới lá vàng D",
     roleEn: "Contains and shields radioactive source, allows particles through aperture",
     category: "source",
   },
@@ -38,9 +38,9 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
   // Collimation
   {
     id: "collimator",
-    nameVi: "Tấm chì có khe chuẩn trực (P)",
-    nameEn: "Collimator slit (P)",
-    role: "Kí hiệu P (Hình 21.2 SGK): Tấm chắn chì có khe hẹp tạo chùm hạt α mảnh, song song chiếu thẳng tới lá vàng D",
+    nameVi: "Khe chuẩn trực chùm hạt α",
+    nameEn: "Collimator slit",
+    role: "Tấm chắn chì có khe hẹp định hướng chùm hạt α mảnh chiếu thẳng tới lá vàng D (chi tiết kĩ thuật của bộ thí nghiệm; lưu ý kí hiệu P trên Hình 21.2a SGK chỉ chân đế đỡ hộp G)",
     roleEn: "Creates parallel beam of particles directed at target",
     category: "collimator",
   },
@@ -68,7 +68,7 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
     id: "scintillation-screen",
     nameVi: "Màn phát quang ZnS (S)",
     nameEn: "ZnS scintillation screen (S)",
-    role: "Kí hiệu S (Hình 21.2 SGK): Nơi tạo đốm sáng — màn phủ kẽm sunfua (ZnS) phát ra đốm sáng xanh lục lóe lên mỗi khi hạt α đập vào",
+    role: "Kí hiệu S (Hình 21.2 SGK): Kính/màn phủ chất huỳnh quang (ZnS) — mỗi khi một hạt α đập vào sẽ xuất hiện một đốm sáng nhỏ rồi tắt",
     roleEn: "Screen coated with zinc sulfide — emits light flashes when alpha particles strike",
     category: "detector",
   },
@@ -76,7 +76,7 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
     id: "rotating-microscope",
     nameVi: "Kính hiển vi quan sát (M)",
     nameEn: "Rotating microscope (M)",
-    role: "Kí hiệu M (Hình 21.2 SGK): Người quan sát đặt mắt nhìn qua kính M xoay quanh trục lá vàng D (từ vị trí (1) góc 0° sang vị trí (2) góc > 90°) để đếm đốm sáng trên màn S",
+    role: "Kí hiệu M (Hình 21.2 SGK): Người quan sát đặt mắt nhìn qua kính M xoay quanh trục lá vàng D (từ vị trí (1) đối diện nguồn sang vị trí (2) lệch > 90°) để đếm đốm sáng trên vùng màn S tương ứng",
     roleEn: "Microscope that rotates around screen to observe light flashes at different angles",
     category: "measurement",
   },
@@ -84,7 +84,7 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
     id: "angular-scale",
     nameVi: "Thang đo góc tán xạ",
     nameEn: "Angular scale",
-    role: "Vòng chia độ quanh tâm lá vàng D giúp đọc vị trí góc θ của kính hiển vi quan sát M (từ 0° đến 180°)",
+    role: "Vòng chia độ quanh tâm lá vàng D giúp đọc vị trí góc của kính hiển vi quan sát M (từ 0° đến 180°)",
     roleEn: "Measures angular position of microscope (scattering angle)",
     category: "measurement",
   },
@@ -94,7 +94,7 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
     id: "vacuum-chamber",
     nameVi: "Hộp chân không (G)",
     nameEn: "Vacuum chamber (G)",
-    role: "Kí hiệu G (Hình 21.2 SGK): Buồng hút chân không bao kín hệ R–P–D–S để hạt α không bị va chạm và tán xạ với các phân tử không khí",
+    role: "Kí hiệu G (Hình 21.2 SGK): Hộp hút chân không đặt trên chân đế P, bao kín hệ R–D–S để hạt α không bị va chạm với các phân tử không khí",
     roleEn: "Low-pressure chamber — reduces unwanted scattering with air molecules",
     category: "structure",
   },
@@ -102,16 +102,16 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
     id: "chamber-window",
     nameVi: "Thành kính hộp chân không (G)",
     nameEn: "Observation window",
-    role: "Thành trong suốt của hộp chân không G giúp quan sát bố trí các bộ phận R, P, D, S bên trong buồng",
+    role: "Thành trong suốt của hộp chân không G giúp quan sát bố trí các bộ phận R, D, S bên trong buồng",
     roleEn: "Transparent window for observing inside chamber",
     category: "structure",
   },
   {
     id: "base-platform",
-    nameVi: "Bệ đỡ thiết bị",
-    nameEn: "Base platform",
-    role: "Bệ cố định giữ toàn bộ hộp chân không G và cơ cấu xoay kính hiển vi M ổn định",
-    roleEn: "Fixed platform holding entire apparatus stable",
+    nameVi: "Chân đế & ống nối hút chân không (P)",
+    nameEn: "Base stand & vacuum port (P)",
+    role: "Kí hiệu P (Hình 21.2a SGK): Trụ chân đế kèm ống nối bơm hút chân không ở đáy buồng G, giữ thiết bị và cơ cấu xoay kính hiển vi M ổn định",
+    roleEn: "Fixed stand and bottom vacuum pump port holding the vacuum chamber and microscope assembly",
     category: "structure",
   },
 ] as const;
@@ -150,7 +150,7 @@ export const CORE_SGK_21_2_PARTS: readonly CoreSgk212PartSpec[] = [
     buttonLabel: "Nguồn hạt α (R)",
     questionCue: "Bộ phận phát hạt",
     detailRole:
-      "Phát chùm hạt α (hạt nhân ⁴₂He mang điện +2e) đi qua khe chuẩn trực chì P tạo thành tia hẹp hướng thẳng vào tâm lá vàng.",
+      "Phát chùm hạt α (hạt nhân ⁴₂He mang điện +2e) hướng thẳng vào lá vàng mỏng D ở tâm hộp chân không G.",
   },
   {
     partId: "gold-foil",
@@ -276,6 +276,77 @@ export function describeObserverPosition(rawAngleDeg: number): ObserverPositionS
   };
 }
 
+/**
+ * Lấy mẫu tất định (có seed lặp lại được) số đốm sáng đếm được trong cùng khoảng thời gian Δt = 10 s
+ * và cùng cường độ nguồn R tại góc quan sát của kính hiển vi M.
+ * Phân biệt rõ kết quả một lượt ngẫu nhiên (Poisson) với giá trị kì vọng thống kê (tỉ số (2)/(1) ≈ 10⁻⁴ theo SGK tr. 91).
+ */
+export interface EqualTimeFlashSample {
+  readonly durationSec: 10;
+  readonly angleDeg: number;
+  readonly zone: "position_1" | "intermediate" | "position_2";
+  readonly count: number;
+  readonly expectedCount: number;
+}
+
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function sampleEqualTimeFlashCount(
+  rawAngleDeg: number,
+  seed: number,
+): EqualTimeFlashSample {
+  const angleDeg = Math.max(0, Math.min(160, Math.round(rawAngleDeg)));
+  const rng = mulberry32((seed * 2654435761 + angleDeg * 97) >>> 0);
+
+  if (angleDeg <= 15) {
+    const expectedCount = 10000;
+    // Xấp xỉ chuẩn quanh λ = 10 000 (độ lệch chuẩn √λ = 100) bằng tổng Irwin–Hall 12 mẫu đều
+    let uSum = 0;
+    for (let i = 0; i < 12; i++) uSum += rng();
+    const z = uSum - 6;
+    const count = Math.max(9600, Math.round(expectedCount + z * 100));
+    return { durationSec: 10, angleDeg, zone: "position_1", count, expectedCount };
+  }
+
+  if (angleDeg <= 90) {
+    const expectedCount = angleDeg <= 45 ? 220 : 12;
+    const L = Math.exp(-expectedCount);
+    let k = 0;
+    let p = 1;
+    if (expectedCount <= 30) {
+      do {
+        k++;
+        p *= Math.max(1e-9, rng());
+      } while (p > L);
+      return { durationSec: 10, angleDeg, zone: "intermediate", count: k - 1, expectedCount };
+    }
+    let uSum = 0;
+    for (let i = 0; i < 12; i++) uSum += rng();
+    const count = Math.max(1, Math.round(expectedCount + (uSum - 6) * Math.sqrt(expectedCount)));
+    return { durationSec: 10, angleDeg, zone: "intermediate", count, expectedCount };
+  }
+
+  // Vị trí (2) (> 90°): kì vọng thống kê λ = 1 đốm / 10 s (tỉ số λ₂/λ₁ = 1 / 10 000 = 10⁻⁴ chuẩn SGK tr. 91).
+  // Một lượt đếm ngẫu nhiên theo phân bố Poisson(1) có thể cho 0, 1, 2, 3… đốm!
+  const expectedCount = 1;
+  const L = Math.exp(-expectedCount);
+  let k = 0;
+  let p = 1;
+  do {
+    k++;
+    p *= Math.max(1e-9, rng());
+  } while (p > L);
+  return { durationSec: 10, angleDeg, zone: "position_2", count: k - 1, expectedCount };
+}
+
 /** Khoá lưu trữ bền vững trạng thái Rutherford V3 & nhiệm vụ điều tra */
 export const RUTHERFORD_V3_STORAGE_KEY = "b21-rutherford-v3-state-v1";
 
@@ -287,6 +358,9 @@ export interface RutherfordV3PersistedState {
   readonly showScintillation: boolean;
   readonly showBeam: boolean;
   readonly observerAngleDeg: number;
+  readonly countPos1?: number | null;
+  readonly countPos2?: number | null;
+  readonly countTrialSeed?: number;
   readonly prediction: RutherfordPrediction | "";
   readonly run1: InquiryRun | null;
   readonly run2: InquiryRun | null;
@@ -302,6 +376,9 @@ export const INITIAL_RUTHERFORD_V3_STATE: RutherfordV3PersistedState = {
   showScintillation: true,
   showBeam: true,
   observerAngleDeg: 0,
+  countPos1: null,
+  countPos2: null,
+  countTrialSeed: 1,
   prediction: "",
   run1: null,
   run2: null,
@@ -365,6 +442,18 @@ export function parseRutherfordV3State(raw: string): RutherfordV3PersistedState 
       typeof p.observerAngleDeg === "number" && Number.isFinite(p.observerAngleDeg)
         ? Math.max(0, Math.min(160, Math.round(p.observerAngleDeg)))
         : INITIAL_RUTHERFORD_V3_STATE.observerAngleDeg;
+    const countPos1 =
+      typeof p.countPos1 === "number" && Number.isFinite(p.countPos1) && p.countPos1 >= 0
+        ? Math.round(p.countPos1)
+        : null;
+    const countPos2 =
+      typeof p.countPos2 === "number" && Number.isFinite(p.countPos2) && p.countPos2 >= 0
+        ? Math.round(p.countPos2)
+        : null;
+    const countTrialSeed =
+      typeof p.countTrialSeed === "number" && Number.isFinite(p.countTrialSeed) && p.countTrialSeed >= 1
+        ? Math.floor(p.countTrialSeed)
+        : 1;
     const prediction: RutherfordPrediction | "" =
       p.prediction === "increase" || p.prediction === "decrease" || p.prediction === "unchanged"
         ? p.prediction
@@ -384,6 +473,9 @@ export function parseRutherfordV3State(raw: string): RutherfordV3PersistedState 
       showScintillation,
       showBeam,
       observerAngleDeg,
+      countPos1,
+      countPos2,
+      countTrialSeed,
       prediction,
       run1,
       run2,
