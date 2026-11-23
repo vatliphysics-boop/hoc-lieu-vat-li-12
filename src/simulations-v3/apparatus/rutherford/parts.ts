@@ -1,34 +1,36 @@
 /**
  * Rutherford apparatus component registry
- * Based on Geiger–Marsden (1909–1913) experimental setup
+ * Based on Geiger–Marsden (1909–1913) experimental setup & SGK Vật lí 12 KNTT Hình 21.2 (tr. 91–92)
  *
  * References:
  * - Geiger, H., & Marsden, E. (1909). On a Diffuse Reflection of the α-Particles.
  *   Proceedings of the Royal Society A, 82(557), 495–500.
  * - Rutherford, E. (1911). The Scattering of α and β Particles by Matter and the
  *   Structure of the Atom. Philosophical Magazine, 21(125), 669–688.
- * - Giancoli, D. C. (2014). Physics for Scientists and Engineers. Pearson.
+ * - SGK Vật lí 12 Kết nối tri thức với cuộc sống, Bài 21, Hình 21.2 (kí hiệu R, P, D, S, M, G).
  */
 
-import type { ApparatusComponent } from "../../core/types";
+import type { ApparatusComponent, CameraMode } from "../../core/types";
 import { createComponentRegistry } from "../../core/ComponentRegistry";
+import { RUTHERFORD_LIMITS } from "../../physics/rutherford-engine";
+import type { InquiryRun, RunSlot, RutherfordPrediction } from "./inquiry";
 
 /** All apparatus components in the Rutherford scattering experiment */
 export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
   // Source components
   {
     id: "alpha-source",
-    nameVi: "Nguồn phát hạt alpha",
-    nameEn: "Alpha particle source",
-    role: "Phát chùm hạt alpha (hạt nhân helium He-4) có năng lượng xác định",
+    nameVi: "Nguồn phát hạt alpha (R)",
+    nameEn: "Alpha particle source (R)",
+    role: "Kí hiệu R (Hình 21.2 SGK): Bộ phận phát chùm hạt α (hạt nhân helium He-4 mang điện +2e) có năng lượng xác định",
     roleEn: "Emits alpha particles (helium-4 nuclei) with defined energy",
     category: "source",
   },
   {
     id: "source-housing",
-    nameVi: "Hộp chứa nguồn phóng xạ",
-    nameEn: "Source housing",
-    role: "Chứa và che chắn nguồn phóng xạ, chỉ để hạt thoát qua khe",
+    nameVi: "Hộp chì chứa nguồn phóng xạ (quanh R)",
+    nameEn: "Lead source housing",
+    role: "Hộp chì bao quanh nguồn R (Hình 21.2 SGK): che chắn bức xạ mọi phía, chỉ để hạt α thoát ra theo hướng tới khe P",
     roleEn: "Contains and shields radioactive source, allows particles through aperture",
     category: "source",
   },
@@ -36,9 +38,9 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
   // Collimation
   {
     id: "collimator",
-    nameVi: "Khe chuẩn trực",
-    nameEn: "Collimator slit",
-    role: "Tạo chùm hạt song song, hướng tới bia",
+    nameVi: "Tấm chì có khe chuẩn trực (P)",
+    nameEn: "Collimator slit (P)",
+    role: "Kí hiệu P (Hình 21.2 SGK): Tấm chắn chì có khe hẹp tạo chùm hạt α mảnh, song song chiếu thẳng tới lá vàng D",
     roleEn: "Creates parallel beam of particles directed at target",
     category: "collimator",
   },
@@ -46,17 +48,17 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
   // Target
   {
     id: "gold-foil",
-    nameVi: "Lá vàng mỏng",
-    nameEn: "Gold foil",
-    role: "Bia tán xạ — lá vàng rất mỏng (~400 nm), hạt alpha tương tác với hạt nhân vàng",
+    nameVi: "Lá vàng mỏng (D)",
+    nameEn: "Gold foil (D)",
+    role: "Kí hiệu D (Hình 21.2 SGK): Bia tán xạ — lá vàng rất mỏng (~4·10⁻⁷ m ≈ 400 nm), nơi hạt α tương tác với hạt nhân vàng",
     roleEn: "Scattering target — very thin gold leaf (~400 nm), alpha particles interact with gold nuclei",
     category: "target",
   },
   {
     id: "foil-holder",
-    nameVi: "Giá đỡ lá vàng",
+    nameVi: "Giá đỡ lá vàng (D)",
     nameEn: "Foil holder",
-    role: "Giữ lá vàng ở vị trí cố định tại tâm thiết bị",
+    role: "Giữ lá vàng mỏng D cố định thẳng đứng tại đúng tâm thiết bị",
     roleEn: "Holds gold foil in fixed position at apparatus center",
     category: "target",
   },
@@ -64,25 +66,25 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
   // Detection
   {
     id: "scintillation-screen",
-    nameVi: "Màn phát quang ZnS",
-    nameEn: "ZnS scintillation screen",
-    role: "Màn phủ zinc sulfide — phát sáng lóe khi hạt alpha chạm vào",
+    nameVi: "Màn phát quang ZnS (S)",
+    nameEn: "ZnS scintillation screen (S)",
+    role: "Kí hiệu S (Hình 21.2 SGK): Nơi tạo đốm sáng — màn phủ kẽm sunfua (ZnS) phát ra đốm sáng xanh lục lóe lên mỗi khi hạt α đập vào",
     roleEn: "Screen coated with zinc sulfide — emits light flashes when alpha particles strike",
     category: "detector",
   },
   {
     id: "rotating-microscope",
-    nameVi: "Kính hiển vi xoay",
-    nameEn: "Rotating microscope",
-    role: "Kính hiển vi có thể xoay quanh màn để quan sát ánh sáng lóe ở các góc khác nhau",
+    nameVi: "Kính hiển vi quan sát (M)",
+    nameEn: "Rotating microscope (M)",
+    role: "Kí hiệu M (Hình 21.2 SGK): Người quan sát đặt mắt nhìn qua kính M xoay quanh trục lá vàng D (từ vị trí (1) góc 0° sang vị trí (2) góc > 90°) để đếm đốm sáng trên màn S",
     roleEn: "Microscope that rotates around screen to observe light flashes at different angles",
     category: "measurement",
   },
   {
     id: "angular-scale",
-    nameVi: "Thang đo góc",
+    nameVi: "Thang đo góc tán xạ",
     nameEn: "Angular scale",
-    role: "Đo vị trí góc của kính hiển vi (góc tán xạ)",
+    role: "Vòng chia độ quanh tâm lá vàng D giúp đọc vị trí góc θ của kính hiển vi quan sát M (từ 0° đến 180°)",
     roleEn: "Measures angular position of microscope (scattering angle)",
     category: "measurement",
   },
@@ -90,25 +92,25 @@ export const RUTHERFORD_COMPONENTS: readonly ApparatusComponent[] = [
   // Structure
   {
     id: "vacuum-chamber",
-    nameVi: "Buồng chân không",
-    nameEn: "Vacuum chamber",
-    role: "Buồng áp suất thấp — giảm tán xạ không mong muốn với không khí",
+    nameVi: "Hộp chân không (G)",
+    nameEn: "Vacuum chamber (G)",
+    role: "Kí hiệu G (Hình 21.2 SGK): Buồng hút chân không bao kín hệ R–P–D–S để hạt α không bị va chạm và tán xạ với các phân tử không khí",
     roleEn: "Low-pressure chamber — reduces unwanted scattering with air molecules",
     category: "structure",
   },
   {
     id: "chamber-window",
-    nameVi: "Cửa sổ quan sát",
+    nameVi: "Thành kính hộp chân không (G)",
     nameEn: "Observation window",
-    role: "Cửa sổ trong suốt để quan sát bên trong buồng",
+    role: "Thành trong suốt của hộp chân không G giúp quan sát bố trí các bộ phận R, P, D, S bên trong buồng",
     roleEn: "Transparent window for observing inside chamber",
     category: "structure",
   },
   {
     id: "base-platform",
-    nameVi: "Bệ đỡ",
+    nameVi: "Bệ đỡ thiết bị",
     nameEn: "Base platform",
-    role: "Bệ cố định giữ toàn bộ thiết bị ổn định",
+    role: "Bệ cố định giữ toàn bộ hộp chân không G và cơ cấu xoay kính hiển vi M ổn định",
     roleEn: "Fixed platform holding entire apparatus stable",
     category: "structure",
   },
@@ -127,4 +129,268 @@ export function getRutherfordByCategory(
   category: ApparatusComponent["category"],
 ): readonly ApparatusComponent[] {
   return rutherfordRegistry.getByCategory(category);
+}
+
+/**
+ * Bộ phận cốt lõi đối chiếu trực tiếp với Hình 21.2 SGK Vật lí 12 KNTT (tr. 91)
+ * Dùng cho thanh nút nhận diện đồng bộ 2 chiều với cảnh 3D (kể cả cảm ứng 390px).
+ */
+export interface CoreSgk212PartSpec {
+  readonly partId: string;
+  readonly sgkSymbol: "R" | "D" | "S" | "M" | "G";
+  readonly buttonLabel: string;
+  readonly questionCue: string;
+  readonly detailRole: string;
+}
+
+export const CORE_SGK_21_2_PARTS: readonly CoreSgk212PartSpec[] = [
+  {
+    partId: "alpha-source",
+    sgkSymbol: "R",
+    buttonLabel: "Nguồn hạt α (R)",
+    questionCue: "Bộ phận phát hạt",
+    detailRole:
+      "Phát chùm hạt α (hạt nhân ⁴₂He mang điện +2e) đi qua khe chuẩn trực chì P tạo thành tia hẹp hướng thẳng vào tâm lá vàng.",
+  },
+  {
+    partId: "gold-foil",
+    sgkSymbol: "D",
+    buttonLabel: "Lá vàng mỏng (D)",
+    questionCue: "Bộ phận làm bia tán xạ",
+    detailRole:
+      "Lá vàng dát cực mỏng (~4·10⁻⁷ m) đặt tại tâm thiết bị; các hạt α đi xuyên qua đây và chịu lực đẩy tĩnh điện khi bay gần hạt nhân vàng.",
+  },
+  {
+    partId: "scintillation-screen",
+    sgkSymbol: "S",
+    buttonLabel: "Màn phát quang ZnS (S)",
+    questionCue: "Nơi tạo đốm sáng",
+    detailRole:
+      "Lớp kẽm sunfua (ZnS) phủ mặt trong màn sẽ phát ra một đốm sáng xanh lục nhỏ mỗi khi có một hạt α đập trúng.",
+  },
+  {
+    partId: "rotating-microscope",
+    sgkSymbol: "M",
+    buttonLabel: "Kính hiển vi quan sát (M)",
+    questionCue: "Người quan sát nhìn qua đâu",
+    detailRole:
+      "Người làm thí nghiệm đặt mắt nhìn qua thị kính M (xoay từ vị trí (1) 0° đến vị trí (2) > 90°) để đếm tần suất đốm sáng trên màn S.",
+  },
+  {
+    partId: "vacuum-chamber",
+    sgkSymbol: "G",
+    buttonLabel: "Hộp chân không (G)",
+    questionCue: "Buồng giữ chân không",
+    detailRole:
+      "Toàn bộ thiết bị đặt trong hộp G đã hút chân không để hạt α không bị mất năng lượng hay lệch hướng do va chạm phân tử không khí.",
+  },
+] as const;
+
+/** Các bộ phận vỏ ngoài cần ẩn đi khi chọn chế độ Cắt lớp (cutaway) */
+export const CUTAWAY_HIDDEN_PARTS: readonly string[] = [
+  "vacuum-chamber",
+  "chamber-window",
+  "base-platform",
+] as const;
+
+/** Danh sách linh kiện bên trong được ưu tiên bắt tia click xuyên qua lớp vỏ kính chân không */
+export const RUTHERFORD_INNER_PRIORITY_PARTS: readonly string[] = [
+  "alpha-source",
+  "collimator",
+  "gold-foil",
+  "scintillation-screen",
+  "rotating-microscope",
+  "angular-scale",
+] as const;
+
+const SECONDARY_INNER_PARTS: readonly string[] = [
+  "source-housing",
+  "foil-holder",
+] as const;
+
+/**
+ * Phân giải linh kiện được chọn từ danh sách thứ tự va chạm tia (raycast hits từ gần tới xa).
+ * Ưu tiên linh kiện chức năng bên trong xuyên qua thành kính `chamber-window` / `vacuum-chamber`.
+ */
+export function resolveRutherfordRaycastPart(hitPartIds: readonly string[]): string | null {
+  if (hitPartIds.length === 0) return null;
+  for (const id of hitPartIds) {
+    if (RUTHERFORD_INNER_PRIORITY_PARTS.includes(id)) {
+      return id;
+    }
+  }
+  for (const id of hitPartIds) {
+    if (SECONDARY_INNER_PARTS.includes(id)) {
+      return id;
+    }
+  }
+  return hitPartIds[0] ?? null;
+}
+
+/** Mô tả thị trường kính quan sát M theo góc xoay (0° Vị trí (1) → 160° Vị trí (2), SGK tr. 91–92) */
+export interface ObserverPositionSummary {
+  readonly angleDeg: number;
+  readonly zone: "position_1" | "intermediate" | "position_2";
+  readonly positionTitle: string;
+  readonly relativeFrequencyLabel: string;
+  readonly sampleFlashCount: number;
+  readonly physicalMeaning: string;
+}
+
+export function describeObserverPosition(rawAngleDeg: number): ObserverPositionSummary {
+  const angleDeg = Math.max(0, Math.min(160, Math.round(rawAngleDeg)));
+  if (angleDeg <= 15) {
+    return {
+      angleDeg,
+      zone: "position_1",
+      positionTitle: `Vị trí (1) · Đối diện nguồn phát (${angleDeg}°)`,
+      relativeFrequencyLabel: "Tần suất đốm sáng cực đại (chuẩn so sánh = 1)",
+      sampleFlashCount: 28,
+      physicalMeaning:
+        "Đốm sáng nhấp nháy dày đặc nhất ngay đối diện chùm tia tới — chứng tỏ hầu hết hạt α xuyên thẳng qua lá vàng D, phần lớn không gian nguyên tử là khoảng trống.",
+    };
+  }
+  if (angleDeg <= 90) {
+    const sampleFlashCount = angleDeg <= 45 ? 7 : 3;
+    return {
+      angleDeg,
+      zone: "intermediate",
+      positionTitle: `Góc lệch trung gian (${angleDeg}°)`,
+      relativeFrequencyLabel:
+        angleDeg <= 45
+          ? "Tần suất giảm rất nhanh theo quy luật 1/sin⁴(θ/2)"
+          : "Tần suất rất thấp (chỉ vài hạt trên hàng nghìn hạt tới)",
+      sampleFlashCount,
+      physicalMeaning:
+        "Một số hạt α đi đủ gần tâm mang điện dương chịu lực đẩy tĩnh điện Coulomb nên bị đổi hướng chuyển động.",
+    };
+  }
+  return {
+    angleDeg,
+    zone: "position_2",
+    positionTitle: `Vị trí (2) · Tán xạ góc lớn / bật ngược (${angleDeg}° > 90°)`,
+    relativeFrequencyLabel: "Nhỏ hơn vị trí (1) cỡ 10⁴ lần (tỉ lệ ~ 10⁻⁴, chỉ ~1 trong 10 000 hạt α)",
+    sampleFlashCount: 1,
+    physicalMeaning:
+      "Theo SGK Vật lí 12 tr. 91–92, tần suất đốm sáng ở vị trí (2) (> 90°) nhỏ hơn ở vị trí (1) (0°) cỡ 10⁴ lần — chứng tỏ toàn bộ điện tích dương và phần lớn khối lượng nguyên tử tập trung tại hạt nhân cực nhỏ.",
+  };
+}
+
+/** Khoá lưu trữ bền vững trạng thái Rutherford V3 & nhiệm vụ điều tra */
+export const RUTHERFORD_V3_STORAGE_KEY = "b21-rutherford-v3-state-v1";
+
+export interface RutherfordV3PersistedState {
+  readonly impactFm: number;
+  readonly energyMeV: number;
+  readonly cameraMode: CameraMode;
+  readonly selectedPartId: string | null;
+  readonly showScintillation: boolean;
+  readonly showBeam: boolean;
+  readonly observerAngleDeg: number;
+  readonly prediction: RutherfordPrediction | "";
+  readonly run1: InquiryRun | null;
+  readonly run2: InquiryRun | null;
+  readonly lastCapturedSlot: RunSlot | null;
+  readonly conclusion: string;
+}
+
+export const INITIAL_RUTHERFORD_V3_STATE: RutherfordV3PersistedState = {
+  impactFm: 10,
+  energyMeV: 8,
+  cameraMode: "orbit",
+  selectedPartId: null,
+  showScintillation: true,
+  showBeam: true,
+  observerAngleDeg: 0,
+  prediction: "",
+  run1: null,
+  run2: null,
+  lastCapturedSlot: null,
+  conclusion: "",
+};
+
+const VALID_CAMERA_MODES: readonly CameraMode[] = [
+  "orbit",
+  "front",
+  "back",
+  "left",
+  "right",
+  "top",
+  "cutaway",
+  "exploded",
+  "instrument",
+  "measurement",
+];
+
+function isValidInquiryRun(v: unknown): v is InquiryRun {
+  if (!v || typeof v !== "object") return false;
+  const r = v as Record<string, unknown>;
+  return (
+    typeof r.b === "number" &&
+    Number.isFinite(r.b) &&
+    typeof r.e === "number" &&
+    Number.isFinite(r.e) &&
+    typeof r.theta === "number" &&
+    Number.isFinite(r.theta)
+  );
+}
+
+export function parseRutherfordV3State(raw: string): RutherfordV3PersistedState {
+  if (!raw) return INITIAL_RUTHERFORD_V3_STATE;
+  try {
+    const p = JSON.parse(raw) as Partial<RutherfordV3PersistedState>;
+    const impactFm =
+      typeof p.impactFm === "number" && Number.isFinite(p.impactFm)
+        ? Math.max(RUTHERFORD_LIMITS.impactFm.min, Math.min(RUTHERFORD_LIMITS.impactFm.max, p.impactFm))
+        : INITIAL_RUTHERFORD_V3_STATE.impactFm;
+    const energyMeV =
+      typeof p.energyMeV === "number" && Number.isFinite(p.energyMeV)
+        ? Math.max(RUTHERFORD_LIMITS.energyMeV.min, Math.min(RUTHERFORD_LIMITS.energyMeV.max, p.energyMeV))
+        : INITIAL_RUTHERFORD_V3_STATE.energyMeV;
+    const cameraMode =
+      typeof p.cameraMode === "string" && VALID_CAMERA_MODES.includes(p.cameraMode as CameraMode)
+        ? (p.cameraMode as CameraMode)
+        : INITIAL_RUTHERFORD_V3_STATE.cameraMode;
+    const selectedPartId =
+      typeof p.selectedPartId === "string" && RUTHERFORD_COMPONENTS.some((c) => c.id === p.selectedPartId)
+        ? p.selectedPartId
+        : null;
+    const showScintillation =
+      typeof p.showScintillation === "boolean"
+        ? p.showScintillation
+        : INITIAL_RUTHERFORD_V3_STATE.showScintillation;
+    const showBeam =
+      typeof p.showBeam === "boolean" ? p.showBeam : INITIAL_RUTHERFORD_V3_STATE.showBeam;
+    const observerAngleDeg =
+      typeof p.observerAngleDeg === "number" && Number.isFinite(p.observerAngleDeg)
+        ? Math.max(0, Math.min(160, Math.round(p.observerAngleDeg)))
+        : INITIAL_RUTHERFORD_V3_STATE.observerAngleDeg;
+    const prediction: RutherfordPrediction | "" =
+      p.prediction === "increase" || p.prediction === "decrease" || p.prediction === "unchanged"
+        ? p.prediction
+        : "";
+    const run1 = isValidInquiryRun(p.run1) ? p.run1 : null;
+    const run2 = isValidInquiryRun(p.run2) ? p.run2 : null;
+    const lastCapturedSlot: RunSlot | null =
+      p.lastCapturedSlot === 1 || p.lastCapturedSlot === 2 ? p.lastCapturedSlot : null;
+    const conclusion =
+      typeof p.conclusion === "string" ? p.conclusion.slice(0, 2000) : "";
+
+    return {
+      impactFm,
+      energyMeV,
+      cameraMode,
+      selectedPartId,
+      showScintillation,
+      showBeam,
+      observerAngleDeg,
+      prediction,
+      run1,
+      run2,
+      lastCapturedSlot,
+      conclusion,
+    };
+  } catch {
+    return INITIAL_RUTHERFORD_V3_STATE;
+  }
 }

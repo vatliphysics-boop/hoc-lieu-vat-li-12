@@ -22,6 +22,7 @@ import {
   getPhaseMeta,
   loadStudentNotebook,
   loadTeacherLessonDraft,
+  recordPreClassPrediction,
   resolveLessonWithDraft,
   saveStudentNotebook,
   saveTeacherLessonDraftAndSyncPlan,
@@ -297,19 +298,32 @@ export function VisualLearningStudio({
   const handleSavePreClassPrediction = useCallback(
     (choice: string, reason: string) => {
       const current = loadStudentNotebook(sampleLesson.code);
-      saveStudentNotebook(sampleLesson.code, {
-        ...current,
-        preClassPredictionChoice: choice,
-        preClassPredictionReason: reason,
-      });
+      saveStudentNotebook(
+        sampleLesson.code,
+        recordPreClassPrediction(current, choice, reason)
+      );
+    },
+    [sampleLesson.code]
+  );
+
+  const handlePatchNotebook = useCallback(
+    (updater: (current: StudentLessonNotebook) => StudentLessonNotebook) => {
+      const current = loadStudentNotebook(sampleLesson.code);
+      saveStudentNotebook(sampleLesson.code, updater(current));
     },
     [sampleLesson.code]
   );
 
   const handleMarkSectionComplete = useCallback(
-    (sectionId: string, done: boolean) => {
+    (
+      sectionId: string,
+      done: boolean,
+      options?: { readonly allowUnmark?: boolean }
+    ) => {
       const current = loadStudentNotebook(sampleLesson.code);
       const has = current.completedSectionIds.includes(sectionId);
+      // Bảo vệ tiến độ: chuyển tab/pha hoặc remount mô phỏng chưa tương tác không được xóa mục đã hoàn thành thực chất
+      if (has && !done && !options?.allowUnmark) return;
       if (done === has) return;
       const nextIds = done
         ? [...current.completedSectionIds, sectionId]
@@ -617,6 +631,45 @@ export function VisualLearningStudio({
               </button>
             </div>
           </div>
+
+          {sampleLesson.lessonGoals && (
+            <details
+              style={{
+                background: "#ffffff",
+                border: "1px solid #a6c8ff",
+                padding: "10px 14px",
+                fontSize: "13.5px",
+                lineHeight: 1.55,
+              }}
+            >
+              <summary style={{ cursor: "pointer", fontWeight: 700, color: "#002d9c" }}>
+                Mục tiêu tổng thể Bài {sampleLesson.number} &amp; phân bổ thời lượng 3 pha (Trước giờ:{" "}
+                {resolvedLesson.sections
+                  .filter((s) => s.phase === "before")
+                  .reduce((sum, s) => sum + s.minutes, 0)}{" "}
+                phút · Trên lớp:{" "}
+                {resolvedLesson.sections
+                  .filter((s) => s.phase === "in_class")
+                  .reduce((sum, s) => sum + s.minutes, 0)}{" "}
+                phút · Sau giờ:{" "}
+                {resolvedLesson.sections
+                  .filter((s) => s.phase === "after")
+                  .reduce((sum, s) => sum + s.minutes, 0)}{" "}
+                phút)
+              </summary>
+              <ul style={{ margin: "8px 0 0", paddingLeft: "18px" }}>
+                <li>
+                  <strong>Kiến thức:</strong> {sampleLesson.lessonGoals.knowledge}
+                </li>
+                <li>
+                  <strong>Năng lực:</strong> {sampleLesson.lessonGoals.competence}
+                </li>
+                <li>
+                  <strong>Phẩm chất:</strong> {sampleLesson.lessonGoals.quality}
+                </li>
+              </ul>
+            </details>
+          )}
 
           {syncNotice && (
             <p
@@ -1016,19 +1069,93 @@ export function VisualLearningStudio({
                   </div>
 
                   {showTeacherControls && (
-                    <p
+                    <section
+                      aria-label={`Hướng dẫn sư phạm mục ${sec.shortTocTitle}`}
+                      data-testid={`teacher-guide-${sec.id}`}
                       style={{
-                        margin: "10px 0 0",
-                        padding: "8px 12px",
-                        background: "#fcf4d6",
-                        borderLeft: "3px solid #8e6a00",
-                        fontSize: "13px",
-                        lineHeight: 1.5,
+                        marginTop: "14px",
+                        border: "1px solid #d2a106",
+                        borderLeft: "4px solid #8e6a00",
+                        background: "#fffdf5",
+                        padding: "14px 16px",
                       }}
                     >
-                      <strong>Gợi ý tổ chức cho giáo viên:</strong>{" "}
-                      {sec.teacherTip}
-                    </p>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "baseline",
+                          flexWrap: "wrap",
+                          gap: "8px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <strong style={{ fontSize: "14px", color: "#5e4600" }}>
+                          Bảng hướng dẫn sư phạm cho Giáo viên · {sec.shortTocTitle}
+                        </strong>
+                        <span
+                          style={{
+                            fontSize: "12.5px",
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            background: "#fcf4d6",
+                            border: "1px solid #f1c21b",
+                            color: "#5e4600",
+                          }}
+                        >
+                          Thời lượng dự kiến: {sec.minutes} phút ({secPhaseMeta.shortLabel})
+                        </span>
+                      </div>
+
+                      <div className={styles.tableScroll} style={{ margin: 0 }}>
+                        <table className={styles.cdsTable}>
+                          <tbody>
+                            <tr>
+                              <th scope="row" style={{ width: "220px" }}>
+                                Mục tiêu cần đạt
+                              </th>
+                              <td>{sec.teacherGuide.learningObjective}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Thời lượng dự kiến</th>
+                              <td>
+                                <strong>{sec.minutes} phút</strong> — thuộc{" "}
+                                {secPhaseMeta.fullLabel} ({sec.sgkPages}).
+                              </td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Phương án chiếu dạy</th>
+                              <td>
+                                <div>{sec.teacherGuide.projectorStrategy}</div>
+                                {sec.teacherTip && (
+                                  <div style={{ marginTop: "4px", color: "#525252" }}>
+                                    <em>Lưu ý điều phối nhanh:</em> {sec.teacherTip}
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Một hiểu nhầm thường gặp &amp; cách gỡ</th>
+                              <td>{sec.teacherGuide.commonMisconceptions}</td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Câu hỏi gợi mở</th>
+                              <td>
+                                <ul style={{ margin: 0, paddingLeft: "18px" }}>
+                                  {sec.teacherGuide.openQuestions.map((q) => (
+                                    <li key={q}>{q}</li>
+                                  ))}
+                                </ul>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th scope="row">Phương án dự phòng khi chưa có video</th>
+                              <td>{sec.teacherGuide.noVideoFallback}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
                   )}
                 </header>
 
@@ -1037,6 +1164,7 @@ export function VisualLearningStudio({
                   section={sec}
                   notebook={notebook}
                   onSavePreClassPrediction={handleSavePreClassPrediction}
+                  onPatchNotebook={handlePatchNotebook}
                   onMarkSectionComplete={handleMarkSectionComplete}
                   onJumpToSection={selectSection}
                 />

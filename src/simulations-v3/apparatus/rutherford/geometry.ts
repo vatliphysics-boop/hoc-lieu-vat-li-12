@@ -1,13 +1,13 @@
 /**
  * Rutherford apparatus 3D builder — Three.js geometry
- * Creates each component as a Three.js mesh group with stable partId
+ * Creates each component as a distinct Three.js mesh group with stable partId (no duplicate meshes).
  *
- * Coordinate system: origin at gold foil center.
- *   +X: direction of initial alpha beam (source → foil)
- *   +Y: up
+ * Coordinate system: origin at gold foil center (D).
+ *   +X: direction of initial alpha beam (source R → slit P → foil D → screen S at 0° position (1))
+ *   +Y: scattering plane / up
  *   +Z: lateral
  *
- * Scale: 1 Three.js unit = 10 fm, so entire apparatus ~36 units diameter.
+ * Scale: detector screen radius 180 fm = 7.5 Three.js units.
  */
 
 import * as THREE from "three";
@@ -39,25 +39,29 @@ export function createMaterials() {
       color: 0x4a4a52,
       metalness: 0.4,
       roughness: 0.7,
+      side: THREE.DoubleSide,
     }),
     gold: new THREE.MeshStandardMaterial({
       color: 0xffd700,
-      metalness: 1.0,
+      emissive: 0x3a2a00,
+      emissiveIntensity: 0.2,
+      metalness: 0.95,
       roughness: 0.2,
     }),
     glass: new THREE.MeshPhysicalMaterial({
       color: 0xaaddff,
       metalness: 0,
-      roughness: 0.05,
-      transmission: 0.9,
-      thickness: 0.5,
+      roughness: 0.08,
+      transmission: 0.85,
+      thickness: 0.35,
       transparent: true,
-      opacity: 0.3,
+      opacity: 0.22,
+      depthWrite: false,
     }),
     zincSulfide: new THREE.MeshStandardMaterial({
       color: 0xd4f1f9,
-      emissive: 0x1a3a4a,
-      emissiveIntensity: 0.3,
+      emissive: 0x164e63,
+      emissiveIntensity: 0.35,
       metalness: 0.1,
       roughness: 0.6,
     }),
@@ -76,14 +80,21 @@ export function createMaterials() {
       metalness: 0.3,
       roughness: 0.8,
     }),
+    sourceCore: new THREE.MeshStandardMaterial({
+      color: 0xfbbf24,
+      emissive: 0xd97706,
+      emissiveIntensity: 0.45,
+      metalness: 0.6,
+      roughness: 0.3,
+    }),
   };
 }
 
 export type Materials = ReturnType<typeof createMaterials>;
 
 /**
- * Build the alpha source: cylindrical lead housing with internal source and
- * narrow exit aperture. Tube points toward +X.
+ * Build the alpha source (R): internal active brass capsule + protruding emission nozzle.
+ * Distinct from buildSourceHousing so no duplicate overlapping geometry is created.
  */
 export function buildAlphaSource(
   component: ApparatusComponent,
@@ -91,37 +102,23 @@ export function buildAlphaSource(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // Outer lead housing — hollow cylinder
-  const housingOuter = new THREE.Mesh(
-    new THREE.CylinderGeometry(1.2, 1.2, 3.0, 32, 1, true),
-    mat.lead,
-  );
-  housingOuter.rotation.z = -Math.PI / 2; // cylinder Y-axis → X-axis
-  group.add(housingOuter);
-
-  // End cap (back)
-  const backCap = new THREE.Mesh(new THREE.CircleGeometry(1.2, 32), mat.lead);
-  backCap.position.set(-1.5, 0, 0);
-  backCap.rotation.y = -Math.PI / 2;
-  group.add(backCap);
-
-  // Front cap with aperture (annulus)
-  const frontCap = new THREE.Mesh(
-    new THREE.RingGeometry(0.15, 1.2, 32),
-    mat.lead,
-  );
-  frontCap.position.set(1.5, 0, 0);
-  frontCap.rotation.y = -Math.PI / 2;
-  group.add(frontCap);
-
-  // Internal active source (small brass capsule, visible through cutaway)
+  // Internal active radioactive capsule
   const activeSource = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.25, 0.25, 0.6, 16),
-    mat.brass,
+    new THREE.CylinderGeometry(0.42, 0.42, 1.4, 24),
+    mat.sourceCore,
   );
   activeSource.rotation.z = -Math.PI / 2;
-  activeSource.position.set(-0.3, 0, 0);
+  activeSource.position.set(0.1, 0, 0);
   group.add(activeSource);
+
+  // Brass exit nozzle protruding out the front of the lead shield for clear selection
+  const nozzle = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.38, 0.48, 1.1, 24),
+    mat.brass,
+  );
+  nozzle.rotation.z = -Math.PI / 2;
+  nozzle.position.set(1.65, 0, 0);
+  group.add(nozzle);
 
   group.position.set(-18, 0, 0);
 
@@ -135,7 +132,50 @@ export function buildAlphaSource(
 }
 
 /**
- * Build the collimator: a lead plate with narrow slit, collimating the beam.
+ * Build the lead source housing surrounding source R.
+ */
+export function buildSourceHousing(
+  component: ApparatusComponent,
+  mat: Materials,
+): BuiltComponent {
+  const group = new THREE.Group();
+
+  // Outer lead housing — hollow cylinder
+  const housingOuter = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.25, 1.25, 3.0, 32, 1, true),
+    mat.lead,
+  );
+  housingOuter.rotation.z = -Math.PI / 2;
+  group.add(housingOuter);
+
+  // Back lead cap
+  const backCap = new THREE.Mesh(new THREE.CircleGeometry(1.25, 32), mat.lead);
+  backCap.position.set(-1.5, 0, 0);
+  backCap.rotation.y = -Math.PI / 2;
+  group.add(backCap);
+
+  // Front cap with central exit aperture
+  const frontCap = new THREE.Mesh(
+    new THREE.RingGeometry(0.5, 1.25, 32),
+    mat.lead,
+  );
+  frontCap.position.set(1.5, 0, 0);
+  frontCap.rotation.y = Math.PI / 2;
+  group.add(frontCap);
+
+  group.position.set(-18, 0, 0);
+
+  return {
+    id: component.id,
+    mesh: group,
+    component,
+    originalPosition: group.position.clone(),
+    originalRotation: group.rotation.clone(),
+  };
+}
+
+/**
+ * Build the collimator (P): a lead plate with narrow slit, collimating the beam.
  */
 export function buildCollimator(
   component: ApparatusComponent,
@@ -143,28 +183,36 @@ export function buildCollimator(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // Lead plate (square, thin in X)
-  const plate = new THREE.Mesh(
-    new THREE.BoxGeometry(0.3, 4, 4),
-    mat.lead,
-  );
-  group.add(plate);
+  const slitWidth = 0.28;
+  const sideWidth = (4 - slitWidth) / 2;
 
-  // Aperture indicator (thin slit — visualize with two vertical plates)
-  const slitWidth = 0.2;
   const slitLeft = new THREE.Mesh(
-    new THREE.BoxGeometry(0.35, 4, (4 - slitWidth) / 2),
-    mat.darkMetal,
+    new THREE.BoxGeometry(0.4, 4, sideWidth),
+    mat.lead,
   );
   slitLeft.position.set(0, 0, -(4 + slitWidth) / 4);
   group.add(slitLeft);
 
   const slitRight = new THREE.Mesh(
-    new THREE.BoxGeometry(0.35, 4, (4 - slitWidth) / 2),
-    mat.darkMetal,
+    new THREE.BoxGeometry(0.4, 4, sideWidth),
+    mat.lead,
   );
   slitRight.position.set(0, 0, (4 + slitWidth) / 4);
   group.add(slitRight);
+
+  const topBar = new THREE.Mesh(
+    new THREE.BoxGeometry(0.42, 1.2, slitWidth + 0.2),
+    mat.darkMetal,
+  );
+  topBar.position.set(0, 1.4, 0);
+  group.add(topBar);
+
+  const bottomBar = new THREE.Mesh(
+    new THREE.BoxGeometry(0.42, 1.2, slitWidth + 0.2),
+    mat.darkMetal,
+  );
+  bottomBar.position.set(0, -1.4, 0);
+  group.add(bottomBar);
 
   group.position.set(-10, 0, 0);
 
@@ -178,7 +226,7 @@ export function buildCollimator(
 }
 
 /**
- * Build the gold foil: thin disc with holder ring.
+ * Build the gold foil (D): thin gold disc at apparatus center.
  */
 export function buildGoldFoil(
   component: ApparatusComponent,
@@ -186,21 +234,12 @@ export function buildGoldFoil(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // Gold foil (very thin disc, in YZ plane, normal along X)
   const foil = new THREE.Mesh(
-    new THREE.CylinderGeometry(2.0, 2.0, 0.04, 64),
+    new THREE.CylinderGeometry(2.0, 2.0, 0.06, 64),
     mat.gold,
   );
   foil.rotation.z = -Math.PI / 2;
   group.add(foil);
-
-  // Holder ring
-  const holder = new THREE.Mesh(
-    new THREE.TorusGeometry(2.05, 0.1, 8, 64),
-    mat.brass,
-  );
-  holder.rotation.y = Math.PI / 2;
-  group.add(holder);
 
   group.position.set(0, 0, 0);
 
@@ -214,8 +253,43 @@ export function buildGoldFoil(
 }
 
 /**
- * Build the scintillation screen: cylindrical ZnS screen on the detector ring.
- * The screen is an annulus at fixed radius, with its axis along X.
+ * Build the foil holder: brass ring and support stem holding gold foil D at center.
+ */
+export function buildFoilHolder(
+  component: ApparatusComponent,
+  mat: Materials,
+): BuiltComponent {
+  const group = new THREE.Group();
+
+  const holderRing = new THREE.Mesh(
+    new THREE.TorusGeometry(2.06, 0.11, 12, 64),
+    mat.brass,
+  );
+  holderRing.rotation.y = Math.PI / 2;
+  group.add(holderRing);
+
+  const stem = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.1, 0.12, 2.5, 12),
+    mat.brass,
+  );
+  stem.position.set(0, -3.3, 0);
+  group.add(stem);
+
+  group.position.set(0, 0, 0);
+
+  return {
+    id: component.id,
+    mesh: group,
+    component,
+    originalPosition: group.position.clone(),
+    originalRotation: group.rotation.clone(),
+  };
+}
+
+/**
+ * Build the scintillation screen (S): circular ZnS detector ring in the XY scattering plane.
+ * Note: The trajectory lies in the Z=0 (XY) plane at detector radius 7.5 units,
+ * so the ZnS ring lies in the XY plane around the foil center (0, 0, 0)!
  */
 export function buildScintillationScreen(
   component: ApparatusComponent,
@@ -223,22 +297,35 @@ export function buildScintillationScreen(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // ZnS annulus (large ring) facing foil center along X
-  const screen = new THREE.Mesh(
-    new THREE.TorusGeometry(7.5, 0.15, 16, 64),
-    mat.zincSulfide,
+  // ZnS band in XY plane (axis along Z) surrounding foil D at r = 7.5
+  const screenBand = new THREE.Mesh(
+    new THREE.CylinderGeometry(7.48, 7.48, 1.1, 72, 1, true),
+    new THREE.MeshStandardMaterial({
+      color: 0xd4f1f9,
+      emissive: 0x164e63,
+      emissiveIntensity: 0.35,
+      metalness: 0.1,
+      roughness: 0.55,
+      side: THREE.DoubleSide,
+    }),
   );
-  screen.rotation.y = Math.PI / 2;
-  group.add(screen);
+  screenBand.rotation.x = Math.PI / 2;
+  group.add(screenBand);
 
-  // Thin backing (brass) behind
-  const backing = new THREE.Mesh(
-    new THREE.TorusGeometry(7.5, 0.08, 8, 64),
+  // Brass outer rim edges
+  const rimFront = new THREE.Mesh(
+    new THREE.TorusGeometry(7.55, 0.08, 10, 72),
     mat.brass,
   );
-  backing.rotation.y = Math.PI / 2;
-  backing.position.x = 0.1;
-  group.add(backing);
+  rimFront.position.z = 0.55;
+  group.add(rimFront);
+
+  const rimBack = new THREE.Mesh(
+    new THREE.TorusGeometry(7.55, 0.08, 10, 72),
+    mat.brass,
+  );
+  rimBack.position.z = -0.55;
+  group.add(rimBack);
 
   return {
     id: component.id,
@@ -249,9 +336,35 @@ export function buildScintillationScreen(
   };
 }
 
+export const MICROSCOPE_RADIUS_UNITS = 7.5;
+
 /**
- * Build the rotating microscope: mounted on a rotating arm from foil center
- * to the screen edge. For simplicity, position it at 45° toward the screen.
+ * Position and orient the rotating microscope (M) at a given scattering angle (0°..160°).
+ * Local +X points radially outward from foil center (0,0,0) through screen S:
+ *   - Mounting arm runs inward from screen to foil pivot
+ *   - Objective lens sits just outside screen S looking inward at flashes
+ *   - Eyepiece points radially outward for the human observer
+ */
+export function setMicroscopeAngle(
+  built: BuiltComponent,
+  angleDeg: number,
+  explodedOffset?: readonly [number, number, number],
+): void {
+  const rad = (angleDeg * Math.PI) / 180;
+  const ox = explodedOffset?.[0] ?? 0;
+  const oy = explodedOffset?.[1] ?? 0;
+  const oz = explodedOffset?.[2] ?? 0;
+
+  built.mesh.position.set(
+    MICROSCOPE_RADIUS_UNITS * Math.cos(rad) + ox,
+    MICROSCOPE_RADIUS_UNITS * Math.sin(rad) + oy,
+    oz,
+  );
+  built.mesh.rotation.set(0, 0, rad);
+}
+
+/**
+ * Build the rotating microscope (M): mounted on a rotating arm around foil center.
  */
 export function buildRotatingMicroscope(
   component: ApparatusComponent,
@@ -259,62 +372,56 @@ export function buildRotatingMicroscope(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // Microscope barrel (cylinder pointing inward toward screen)
+  // Objective lens facing inward toward ZnS screen (at local x = +0.35)
+  const objective = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.28, 0.28, 0.35, 16),
+    mat.steel,
+  );
+  objective.rotation.z = -Math.PI / 2;
+  objective.position.set(0.35, 0, 0);
+  group.add(objective);
+
+  // Microscope barrel (local x = +0.5 to +2.5)
   const barrel = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.3, 0.3, 2.5, 16),
+    new THREE.CylinderGeometry(0.34, 0.34, 2.0, 20),
     mat.darkMetal,
   );
   barrel.rotation.z = -Math.PI / 2;
+  barrel.position.set(1.5, 0, 0);
   group.add(barrel);
 
-  // Eyepiece (top)
+  // Eyepiece where observer places eye (local x = +2.7)
   const eyepiece = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.35, 0.4, 0.5, 16),
-    mat.steel,
+    new THREE.CylinderGeometry(0.42, 0.34, 0.5, 20),
+    mat.brass,
   );
   eyepiece.rotation.z = -Math.PI / 2;
-  eyepiece.position.set(-1.5, 0, 0);
+  eyepiece.position.set(2.7, 0, 0);
   group.add(eyepiece);
 
-  // Objective lens (front, toward screen)
-  const objective = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.25, 0.25, 0.3, 16),
-    mat.glass,
-  );
-  objective.rotation.z = -Math.PI / 2;
-  objective.position.set(1.5, 0, 0);
-  group.add(objective);
-
-  // Mounting arm (thin rod from foil center to microscope position)
+  // Rotating radial arm from center pivot (local x = -7.5) to screen mount (local x = 0)
   const arm = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.1, 0.1, 7.5, 8),
+    new THREE.CylinderGeometry(0.08, 0.08, 5.2, 10),
     mat.steel,
   );
   arm.rotation.z = Math.PI / 2;
-  arm.position.set(-3.75, 0, 0);
+  arm.position.set(-2.7, 0, 0.65);
   group.add(arm);
 
-  // Position microscope at 45° (toward detector ring)
-  const angle = Math.PI / 4; // 45°
-  const radius = 7.5;
-  group.position.set(
-    radius * Math.cos(angle),
-    radius * Math.sin(angle),
-    0,
-  );
-  group.rotation.z = angle - Math.PI / 2;
-
-  return {
+  const built: BuiltComponent = {
     id: component.id,
     mesh: group,
     component,
-    originalPosition: group.position.clone(),
-    originalRotation: group.rotation.clone(),
+    originalPosition: new THREE.Vector3(MICROSCOPE_RADIUS_UNITS, 0, 0),
+    originalRotation: new THREE.Euler(0, 0, 0),
   };
+
+  setMicroscopeAngle(built, 0);
+  return built;
 }
 
 /**
- * Build the angular scale: protractor arc around the foil.
+ * Build the angular scale: protractor arc around the foil (0° to 180°).
  */
 export function buildAngularScale(
   component: ApparatusComponent,
@@ -322,7 +429,6 @@ export function buildAngularScale(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // Arc (partial torus, 200° sweep starting at -10° from beam axis)
   const arcRadius = 8.2;
   const arc = new THREE.Mesh(
     new THREE.TorusGeometry(arcRadius, 0.05, 6, 128, (200 * Math.PI) / 180),
@@ -331,11 +437,10 @@ export function buildAngularScale(
   arc.rotation.z = (-10 * Math.PI) / 180;
   group.add(arc);
 
-  // Tick marks every 30°
   for (let deg = 0; deg <= 180; deg += 30) {
     const rad = (deg * Math.PI) / 180;
     const tick = new THREE.Mesh(
-      new THREE.BoxGeometry(0.35, 0.08, 0.08),
+      new THREE.BoxGeometry(0.38, 0.09, 0.09),
       mat.steel,
     );
     tick.position.set(
@@ -357,8 +462,7 @@ export function buildAngularScale(
 }
 
 /**
- * Build the vacuum chamber: transparent cylinder enclosing everything,
- * with brass flanges at each end.
+ * Build the vacuum chamber frame (G): metallic end flanges and tie rods.
  */
 export function buildVacuumChamber(
   component: ApparatusComponent,
@@ -366,17 +470,8 @@ export function buildVacuumChamber(
 ): BuiltComponent {
   const group = new THREE.Group();
 
-  // Main transparent cylinder (axis along X)
-  const chamber = new THREE.Mesh(
-    new THREE.CylinderGeometry(9, 9, 32, 64, 1, true),
-    mat.glass,
-  );
-  chamber.rotation.z = -Math.PI / 2;
-  group.add(chamber);
-
-  // End flanges
   const flangeLeft = new THREE.Mesh(
-    new THREE.CylinderGeometry(9.3, 9.3, 0.5, 64),
+    new THREE.CylinderGeometry(9.35, 9.35, 0.5, 64),
     mat.brass,
   );
   flangeLeft.rotation.z = -Math.PI / 2;
@@ -384,12 +479,39 @@ export function buildVacuumChamber(
   group.add(flangeLeft);
 
   const flangeRight = new THREE.Mesh(
-    new THREE.CylinderGeometry(9.3, 9.3, 0.5, 64),
+    new THREE.CylinderGeometry(9.35, 9.35, 0.5, 64),
     mat.brass,
   );
   flangeRight.rotation.z = -Math.PI / 2;
   flangeRight.position.set(16, 0, 0);
   group.add(flangeRight);
+
+  return {
+    id: component.id,
+    mesh: group,
+    component,
+    originalPosition: group.position.clone(),
+    originalRotation: group.rotation.clone(),
+  };
+}
+
+/**
+ * Build the transparent glass window wall of vacuum chamber (G).
+ * Distinct from buildVacuumChamber so glass is rendered once with depthWrite=false.
+ */
+export function buildChamberWindow(
+  component: ApparatusComponent,
+  mat: Materials,
+): BuiltComponent {
+  const group = new THREE.Group();
+
+  const windowShell = new THREE.Mesh(
+    new THREE.CylinderGeometry(9.0, 9.0, 31.5, 64, 1, true),
+    mat.glass,
+  );
+  windowShell.rotation.z = -Math.PI / 2;
+  windowShell.renderOrder = 2;
+  group.add(windowShell);
 
   return {
     id: component.id,
@@ -415,7 +537,6 @@ export function buildBasePlatform(
   );
   group.add(slab);
 
-  // Support legs
   const legPositions = [
     [-16, 0, -9],
     [-16, 0, 9],
@@ -431,7 +552,7 @@ export function buildBasePlatform(
     group.add(leg);
   }
 
-  group.position.set(0, -5, 0);
+  group.position.set(0, -10.2, 0);
 
   return {
     id: component.id,
@@ -443,7 +564,84 @@ export function buildBasePlatform(
 }
 
 /**
- * Build all components of the Rutherford apparatus.
+ * Deterministic sample angles (in degrees) illustrating experimental flash density on ZnS screen S:
+ * Dense cluster near 0° (Position 1), sparse at medium angles, isolated rare spot > 90° (Position 2).
+ */
+const SAMPLE_SCINTILLATION_SPOTS: readonly { readonly deg: number; readonly z: number }[] = [
+  { deg: -6, z: -0.18 },
+  { deg: -4, z: 0.14 },
+  { deg: -2.5, z: -0.06 },
+  { deg: -1.2, z: 0.2 },
+  { deg: -0.5, z: -0.12 },
+  { deg: 0, z: 0.04 },
+  { deg: 0.8, z: -0.22 },
+  { deg: 1.6, z: 0.16 },
+  { deg: 2.8, z: -0.08 },
+  { deg: 4.2, z: 0.12 },
+  { deg: 6.5, z: -0.15 },
+  { deg: 11, z: 0.18 },
+  { deg: -12, z: -0.1 },
+  { deg: 22, z: -0.16 },
+  { deg: -25, z: 0.14 },
+  { deg: 42, z: 0.08 },
+  { deg: 72, z: -0.12 },
+  { deg: 142, z: 0.05 }, // Rare backscatter flash at Position (2) (> 90°)
+];
+
+/**
+ * Build Layer 1: Experimental ZnS scintillation spots (sample density + bright flash at run.hit).
+ */
+export function buildScintillationLayer(
+  hitPoint3D: THREE.Vector3 | null,
+  showActiveHitFlash: boolean,
+): THREE.Group {
+  const group = new THREE.Group();
+  const sampleRadius = 7.38;
+
+  const sampleGeo = new THREE.SphereGeometry(0.11, 10, 10);
+  const sampleMat = new THREE.MeshBasicMaterial({
+    color: 0x4ade80,
+    transparent: true,
+    opacity: 0.72,
+  });
+
+  for (const spot of SAMPLE_SCINTILLATION_SPOTS) {
+    const rad = (spot.deg * Math.PI) / 180;
+    const dot = new THREE.Mesh(sampleGeo, sampleMat);
+    dot.position.set(
+      sampleRadius * Math.cos(rad),
+      sampleRadius * Math.sin(rad),
+      spot.z,
+    );
+    group.add(dot);
+  }
+
+  if (hitPoint3D && showActiveHitFlash) {
+    const coreFlash = new THREE.Mesh(
+      new THREE.SphereGeometry(0.28, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x86efac }),
+    );
+    coreFlash.position.copy(hitPoint3D);
+    group.add(coreFlash);
+
+    const glowHalo = new THREE.Mesh(
+      new THREE.RingGeometry(0.3, 0.62, 24),
+      new THREE.MeshBasicMaterial({
+        color: 0x22c55e,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
+      }),
+    );
+    glowHalo.position.copy(hitPoint3D);
+    group.add(glowHalo);
+  }
+
+  return group;
+}
+
+/**
+ * Build all components of the Rutherford apparatus without duplicating any mesh.
  * Returns a map from partId to BuiltComponent.
  */
 export function buildRutherfordApparatus(
@@ -454,15 +652,15 @@ export function buildRutherfordApparatus(
 
   const builders: Record<string, (c: ApparatusComponent, m: Materials) => BuiltComponent> = {
     "alpha-source": buildAlphaSource,
-    "source-housing": buildAlphaSource,  // source-housing renders as part of alpha-source
+    "source-housing": buildSourceHousing,
     collimator: buildCollimator,
     "gold-foil": buildGoldFoil,
-    "foil-holder": buildGoldFoil,  // foil-holder renders as part of gold-foil (brass ring)
+    "foil-holder": buildFoilHolder,
     "scintillation-screen": buildScintillationScreen,
     "rotating-microscope": buildRotatingMicroscope,
     "angular-scale": buildAngularScale,
     "vacuum-chamber": buildVacuumChamber,
-    "chamber-window": buildVacuumChamber,  // chamber-window is part of vacuum-chamber (transparent glass)
+    "chamber-window": buildChamberWindow,
     "base-platform": buildBasePlatform,
   };
 

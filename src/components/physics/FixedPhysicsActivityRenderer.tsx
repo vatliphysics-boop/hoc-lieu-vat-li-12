@@ -99,14 +99,36 @@ function ActivityDataPanel({ activityKey, onProgress }: PhysicsActivityProps) {
 }
 
 export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProgress }: PhysicsActivityProps) {
-  const observed = useRef(false), answered = useRef(false);
-  const report = useCallback((part: "observed" | "answered", done: boolean) => {
-    if (part === "observed") observed.current = done; else answered.current = done;
-    onProgress?.(observed.current && answered.current);
-  }, [onProgress]);
+  const normalized = normalizeActivityKey(activityKey);
+  const isB21NucleonOrIsotope =
+    normalized === "nuclear_structure_builder" ||
+    normalized === "isotope_and_nuclear_size";
+
+  const observed = useRef(false);
+  const answered = useRef(false);
+  const hadReportedComplete = useRef(false);
+
+  const report = useCallback(
+    (part: "observed" | "answered", done: boolean) => {
+      if (part === "observed") observed.current = done;
+      else answered.current = done;
+
+      // Với nuclear_structure_builder & isotope_and_nuclear_size: yêu cầu hoàn thành đủ bài tập thực hành
+      // trong ActivityDataPanel (tuyệt đối không tự hoàn thành vì 3D quay 1,5s và không xóa tiến độ đã lưu khi tải lại).
+      const nextDone = isB21NucleonOrIsotope
+        ? answered.current
+        : observed.current && answered.current;
+
+      if (nextDone || hadReportedComplete.current) {
+        onProgress?.(nextDone);
+      }
+      hadReportedComplete.current = nextDone;
+    },
+    [isB21NucleonOrIsotope, onProgress],
+  );
   const reportObserved = useCallback((done: boolean) => report("observed", done), [report]);
   const reportAnswered = useCallback((done: boolean) => report("answered", done), [report]);
-  const normalized = normalizeActivityKey(activityKey);
+
   if (!normalized) return <UnavailableActivity activityKey={activityKey} />;
 
   // Core processes own both their visual and numerical state. A second generic
@@ -120,8 +142,15 @@ export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProg
   return (
     <div className="interactive-experiment">
       <Simulation3D activityKey={normalized} customPrompt={customPrompt} onObserved={reportObserved} />
-      <details style={{ marginTop: "14px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px" }}>
-        <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>Mở phiếu bài tập và câu hỏi kiểm tra</summary>
+      <details
+        open={isB21NucleonOrIsotope ? true : undefined}
+        style={{ marginTop: "14px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px" }}
+      >
+        <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>
+          {isB21NucleonOrIsotope
+            ? "Bàn thực hành cấu tạo hạt nhân, kí hiệu A/Z/N & câu hỏi kiểm tra"
+            : "Mở phiếu bài tập và câu hỏi kiểm tra"}
+        </summary>
         <div style={{ marginTop: "12px" }}>
           <p className="physics-note">Khung quan sát bổ trợ và bài tập bên dưới là hai hoạt động riêng. Đọc giả thiết của từng phần trước khi đối chiếu.</p>
           <ActivityDataPanel activityKey={normalized} onProgress={reportAnswered} />

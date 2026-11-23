@@ -17,6 +17,7 @@ import {
   NuclearLearningNotebook,
   NuclearReviewGame,
 } from "./NuclearLearningNotebook";
+import { AtomicModelsComparisonSim } from "./AtomicModelsComparisonSim";
 
 type Resource = Pick<MaterialItem, "title" | "content_url" | "material_type"> &
   Partial<Pick<MaterialItem, "metadata" | "lesson_tag" | "description">>;
@@ -39,9 +40,14 @@ export function LearningResourcePreview({
   const infographicUrlMatch = url?.match(/^\/learning\/infographics\/(B2[1-5])\.(svg|html)$/i);
   const workspace =
     material.metadata?.workspace ??
+    (url?.includes("muc=b21-atomic-models") ? "atomic-models" : undefined) ??
     (guideUrlMatch ? (guideUrlMatch[1].toLowerCase() === "remediation" ? "remediation" : "teaching-guide") : undefined) ??
     (infographicUrlMatch ? "infographic" : undefined);
   const guideCode = material.metadata?.guideId ?? (guideUrlMatch ? guideUrlMatch[2].toUpperCase() : inferredLessonTag);
+
+  if (workspace === "atomic-models") {
+    return <AtomicModelsComparisonSim onProgress={onProgress} />;
+  }
 
   const modelLesson = material.material_type === "simulation"
     ? NUCLEAR_LAB_LESSONS.find((lesson) => nuclearLabUrl(lesson.code, "mo-hinh") === url)

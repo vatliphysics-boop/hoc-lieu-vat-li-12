@@ -32,7 +32,7 @@ export type MaterialItem = {
   content_url: string;        // Storage URL, direct web URL, or component key
   storage_path?: string | null;
   metadata?: {
-    workspace?: "quiz" | "mindmap" | "roleplay" | "game" | "assessment" | "teaching-guide" | "remediation" | "rubric" | "infographic" | "nucleus";
+    workspace?: "quiz" | "mindmap" | "roleplay" | "game" | "assessment" | "teaching-guide" | "remediation" | "rubric" | "infographic" | "nucleus" | "atomic-models";
     examId?: string;
     guideId?: string;
     recommendedPhase?: "before_class" | "in_class" | "after_class";
@@ -112,6 +112,23 @@ export const CANONICAL_SYSTEM_MATERIALS: MaterialItem[] = [
     metadata: {
       activityKey: "rutherford_alpha_scattering",
       sourceBook: "SGK Vật lí 12 KNTT tr. 91–92, Hình 21.2–21.3",
+    },
+    is_published: true,
+    is_system: true,
+    created_at: "2026-09-28T00:00:00Z",
+  },
+  {
+    id: "system-sim-atomic-models-b21",
+    title: "Mô phỏng: So sánh các mô hình nguyên tử (Thomson – Rutherford – Đám mây electron)",
+    description: "Đối chiếu mô hình bánh ngọt mận khô Thomson (1904), mô hình hành tinh nguyên tử Rutherford (1911) và đám mây xác suất Hydrogen 1s (Niels Bohr & Erwin Schrödinger), gắn với bằng chứng tán xạ hạt alpha.",
+    material_type: "simulation",
+    category: "nuclear_physics",
+    lesson_tag: "B21",
+    content_url: "/hoc-lieu/truc-quan?bai=B21&muc=b21-atomic-models",
+    metadata: {
+      workspace: "atomic-models",
+      recommendedPhase: "in_class",
+      sourceBook: "SGK Vật lí 12 KNTT tr. 91–93, Hình 21.1 & 21.5",
     },
     is_published: true,
     is_system: true,

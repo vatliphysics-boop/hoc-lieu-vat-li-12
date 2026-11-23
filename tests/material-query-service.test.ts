@@ -121,11 +121,10 @@ describe("Material Query Service", () => {
 
   describe("Material counts", () => {
     test("canonical materials count is accurate", () => {
-      // Verified by runtime inspection: 99 items (as of 2026-11-17)
-      // Breakdown: 15 lecture_video, 22 simulation, 17 image, 18 document, 17 colab, 5 animation, 1 real_video, 4 assessment
-      // README claims "89 mục" from October 04; actual is now 99 due to additions (realtime labs, videos, real-time activities)
+      // Verified by runtime inspection: 100 items (as of 2026-11-23, adding standalone system-sim-atomic-models-b21)
+      // Breakdown: 15 lecture_video, 23 simulation, 17 image, 18 document, 17 colab, 5 animation, 1 real_video, 4 assessment
       const count = CANONICAL_SYSTEM_MATERIALS.length;
-      assert.strictEqual(count, 99, "Should have 99 canonical materials (verified 2026-11-17)");
+      assert.strictEqual(count, 100, "Should have 100 canonical materials (verified 2026-11-23)");
     });
 
     test("all canonical materials have valid IDs", () => {

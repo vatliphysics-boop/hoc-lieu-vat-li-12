@@ -1371,26 +1371,48 @@ textarea:focus {
   margin-top: 4px;
 }
 
-/* Nuclear symbol notation */
+/* Nuclear symbol notation (⁴₂He, ²⁸₁₄Si, ¹₁H, ...) */
 .physics-nuclide {
   display: inline-flex;
-  align-items: baseline;
-  gap: 2px;
-  font-size: 20px;
+  align-items: center;
+  vertical-align: -0.08em;
+  gap: 3px;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.physics-nuclide--lg {
+  font-size: 2rem;
+  gap: 4px;
+}
+
+.physics-nuclide__scripts {
+  display: inline-grid;
+  grid-template-rows: 1fr 1fr;
+  text-align: right;
+  font-size: 0.66em;
+  line-height: 1.06;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transform: translateY(-0.03em);
 }
 
-.physics-nuclide span {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  font-size: 13px;
-  line-height: 1.1;
-  font-weight: 500;
+.physics-nuclide__a {
+  color: var(--text-primary);
 }
 
-.physics-nuclide b {
-  font-size: 24px;
+.physics-nuclide__z {
+  color: var(--color-primary, #0f62fe);
+}
+
+.physics-nuclide__sym {
+  font-size: 1em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* Nucleus SVG */

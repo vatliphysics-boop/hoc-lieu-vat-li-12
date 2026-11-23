@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { PublicShell } from "@/app/PublicShell";
 import { LatexMath } from "@/components/learning/LatexMath";
@@ -224,7 +224,7 @@ const SRL_CRITERIA = [
 /**
  * Đọc `?giai-doan=` để mở thẳng một giai đoạn từ menu điều hướng.
  * Không dùng useSearchParams (gây yêu cầu Suspense bao ngoài) — đọc
- * từ window ở effect đầu tiên, sau khi đã mount.
+ * an toàn qua useSyncExternalStore để tránh lỗi hydration và set-state-in-effect.
  */
 function phaseFromQuery(): 1 | 2 | 3 | null {
   if (typeof window === "undefined") return null;
@@ -235,8 +235,24 @@ function phaseFromQuery(): 1 | 2 | 3 | null {
   return null;
 }
 
+function subscribeLocation(onStoreChange: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("popstate", onStoreChange);
+  return () => window.removeEventListener("popstate", onStoreChange);
+}
+
+function getServerPhaseSnapshot(): 1 | 2 | 3 | null {
+  return null;
+}
+
 export default function DemoLessonPage() {
-  const [activePhase, setActivePhase] = useState<1 | 2 | 3>(1);
+  const queryPhase = useSyncExternalStore(
+    subscribeLocation,
+    phaseFromQuery,
+    getServerPhaseSnapshot,
+  );
+  const [manualPhase, setActivePhase] = useState<1 | 2 | 3 | null>(null);
+  const activePhase: 1 | 2 | 3 = manualPhase ?? queryPhase ?? 1;
   const [selectedLesson, setSelectedLesson] = useState<string>("B23");
   const [selected3DActivity, setSelected3DActivity] = useState<CanonicalActivityKey>("radiation_properties");
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
@@ -255,11 +271,6 @@ export default function DemoLessonPage() {
   });
   const [srlReflection, setSrlReflection] = useState<string>("");
   const [srlSaved, setSrlSaved] = useState<boolean>(false);
-
-  useEffect(() => {
-    const phase = phaseFromQuery();
-    if (phase) setActivePhase(phase);
-  }, []);
 
   const activePersona =
     ROLE_PLAY_PERSONAS.find((p) => p.id === selectedRole) || ROLE_PLAY_PERSONAS[0];

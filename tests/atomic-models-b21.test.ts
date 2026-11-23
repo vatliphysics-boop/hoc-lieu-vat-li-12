@@ -109,3 +109,100 @@ describe("Atomic Models B21 — Evidence connection & strict completion criteria
     assert.equal(isAtomicModelsInquiryComplete(afterResetAndExplain), true);
   });
 });
+
+describe("B21 Standalone Atomic Models & Nucleon/Isotope V3 Upgrades", () => {
+  it("registers system-sim-atomic-models-b21 in CANONICAL_SYSTEM_MATERIALS with workspace='atomic-models'", async () => {
+    const { CANONICAL_SYSTEM_MATERIALS } = await import("@/lib/material-bank");
+    const { safeLearningUrl } = await import("@/lib/pathway-progress");
+
+    const item = CANONICAL_SYSTEM_MATERIALS.find(
+      (m) => m.id === "system-sim-atomic-models-b21"
+    );
+    assert.ok(item, "system-sim-atomic-models-b21 must exist in CANONICAL_SYSTEM_MATERIALS");
+    assert.equal(item.lesson_tag, "B21");
+    assert.equal(item.material_type, "simulation");
+    assert.equal(item.metadata?.workspace, "atomic-models");
+    assert.equal(item.is_published, true);
+    assert.ok(safeLearningUrl(item.content_url), "content_url must pass safeLearningUrl");
+  });
+
+  it("includes Erwin Schrödinger & Niels Bohr (1913), 390px badge wrap, standalone preview & B21Lesson compliance", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+
+    const simSrc = fs.readFileSync(
+      path.resolve("src/components/learning/AtomicModelsComparisonSim.tsx"),
+      "utf8"
+    );
+    const cssSrc = fs.readFileSync(
+      path.resolve("src/components/learning/AtomicModelsComparisonSim.module.css"),
+      "utf8"
+    );
+    const previewSrc = fs.readFileSync(
+      path.resolve("src/components/learning/LearningResourcePreview.tsx"),
+      "utf8"
+    );
+    const hubSrc = fs.readFileSync(
+      path.resolve("src/components/learning/Chapter4Hub.tsx"),
+      "utf8"
+    );
+    const lessonSrc = fs.readFileSync(
+      path.resolve("src/components/physics/B21Lesson.tsx"),
+      "utf8"
+    );
+
+    assert.ok(simSrc.includes("Niels Bohr (1913)"));
+    assert.ok(simSrc.includes("Erwin Schrödinger"));
+    assert.ok(cssSrc.includes("white-space: normal;"));
+    assert.ok(cssSrc.includes("flex-wrap: wrap;"));
+    assert.ok(previewSrc.includes('workspace === "atomic-models"'));
+    assert.ok(hubSrc.includes("/hoc-lieu/truc-quan?bai=B21&muc=b21-atomic-models"));
+    assert.ok(lessonSrc.includes("AtomicModelsComparisonSim"));
+    assert.ok(!lessonSrc.includes("Nguồn: giáo viên bộ môn"));
+    assert.ok(lessonSrc.includes("Giọng đọc tổng hợp tiếng Việt"));
+  });
+
+  it("upgrades B21Activities, NuclearSymbol, globals.css & FixedPhysicsActivityRenderer for 118 elements and 3 Hydrogen isotopes", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+
+    const activitiesSrc = fs.readFileSync(
+      path.resolve("src/components/physics/B21Activities.tsx"),
+      "utf8"
+    );
+    const sharedSrc = fs.readFileSync(
+      path.resolve("src/components/physics/shared.tsx"),
+      "utf8"
+    );
+    const globalsSrc = fs.readFileSync(
+      path.resolve("src/app/globals.css"),
+      "utf8"
+    );
+    const rendererSrc = fs.readFileSync(
+      path.resolve("src/components/physics/FixedPhysicsActivityRenderer.tsx"),
+      "utf8"
+    );
+
+    // Full 118 elements including Hydrogen, Helium, Silicon, Gold, Uranium, Oganesson
+    for (const name of ["Hydrogen", "Helium", "Silicon", "Gold", "Uranium", "Oganesson"]) {
+      assert.ok(activitiesSrc.includes(`name: '${name}'`), `Missing element ${name}`);
+    }
+    // Explicit N = A - Z and 3 Hydrogen isotopes
+    assert.ok(activitiesSrc.includes("N = A − Z"));
+    assert.ok(activitiesSrc.includes("Hydrogen thường ¹₁H"));
+    assert.ok(activitiesSrc.includes("Hydrogen nặng / Deuterium ²₁H"));
+    assert.ok(activitiesSrc.includes("Hydrogen siêu nặng / Tritium ³₁H"));
+    assert.ok(!activitiesSrc.includes("scale(0.8)"));
+    assert.ok(activitiesSrc.includes("b21-structure-size-state-v1"));
+    assert.ok(activitiesSrc.includes("b21-symbol-isotopes-state-v1"));
+
+    // Crisp NuclearSymbol without broken .physics-nuclide span rule
+    assert.ok(sharedSrc.includes("physics-nuclide__scripts"));
+    assert.ok(!globalsSrc.includes(".physics-nuclide span {"));
+    assert.ok(globalsSrc.includes(".physics-nuclide__scripts"));
+
+    // Open details for B21 builder & isotope activities
+    assert.ok(rendererSrc.includes("open={isB21NucleonOrIsotope ? true : undefined}"));
+  });
+});
+

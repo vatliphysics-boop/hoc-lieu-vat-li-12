@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   ATOMIC_MODELS_STORAGE_KEY,
   INITIAL_ATOMIC_MODELS_STATE,
@@ -583,6 +583,16 @@ export function AtomicModelsComparisonSim({
 
   const stats = useMemo(() => summarizeElectronSamples(samples), [samples]);
   const feedback = useMemo(() => evaluateAtomicModelsEvidence(state), [state]);
+  const isComplete = useMemo(() => isAtomicModelsInquiryComplete(state), [state]);
+
+  // Đồng bộ trạng thái đã hoàn thành từ localStorage lên bài học khi mount (không gọi setState trong useEffect, không bắn false thụ động)
+  const hadCompleteRef = useRef(isComplete);
+  useEffect(() => {
+    if (isComplete || hadCompleteRef.current) {
+      onProgress?.(isComplete);
+    }
+    hadCompleteRef.current = isComplete;
+  }, [isComplete, onProgress]);
 
   const commitState = useCallback(
     (updater: (prev: AtomicModelsInquiryState) => AtomicModelsInquiryState) => {
@@ -997,7 +1007,7 @@ export function AtomicModelsComparisonSim({
         )}
       </section>
 
-      {/* 4. Phần Đọc thêm về Mô hình Bohr theo SGK */}
+      {/* 4. Phần Đọc thêm về Mô hình Bohr & Erwin Schrödinger theo SGK */}
       <details
         style={{
           border: "1px solid #d0d7de",
@@ -1013,7 +1023,7 @@ export function AtomicModelsComparisonSim({
             color: "#0f62fe",
           }}
         >
-          Đọc thêm: Mô hình nguyên tử Bohr (1913) — Theo SGK Vật lí 12 tr. 92–93
+          Đọc thêm: Niels Bohr (1913) &amp; Erwin Schrödinger — Theo SGK Vật lí 12 tr. 92–93
         </summary>
         <div
           style={{
@@ -1025,12 +1035,13 @@ export function AtomicModelsComparisonSim({
         >
           <p style={{ margin: "0 0 8px" }}>
             Theo điện động lực học cổ điển, electron chuyển động có gia tốc trên quỹ đạo quanh hạt nhân như trong mô hình hành tinh Rutherford sẽ bức xạ năng lượng liên tục và nhanh chóng rơi vào hạt nhân. Năm 1913,{" "}
-            <strong>Niels Bohr</strong> đưa ra hai tiên đề cho nguyên tử Hydrogen (<Nuclide sym="H" a={1} z={1} />): electron chỉ chuyển động trên những{" "}
+            <strong>Niels Bohr (1913)</strong> đưa ra hai tiên đề cho nguyên tử Hydrogen (<Nuclide sym="H" a={1} z={1} />): electron chỉ chuyển động trên những{" "}
             <em>quỹ đạo dừng</em> có bán kính xác định (bán kính quỹ đạo dừng cơ bản là{" "}
             <code>a₀ ≈ 0,53 × 10⁻¹⁰ m</code>) mà không bức xạ; nguyên tử chỉ phát hay hấp thụ photon khi chuyển giữa hai trạng thái dừng.
           </p>
-          <p style={{ margin: 0, color: "#525252" }}>
-            Mô hình Bohr là bước quá độ quan trọng nối giữa mô hình hành tinh nguyên tử Rutherford và mô hình đám mây electron của cơ học lượng tử hiện đại.
+          <p style={{ margin: 0, color: "#393939" }}>
+            Đến năm 1926, <strong>Erwin Schrödinger</strong> cùng các nhà sáng lập cơ học lượng tử xây dựng phương trình sóng mô tả trạng thái electron, dẫn tới{" "}
+            <strong>mô hình đám mây electron</strong> hiện đại (SGK tr. 93): electron không chuyển động theo quỹ đạo cố định mà được biểu diễn bằng đám mây mật độ xác suất tìm thấy electron quanh hạt nhân.
           </p>
         </div>
       </details>

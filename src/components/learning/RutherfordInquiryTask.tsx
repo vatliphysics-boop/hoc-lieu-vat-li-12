@@ -6,9 +6,10 @@
  * Quy trình 4 bước: dự đoán → lưu hai lượt đo → so sánh → giải thích.
  * Component này KHÔNG tự tính vật lí: nó nhận (b, E, θ) từ simulator để
  * số liệu hiển thị luôn trùng với quỹ đạo và bảng số liệu đang xem.
+ * Lưu trữ bền vững vào localStorage ("b21-rutherford-v3-state-v1") qua useSyncExternalStore.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import {
   evaluateRutherfordInquiry,
   PREDICTION_LABELS,
@@ -16,6 +17,11 @@ import {
   type RunSlot,
   type RutherfordPrediction,
 } from "@/simulations-v3/apparatus/rutherford/inquiry";
+import {
+  parseRutherfordV3State,
+  RUTHERFORD_V3_STORAGE_KEY,
+  type RutherfordV3PersistedState,
+} from "@/simulations-v3/apparatus/rutherford/parts";
 
 export type { InquiryRun, RutherfordPrediction };
 
@@ -24,6 +30,44 @@ export interface RutherfordInquiryTaskProps {
   readonly current: InquiryRun | null;
   /** Báo trạng thái hoàn thành đủ nhiệm vụ điều tra lên mô phỏng / bài học. */
   readonly onCompleteChange?: (complete: boolean) => void;
+}
+
+const EMPTY_RAW = () => "";
+
+export function subscribeRutherfordV3Storage(listener: () => void) {
+  window.addEventListener("storage", listener);
+  window.addEventListener("b21-rutherford-v3-changed", listener);
+  return () => {
+    window.removeEventListener("storage", listener);
+    window.removeEventListener("b21-rutherford-v3-changed", listener);
+  };
+}
+
+export function getRutherfordV3RawSnapshot(): string {
+  try {
+    return window.localStorage.getItem(RUTHERFORD_V3_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function writeRutherfordV3State(
+  updater: (prev: RutherfordV3PersistedState) => RutherfordV3PersistedState,
+): RutherfordV3PersistedState {
+  const current =
+    typeof window !== "undefined"
+      ? parseRutherfordV3State(getRutherfordV3RawSnapshot())
+      : parseRutherfordV3State("");
+  const next = updater(current);
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(RUTHERFORD_V3_STORAGE_KEY, JSON.stringify(next));
+      window.dispatchEvent(new Event("b21-rutherford-v3-changed"));
+    } catch {
+      // Bỏ qua lỗi bộ nhớ trình duyệt đầy hoặc chế độ ẩn danh chặn lưu
+    }
+  }
+  return next;
 }
 
 const cardStyle: React.CSSProperties = {
@@ -146,11 +190,13 @@ function RunCard({
 }
 
 export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordInquiryTaskProps) {
-  const [prediction, setPrediction] = useState<RutherfordPrediction | "">("");
-  const [run1, setRun1] = useState<InquiryRun | null>(null);
-  const [run2, setRun2] = useState<InquiryRun | null>(null);
-  const [lastCapturedSlot, setLastCapturedSlot] = useState<RunSlot | null>(null);
-  const [conclusion, setConclusion] = useState("");
+  const storedRaw = useSyncExternalStore(
+    subscribeRutherfordV3Storage,
+    getRutherfordV3RawSnapshot,
+    EMPTY_RAW,
+  );
+  const persisted = useMemo(() => parseRutherfordV3State(storedRaw), [storedRaw]);
+  const { prediction, run1, run2, lastCapturedSlot, conclusion } = persisted;
 
   const evaluation = useMemo(
     () =>
@@ -164,25 +210,51 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
     [prediction, run1, run2, lastCapturedSlot, conclusion],
   );
 
+  // Bảo vệ tiến độ khi chuyển tab/pha hoặc F5 tải lại trang:
+  // Không bao giờ tự bắn onCompleteChange(false) lúc mới mount khi chưa từng hoàn thành.
+  const hadCompleteRef = useRef(evaluation.isComplete);
   useEffect(() => {
-    onCompleteChange?.(evaluation.isComplete);
+    if (evaluation.isComplete || hadCompleteRef.current) {
+      onCompleteChange?.(evaluation.isComplete);
+    }
+    hadCompleteRef.current = evaluation.isComplete;
   }, [evaluation.isComplete, onCompleteChange]);
+
+  const handlePredictionChange = useCallback(
+    (nextPrediction: RutherfordPrediction) => {
+      writeRutherfordV3State((prev) => ({
+        ...prev,
+        prediction: nextPrediction,
+      }));
+    },
+    [],
+  );
 
   function captureSlot(slot: RunSlot) {
     if (!current) return;
-    if (slot === 1) setRun1(current);
-    else setRun2(current);
-    setLastCapturedSlot(slot);
+    writeRutherfordV3State((prev) => ({
+      ...prev,
+      run1: slot === 1 ? current : prev.run1,
+      run2: slot === 2 ? current : prev.run2,
+      lastCapturedSlot: slot,
+    }));
   }
 
   function clearSlot(slot: RunSlot) {
-    if (slot === 1) {
-      setRun1(null);
-      setLastCapturedSlot(run2 ? 2 : null);
-    } else {
-      setRun2(null);
-      setLastCapturedSlot(run1 ? 1 : null);
-    }
+    writeRutherfordV3State((prev) => {
+      if (slot === 1) {
+        return {
+          ...prev,
+          run1: null,
+          lastCapturedSlot: prev.run2 ? 2 : null,
+        };
+      }
+      return {
+        ...prev,
+        run2: null,
+        lastCapturedSlot: prev.run1 ? 1 : null,
+      };
+    });
   }
 
   return (
@@ -191,7 +263,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
         padding: "20px",
         background: "var(--bg-surface-elevated, #f8fafc)",
         borderRadius: "12px",
-        marginTop: "20px",
+        marginTop: "8px",
         border: "1px solid #e5e7eb",
       }}
     >
@@ -199,7 +271,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
         Nhiệm vụ điều tra: tham số va chạm b
       </h3>
       <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "16px" }}>
-        Thực hiện đủ 4 bước dưới đây. Số liệu lấy trực tiếp từ mô phỏng đang xem.
+        Thực hiện đủ 4 bước dưới đây. Dữ liệu dự đoán, hai lượt đo và lời giải thích được tự động lưu trên trình duyệt để không mất khi chuyển mục hoặc tải lại trang.
       </p>
 
       {/* Bước 1 — Dự đoán */}
@@ -223,7 +295,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
                 name="rutherford-prediction"
                 value={opt.value}
                 checked={prediction === opt.value}
-                onChange={() => setPrediction(opt.value)}
+                onChange={() => handlePredictionChange(opt.value)}
               />
               {opt.label}
             </label>
@@ -231,7 +303,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
         </div>
         {evaluation.hasPrediction && evaluation.bothRuns && (
           <p style={{ fontSize: "12px", color: "#4b5563", marginTop: "10px", marginBottom: 0 }}>
-            Dự đoán đã chọn: <strong>{PREDICTION_LABELS[prediction as RutherfordPrediction]}</strong>. Em hãy giữ nguyên dự đoán ban đầu để đối chiếu với số liệu đo.
+            Dự đoán ban đầu đã lưu: <strong>{PREDICTION_LABELS[prediction as RutherfordPrediction]}</strong>. Em hãy giữ nguyên dự đoán ban đầu (kể cả khi trái với số đo) để đối chiếu khoa học.
           </p>
         )}
       </div>
@@ -341,7 +413,7 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
             >
               {evaluation.matchesPrediction
                 ? `Dự đoán ban đầu của em ("${PREDICTION_LABELS[prediction as RutherfordPrediction]}") khớp với số liệu hai lượt đo.`
-                : `Kết quả đo trái với dự đoán ban đầu của em ("${PREDICTION_LABELS[prediction as RutherfordPrediction]}"). Em không cần đổi lại dự đoán ban đầu — hãy giải thích nguyên nhân vật lí ở Bước 4.`}
+                : `Kết quả đo trái với dự đoán ban đầu của em ("${PREDICTION_LABELS[prediction as RutherfordPrediction]}"). Em giữ nguyên dự đoán ban đầu và giải thích nguyên nhân vật lí ở Bước 4.`}
             </p>
           ) : (
             <p style={{ fontSize: "13px", marginTop: "10px", marginBottom: 0, color: "#b45309" }}>
@@ -361,7 +433,13 @@ export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordI
           </p>
           <textarea
             value={conclusion}
-            onChange={(e) => setConclusion(e.target.value)}
+            onChange={(e) => {
+              const nextConclusion = e.target.value;
+              writeRutherfordV3State((prev) => ({
+                ...prev,
+                conclusion: nextConclusion,
+              }));
+            }}
             placeholder="Khi b tăng, hạt alpha đi xa hạt nhân hơn nên lực đẩy Coulomb yếu hơn, do đó góc lệch giảm..."
             aria-label="Kết luận của học sinh"
             style={{

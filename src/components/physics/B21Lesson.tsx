@@ -4,12 +4,14 @@ import { useCallback, useState } from "react";
 import { B21Hero } from "./B21Hero";
 import { IsotopeActivity, NuclearBuilderActivity } from "./B21Activities";
 import { FixedPhysicsActivityRenderer } from "./FixedPhysicsActivityRenderer";
+import { AtomicModelsComparisonSim } from "@/components/learning/AtomicModelsComparisonSim";
 import { LatexMath } from "@/components/learning/LatexMath";
 import styles from "./B21Lesson.module.css";
 
 const TOC = [
   ["khoi-dong", "Khởi động"],
   ["muc-1", "I. Thí nghiệm tán xạ alpha"],
+  ["mo-hinh-nguyen-tu", "Mô hình nguyên tử"],
   ["muc-2", "II. Cấu tạo hạt nhân"],
   ["muc-3", "III. Đồng vị và kích thước hạt nhân"],
   ["muc-4", "IV. Tổng hợp"],
@@ -24,13 +26,19 @@ const FACTS = [
 ] as const;
 
 export function B21Lesson() {
-  const [done, setDone] = useState({ rutherford: false, builder: false, isotope: false });
+  const [done, setDone] = useState({
+    rutherford: false,
+    atomicModels: false,
+    builder: false,
+    isotope: false,
+  });
   const set = useCallback((key: keyof typeof done, value: boolean) => {
     setDone((prev) => (prev[key] === value ? prev : { ...prev, [key]: value }));
   }, []);
 
   const steps = [
     { key: "rutherford" as const, label: "Chạy thí nghiệm tán xạ và giải thích góc lệch" },
+    { key: "atomicModels" as const, label: "So sánh ba mô hình nguyên tử và nối với bằng chứng tán xạ" },
     { key: "builder" as const, label: "Dựng Si-28 và trả lời câu hỏi về neutron" },
     { key: "isotope" as const, label: "So sánh hai hạt nhân và trả lời câu hỏi bán kính" },
   ];
@@ -68,6 +76,19 @@ export function B21Lesson() {
               ? "✓ Bài 21 đã ghi nhận hoàn thành: Chạy thí nghiệm tán xạ và giải thích góc lệch"
               : "Tiến độ Bài 21 (Mục I): Chưa hoàn thành — cần dự đoán, lưu 2 lượt đo cùng E khác b và viết lời giải thích."}
           </p>
+        </section>
+
+        <section id="mo-hinh-nguyen-tu" className={styles.section}>
+          <h2>Mô hình đơn giản của nguyên tử (Thomson – Rutherford – Đám mây electron)</h2>
+          <p className={styles.lead}>
+            Đối chiếu vùng phân bố điện tích dương trên cùng một nguyên tử Hydrogen trung hòa và nối kết quả tán xạ lá vàng với mô hình hành tinh nguyên tử Rutherford, mẫu Bohr (1913) và mô hình đám mây electron của Erwin Schrödinger (SGK tr. 91–93).
+          </p>
+          <AtomicModelsComparisonSim
+            onProgress={(v) => set("atomicModels", v)}
+            onOpenRutherfordV3={() => {
+              document.getElementById("muc-1")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
         </section>
 
         <section id="muc-2" className={styles.section}>
@@ -144,7 +165,9 @@ export function B21Lesson() {
           <p className={styles.lead}>Tóm tắt thí nghiệm Rutherford, cấu tạo hạt nhân và cách đọc kí hiệu.</p>
           <div className={styles.videoCard}>
             <h3 className={styles.videoTitle}>Bài 21 – Cấu trúc hạt nhân</h3>
-            <p className={styles.videoMeta}>Thời lượng 1:30 · Phụ đề tiếng Việt · Nguồn: giáo viên bộ môn</p>
+            <p className={styles.videoMeta}>
+              Thời lượng 1:30 · Phụ đề tiếng Việt · Giọng đọc tổng hợp tiếng Việt (VieNeu-TTS) · Biên soạn đối chiếu SGK Vật lí 12 KNTT tr. 91–95
+            </p>
             <video className={styles.video} controls preload="metadata" poster="/videos/nuclear-lessons-v2/b21.jpg">
               <source src="/videos/nuclear-lessons-v2/b21.mp4" type="video/mp4" />
               <track kind="subtitles" srcLang="vi" src="/videos/nuclear-lessons-v2/b21.vi.vtt" label="Tiếng Việt" default />

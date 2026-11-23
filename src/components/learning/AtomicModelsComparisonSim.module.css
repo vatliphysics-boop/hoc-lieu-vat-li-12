@@ -37,6 +37,7 @@
 .atomSubjectBadge {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   padding: 5px 10px;
   background-color: #ffffff;
@@ -44,7 +45,9 @@
   font-size: 13px;
   font-weight: 600;
   color: #161616;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 100%;
+  line-height: 1.4;
 }
 
 /* Khối điều khiển + Khung quan sát gắn liền nhau để trên 390 px vừa bấm vừa thấy */

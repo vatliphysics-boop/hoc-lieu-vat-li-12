@@ -272,6 +272,14 @@ export function Chapter4Hub() {
                       <span>Mở bài học</span>
                       <span aria-hidden="true">→</span>
                     </Link>
+                    {lesson.code === "B21" && (
+                      <Link
+                        href="/hoc-lieu/truc-quan?bai=B21&muc=b21-atomic-models"
+                        className={`${styles.cdsBtn} ${styles.cdsBtnGhost} ${styles.cdsBtnSmall}`}
+                      >
+                        Mô hình nguyên tử
+                      </Link>
+                    )}
                     <Link
                       href={`/hoc-lieu/truc-quan?bai=${lesson.code}&che-do=giao-vien`}
                       className={`${styles.cdsBtn} ${styles.cdsBtnGhost} ${styles.cdsBtnSmall}`}

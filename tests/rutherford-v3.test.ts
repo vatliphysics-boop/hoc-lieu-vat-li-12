@@ -437,3 +437,153 @@ test("Rutherford V3 student inquiry evaluation & onProgress criteria", async (t)
     assert.strictEqual(contraryWithExplanation.isComplete, true);
   });
 });
+
+test("Rutherford V3 SGK Hình 21.2 upgrades: parts, 3D geometry, raycast, observer M & persistence", async (t) => {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const THREE = await import("three");
+  const {
+    RUTHERFORD_COMPONENTS,
+    CORE_SGK_21_2_PARTS,
+    CUTAWAY_HIDDEN_PARTS,
+    RUTHERFORD_V3_STORAGE_KEY,
+    getRutherfordComponent,
+    resolveRutherfordRaycastPart,
+    describeObserverPosition,
+    parseRutherfordV3State,
+  } = await import("../src/simulations-v3/apparatus/rutherford/parts");
+  const {
+    buildRutherfordApparatus,
+    buildScintillationLayer,
+    setMicroscopeAngle,
+  } = await import("../src/simulations-v3/apparatus/rutherford/geometry");
+  const { evaluateRutherfordInquiry } = await import(
+    "../src/simulations-v3/apparatus/rutherford/inquiry"
+  );
+
+  await t.test("parts.ts includes SGK Hình 21.2 symbols R, P, D, S, M, G and 5 core buttons", () => {
+    assert.ok(getRutherfordComponent("alpha-source")?.role.includes("R"));
+    assert.ok(getRutherfordComponent("collimator")?.role.includes("P"));
+    assert.ok(getRutherfordComponent("gold-foil")?.role.includes("D"));
+    assert.ok(getRutherfordComponent("scintillation-screen")?.role.includes("S"));
+    assert.ok(getRutherfordComponent("rotating-microscope")?.role.includes("M"));
+    assert.ok(getRutherfordComponent("vacuum-chamber")?.role.includes("G"));
+
+    assert.strictEqual(CORE_SGK_21_2_PARTS.length, 5);
+    const symbols = CORE_SGK_21_2_PARTS.map((p) => p.sgkSymbol);
+    assert.deepStrictEqual(symbols, ["R", "D", "S", "M", "G"]);
+  });
+
+  await t.test("geometry.ts builds 11 distinct components without duplicating meshes and hides chamber-window in cutaway", () => {
+    const built = buildRutherfordApparatus(RUTHERFORD_COMPONENTS);
+    assert.strictEqual(built.size, RUTHERFORD_COMPONENTS.length);
+
+    const alphaMesh = built.get("alpha-source")!.mesh;
+    const housingMesh = built.get("source-housing")!.mesh;
+    const foilMesh = built.get("gold-foil")!.mesh;
+    const holderMesh = built.get("foil-holder")!.mesh;
+    const chamberMesh = built.get("vacuum-chamber")!.mesh;
+    const windowMesh = built.get("chamber-window")!.mesh;
+
+    assert.notStrictEqual(alphaMesh, housingMesh);
+    assert.notStrictEqual(foilMesh, holderMesh);
+    assert.notStrictEqual(chamberMesh, windowMesh);
+    assert.notStrictEqual(alphaMesh.children.length, housingMesh.children.length);
+    assert.notStrictEqual(foilMesh.children.length, holderMesh.children.length);
+    assert.notStrictEqual(chamberMesh.children.length, windowMesh.children.length);
+
+    assert.ok(CUTAWAY_HIDDEN_PARTS.includes("vacuum-chamber"));
+    assert.ok(CUTAWAY_HIDDEN_PARTS.includes("chamber-window"));
+  });
+
+  await t.test("resolveRutherfordRaycastPart prioritizes inner components right through vacuum glass", () => {
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber", "gold-foil"]),
+      "gold-foil",
+    );
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "alpha-source", "source-housing"]),
+      "alpha-source",
+    );
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "rotating-microscope"]),
+      "rotating-microscope",
+    );
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber"]),
+      "chamber-window",
+    );
+    assert.strictEqual(resolveRutherfordRaycastPart([]), null);
+  });
+
+  await t.test("rotating microscope M updates 3D position and reports ~10⁴ ratio between Position (1) and Position (2)", () => {
+    const built = buildRutherfordApparatus(RUTHERFORD_COMPONENTS);
+    const mic = built.get("rotating-microscope")!;
+
+    setMicroscopeAngle(mic, 0);
+    assert.ok(Math.abs(mic.mesh.position.x - 7.5) < 1e-6);
+    assert.ok(Math.abs(mic.mesh.position.y) < 1e-6);
+
+    setMicroscopeAngle(mic, 160);
+    assert.ok(mic.mesh.position.x < -7.0);
+    assert.ok(mic.mesh.position.y > 2.5);
+
+    const pos1 = describeObserverPosition(0);
+    const pos2 = describeObserverPosition(160);
+    assert.strictEqual(pos1.zone, "position_1");
+    assert.strictEqual(pos2.zone, "position_2");
+    assert.ok(pos1.sampleFlashCount > pos2.sampleFlashCount * 10);
+    assert.ok(pos2.relativeFrequencyLabel.includes("10⁴"));
+
+    const flashes = buildScintillationLayer(new THREE.Vector3(7.5, 0, 0), true);
+    assert.ok(flashes.children.length >= 18);
+  });
+
+  await t.test("localStorage parser round-trips completed inquiry state & preserves contrary initial prediction", () => {
+    assert.strictEqual(RUTHERFORD_V3_STORAGE_KEY, "b21-rutherford-v3-state-v1");
+    const savedRaw = JSON.stringify({
+      impactFm: 60,
+      energyMeV: 8,
+      cameraMode: "cutaway",
+      selectedPartId: "gold-foil",
+      showScintillation: true,
+      showBeam: false,
+      observerAngleDeg: 140,
+      prediction: "increase",
+      run1: { b: 10, e: 8, theta: 109.77 },
+      run2: { b: 60, e: 8, theta: 26.74 },
+      lastCapturedSlot: 2,
+      conclusion: "Khi b tăng lực đẩy Coulomb giảm nên góc lệch giảm, trái với dự đoán ban đầu của em.",
+    });
+
+    const restored = parseRutherfordV3State(savedRaw);
+    assert.strictEqual(restored.prediction, "increase");
+    assert.strictEqual(restored.showBeam, false);
+    assert.strictEqual(restored.observerAngleDeg, 140);
+    assert.strictEqual(restored.cameraMode, "cutaway");
+
+    const evalRestored = evaluateRutherfordInquiry(restored);
+    assert.strictEqual(evalRestored.isComplete, true);
+    assert.strictEqual(evalRestored.matchesPrediction, false);
+  });
+
+  await t.test("RutherfordApparatusV3.tsx & RutherfordInquiryTask.tsx enforce ResizeObserver guard, 2 layer switches, single-beam note, and safe progress sync", () => {
+    const apparatusSrc = fs.readFileSync(
+      path.resolve("src/simulations-v3/apparatus/rutherford/RutherfordApparatusV3.tsx"),
+      "utf8",
+    );
+    const inquirySrc = fs.readFileSync(
+      path.resolve("src/components/learning/RutherfordInquiryTask.tsx"),
+      "utf8",
+    );
+
+    assert.ok(apparatusSrc.includes("if (w <= 0 || h <= 0) return;"));
+    assert.ok(apparatusSrc.includes("Lớp 1: Đốm sáng trên màn ZnS"));
+    assert.ok(apparatusSrc.includes("Lớp 2: Quỹ đạo hạt α"));
+    assert.ok(apparatusSrc.includes("if (!showBeam || !trail || !run) return;"));
+    assert.ok(apparatusSrc.includes("KHÔNG đại diện cho tần suất của cả chùm hạt α"));
+    assert.ok(apparatusSrc.includes("useSyncExternalStore"));
+    assert.ok(inquirySrc.includes("useSyncExternalStore"));
+  });
+});
+
