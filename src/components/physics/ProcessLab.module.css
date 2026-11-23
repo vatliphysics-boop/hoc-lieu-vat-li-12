@@ -25,6 +25,7 @@
 .controls input[type="range"] { width: 100%; accent-color: #176d70; }
 .controls :is(select,input[type="number"]) { min-height: 40px; border: 1px solid #a9c1cb; border-radius: 7px; color: inherit; background: white; padding: 6px 8px; width: 100%; }
 .grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.grid > * { min-width: 0; }
 .figure { margin: 0; min-width: 0; }
 .figure svg { width: 100%; display: block; background: #0c2434; border-radius: 12px; }
 .figure figcaption { margin-top: 8px; font-size: 14px; line-height: 1.6; }
@@ -38,7 +39,7 @@
 .table :is(th,td) { text-align: left; padding: 9px; border-bottom: 1px solid #c5d8e0; }
 .prompt { background: #fff4df; border-left: 4px solid #b87722; padding: 12px 16px; line-height: 1.7; }
 .lab :global(.physics-note) { color: #385262; }
-@media (max-width: 680px) { .grid { grid-template-columns: 1fr; } .controls { gap: 10px; } .controls button { flex: 1 1 auto; } }
+@media (max-width: 680px) { .grid { grid-template-columns: minmax(0, 1fr); } .controls { gap: 10px; } .controls button { flex: 1 1 auto; } }
 
 .responsiveVisual { container: process-visual / inline-size; min-width: 0; }
 .visualPanel { margin: 0 0 16px; padding: 12px; border-radius: 12px; background: #0c2434; color: #e5f4fa; min-width: 0; }

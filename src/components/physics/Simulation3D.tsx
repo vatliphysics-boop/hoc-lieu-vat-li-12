@@ -1055,12 +1055,22 @@ function makeExperiment(
     const detectorX = safety ? Math.min(5.5, parameters.amount * 0.6) : 3.5;
     box(emerald, detectorX, 0, 0, 0.25, 2.2, 2.2, "Đầu thu đo cường độ bức xạ truyền qua");
 
-    const bField = (parameters.secondary || 0) * 0.08;
+    const bField = safety ? 0 : (parameters.secondary || 0) * 0.08;
+    const alphaLabel = safety
+      ? "Hạt α (⁴₂He²⁺): mang điện +2e, ion hóa mạnh, bị chặn ngay bởi vật cản mỏng"
+      : bField > 0
+        ? "Hạt α (⁴₂He²⁺): mang điện +2e, khối lượng lớn (m_α ≈ 7300 m_e) nên chỉ lệch nhẹ theo lực Lorentz trong từ trường B"
+        : "Hạt α (⁴₂He²⁺): mang điện +2e, truyền thẳng khi chưa bật từ trường (B = 0)";
+    const betaLabel = safety
+      ? "Hạt β⁻ (⁰₋₁e): mang điện −e, đâm xuyên trung bình, bị chặn bởi tấm kim loại"
+      : bField > 0
+        ? "Hạt β⁻ (⁰₋₁e): mang điện −e, khối lượng nhỏ (m_e) nên lệch mạnh ngược chiều hạt α trong từ trường B"
+        : "Hạt β⁻ (⁰₋₁e): mang điện −e, truyền thẳng khi chưa bật từ trường (B = 0)";
     const alphaBeads = Array.from({ length: 6 }, () =>
-      ball(crimson, 0.16, root, "Hạt α (⁴₂He²⁺): mang điện +2e, lệch về cực âm")
+      ball(crimson, 0.16, root, alphaLabel)
     );
     const betaBeads = Array.from({ length: 8 }, () =>
-      ball(blue, 0.1, root, "Hạt β⁻ (e⁻): mang điện -e, lệch mạnh ngược chiều α")
+      ball(blue, 0.1, root, betaLabel)
     );
     const gammaBeads = Array.from({ length: 8 }, () =>
       ball(amber, 0.11, root, "Photon tia γ (q = 0): truyền thẳng, đâm xuyên mạnh")
@@ -1080,7 +1090,7 @@ function makeExperiment(
         const x = -3.2 + u * (detectorX + 3.2);
         const stopped = shield.visible && x > shieldX;
         b.visible = !stopped;
-        const deflect = x > -2.5 ? Math.pow(Math.max(0, x + 2.5) * 0.35, 1.8) * bField : 0;
+        const deflect = x > -2.5 ? Math.pow(Math.max(0, x + 2.5) * 0.13, 1.8) * bField : 0;
         b.position.set(x, 0.35 + deflect, 0);
       });
 
