@@ -21,7 +21,6 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import {
   createRutherfordRun,
   generateRutherfordDistribution,
-  sampleRutherford,
   rutherfordTrail,
   RUTHERFORD_LIMITS,
   type RutherfordSettings,
@@ -116,12 +115,11 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
     [run, settings],
   );
 
-  const done =
-    !isRunning && elapsedZs > 0 && elapsedZs >= (run?.durationZs ?? 1);
+  const [inquiryComplete, setInquiryComplete] = useState(false);
 
   useEffect(() => {
-    onProgress?.(done);
-  }, [done, onProgress]);
+    onProgress?.(inquiryComplete);
+  }, [inquiryComplete, onProgress]);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -521,13 +519,14 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
           <div
             style={{
               position: "absolute",
-              top: "12px",
+              bottom: "12px",
               right: "12px",
               padding: "8px 12px",
               background: "rgba(0,0,0,0.6)",
               borderRadius: "6px",
               color: "#94a3b8",
               fontSize: "12px",
+              pointerEvents: "none",
             }}
           >
             Nhấp vào linh kiện để xem tên và chức năng
@@ -659,6 +658,9 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
               {format(elapsedZs)} zs
             </div>
           </div>
+          <p style={{ gridColumn: "1 / -1", margin: "4px 0 0", fontSize: "12px", color: "var(--text-muted, #64748b)", lineHeight: 1.6 }}>
+            <strong>Phân biệt hai góc:</strong> Góc tán xạ so sánh phương vận tốc tới và bay ra ở rất xa hạt nhân (chỉ phụ thuộc tích E·b); góc vị trí trên màn tính từ tâm lá vàng tới điểm hạt chạm màn hữu hạn bán kính 180 fm.
+          </p>
         </div>
       )}
 
@@ -709,7 +711,10 @@ export function RutherfordApparatusV3({ onProgress }: RutherfordApparatusV3Props
       </div>
 
       {/* Nhiệm vụ điều tra cho học sinh */}
-      <RutherfordInquiryTask current={currentInquiryRun} />
+      <RutherfordInquiryTask
+        current={currentInquiryRun}
+        onCompleteChange={setInquiryComplete}
+      />
     </div>
   );
 }

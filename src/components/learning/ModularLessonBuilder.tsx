@@ -399,6 +399,7 @@ export function ModularLessonBuilder({ code = "B21" }: { code?: string }) {
   const [phaseFilter, setPhaseFilter] = useState<"all" | LessonPhaseTag>("all");
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [notice, setNotice] = useState<string>("");
+  const [completedBlocks, setCompletedBlocks] = useState<Record<string, boolean>>({});
 
   if (code !== prevCode) {
     setPrevCode(code);
@@ -1057,6 +1058,23 @@ export function ModularLessonBuilder({ code = "B21" }: { code?: string }) {
                     >
                       {BLOCK_TYPE_LABELS[block.type]}
                     </span>
+                    {block.type === "simulation3d" && (
+                      <span
+                        role="status"
+                        data-simulation-progress={completedBlocks[block.id] ? "done" : "pending"}
+                        style={{
+                          padding: "3px 9px",
+                          borderRadius: "6px",
+                          background: completedBlocks[block.id] ? "#ecfdf5" : "#f8fafc",
+                          border: `1px solid ${completedBlocks[block.id] ? "#10b981" : "#cbd5e1"}`,
+                          color: completedBlocks[block.id] ? "#047857" : "#475569",
+                          fontSize: "11.5px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {completedBlocks[block.id] ? "✓ Đã hoàn thành nhiệm vụ" : "Chưa hoàn thành nhiệm vụ"}
+                      </span>
+                    )}
                     {!block.visible && (
                       <span
                         style={{
@@ -1462,6 +1480,11 @@ export function ModularLessonBuilder({ code = "B21" }: { code?: string }) {
                     (block.activityKey ?? "rutherford_alpha_scattering") as ActivityKey
                   }
                   customPrompt={block.customPrompt}
+                  onProgress={(done) =>
+                    setCompletedBlocks((prev) =>
+                      prev[block.id] === done ? prev : { ...prev, [block.id]: done },
+                    )
+                  }
                 />
               )}
 

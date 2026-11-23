@@ -11,7 +11,7 @@ import {
   type CanonicalActivityKey,
   type NuclearPhysicsLessonCode,
 } from "@/lib/curriculum";
-import { IsotopeActivity, NuclearBuilderActivity, RutherfordActivity } from "./B21Activities";
+import { IsotopeActivity, NuclearBuilderActivity } from "./B21Activities";
 import { RutherfordApparatusV3 } from "@/simulations-v3/apparatus/rutherford/RutherfordApparatusV3";
 import { BindingEnergyLab, NuclearFission, NuclearFusion, NuclearReactionBalancer } from "./B22Activities";
 import { Carbon14Dating, GeigerRandomDecay, RadioactiveDecayHalfLife, RadiationProperties, RadiationSafety } from "./B23Activities";
@@ -50,7 +50,7 @@ function ActivityDataPanel({ activityKey, onProgress }: PhysicsActivityProps) {
   switch (normalizeActivityKey(activityKey)) {
     // B21
     case "rutherford_alpha_scattering":
-      return <RutherfordActivity onProgress={onProgress} />;
+      return <RutherfordApparatusV3 onProgress={onProgress} />;
     case "nuclear_structure_builder":
       return <NuclearBuilderActivity onProgress={onProgress} />;
     case "isotope_and_nuclear_size":
@@ -111,7 +111,7 @@ export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProg
 
   // Core processes own both their visual and numerical state. A second generic
   // viewer would display a different run and report unrelated completion.
-  if (normalized === "rutherford_alpha_scattering") return <RutherfordApparatusV3 />;
+  if (normalized === "rutherford_alpha_scattering") return <RutherfordApparatusV3 onProgress={onProgress} />;
   if (normalized === "radioactive_decay_half_life") return <RadioactiveDecayHalfLife onProgress={onProgress} />;
   if (normalized === "nuclear_fission") return <GuidedFissionLab onProgress={onProgress} />;
   if (normalized === "reactor_control_concept" || normalized === "nuclear_power_energy_flow") return <ReactorControlConcept onProgress={onProgress} />;

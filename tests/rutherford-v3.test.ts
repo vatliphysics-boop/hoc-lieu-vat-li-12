@@ -285,4 +285,155 @@ test("Rutherford V3: comprehensive physics scenarios", async (t) => {
       assert.ok(point.radiusFm > 0);
     }
   });
+
+  await t.test("equal E*b product yields equal scattering angle but distinct finite-screen detector angle", () => {
+    const runA = createRutherfordRun({ impactFm: 10, energyMeV: 8 });
+    const runB = createRutherfordRun({ impactFm: 20, energyMeV: 4 });
+
+    // Asymptotic scattering angle depends only on E * b = 80 MeV·fm
+    assert.ok(
+      Math.abs(runA.scatteringAngleDeg - runB.scatteringAngleDeg) < 1e-12,
+      `Expected identical scattering angles; got ${runA.scatteringAngleDeg} vs ${runB.scatteringAngleDeg}`,
+    );
+    assert.ok(Math.abs(runA.scatteringAngleDeg - 109.7662248622392) < 1e-6);
+
+    // Finite detector screen (R = 180 fm) is fixed while hyperbola scales 2x in runB
+    assert.ok(
+      runB.detectorAngleDeg > runA.detectorAngleDeg,
+      `Expected larger finite-screen detector angle for (20, 4); got ${runB.detectorAngleDeg} vs ${runA.detectorAngleDeg}`,
+    );
+    assert.ok(Math.abs(runA.detectorAngleDeg - 113.088) < 0.01);
+    assert.ok(Math.abs(runB.detectorAngleDeg - 116.755) < 0.01);
+    assert.ok(Math.abs(runB.closestApproachFm - 2 * runA.closestApproachFm) < 1e-9);
+  });
+});
+
+test("Rutherford V3 student inquiry evaluation & onProgress criteria", async (t) => {
+  const { evaluateRutherfordInquiry } = await import(
+    "../src/simulations-v3/apparatus/rutherford/inquiry"
+  );
+
+  const runSmallB = {
+    b: 10,
+    e: 8,
+    theta: createRutherfordRun({ impactFm: 10, energyMeV: 8 }).scatteringAngleDeg,
+  };
+  const runLargeB = {
+    b: 60,
+    e: 8,
+    theta: createRutherfordRun({ impactFm: 60, energyMeV: 8 }).scatteringAngleDeg,
+  };
+  const runOtherE = {
+    b: 20,
+    e: 4,
+    theta: createRutherfordRun({ impactFm: 20, energyMeV: 4 }).scatteringAngleDeg,
+  };
+
+  await t.test("just opened or only 1 run saved is not complete", () => {
+    const empty = evaluateRutherfordInquiry({
+      prediction: "",
+      run1: null,
+      run2: null,
+      lastCapturedSlot: null,
+      conclusion: "",
+    });
+    assert.strictEqual(empty.isComplete, false);
+    assert.strictEqual(empty.savedRunCount, 0);
+
+    const oneRun = evaluateRutherfordInquiry({
+      prediction: "decrease",
+      run1: runSmallB,
+      run2: null,
+      lastCapturedSlot: 1,
+      conclusion: "Giải thích sớm",
+    });
+    assert.strictEqual(oneRun.isComplete, false);
+    assert.strictEqual(oneRun.savedRunCount, 1);
+    assert.strictEqual(oneRun.validComparison, false);
+  });
+
+  await t.test("verdict is decrease when b increases regardless of capture order", () => {
+    const smallFirst = evaluateRutherfordInquiry({
+      prediction: "decrease",
+      run1: runSmallB,
+      run2: runLargeB,
+      lastCapturedSlot: 2,
+      conclusion: "Khi b tăng thì khoảng cách tới hạt nhân tăng, lực đẩy Coulomb giảm nên góc lệch giảm.",
+    });
+    const largeFirst = evaluateRutherfordInquiry({
+      prediction: "decrease",
+      run1: runLargeB,
+      run2: runSmallB,
+      lastCapturedSlot: 2,
+      conclusion: "Khi b giảm từ 60 xuống 10 fm thì góc lệch tăng, tức khi b tăng góc lệch giảm.",
+    });
+
+    assert.strictEqual(smallFirst.verdict, "decrease");
+    assert.strictEqual(largeFirst.verdict, "decrease");
+    assert.strictEqual(smallFirst.matchesPrediction, true);
+    assert.strictEqual(largeFirst.matchesPrediction, true);
+    assert.strictEqual(smallFirst.isComplete, true);
+    assert.strictEqual(largeFirst.isComplete, true);
+  });
+
+  await t.test("different E or duplicate b blocks comparison/completion and identifies exact slot to remeasure", () => {
+    const diffEnergySlot2 = evaluateRutherfordInquiry({
+      prediction: "decrease",
+      run1: runSmallB,
+      run2: runOtherE,
+      lastCapturedSlot: 2,
+      conclusion: "Đã viết giải thích",
+    });
+    assert.strictEqual(diffEnergySlot2.validComparison, false);
+    assert.strictEqual(diffEnergySlot2.isComplete, false);
+    assert.strictEqual(diffEnergySlot2.invalidReason, "different_energy");
+    assert.strictEqual(diffEnergySlot2.remeasureSlot, 2);
+    assert.ok(diffEnergySlot2.remeasureGuidance?.includes("Lượt đo 2"));
+
+    const diffEnergySlot1 = evaluateRutherfordInquiry({
+      prediction: "decrease",
+      run1: runOtherE,
+      run2: runLargeB,
+      lastCapturedSlot: 1,
+      conclusion: "Đã viết giải thích",
+    });
+    assert.strictEqual(diffEnergySlot1.remeasureSlot, 1);
+    assert.ok(diffEnergySlot1.remeasureGuidance?.includes("Lượt đo 1"));
+
+    const duplicateB = evaluateRutherfordInquiry({
+      prediction: "decrease",
+      run1: runSmallB,
+      run2: { ...runSmallB },
+      lastCapturedSlot: 2,
+      conclusion: "Đã viết giải thích",
+    });
+    assert.strictEqual(duplicateB.validComparison, false);
+    assert.strictEqual(duplicateB.isComplete, false);
+    assert.strictEqual(duplicateB.invalidReason, "same_impact");
+    assert.strictEqual(duplicateB.remeasureSlot, 2);
+    assert.ok(duplicateB.remeasureGuidance?.includes("trùng tham số va chạm"));
+  });
+
+  await t.test("respects contrary initial prediction and still completes once explained", () => {
+    const contraryNoText = evaluateRutherfordInquiry({
+      prediction: "increase",
+      run1: runLargeB,
+      run2: runSmallB,
+      lastCapturedSlot: 2,
+      conclusion: "   ",
+    });
+    assert.strictEqual(contraryNoText.verdict, "decrease");
+    assert.strictEqual(contraryNoText.matchesPrediction, false);
+    assert.strictEqual(contraryNoText.isComplete, false);
+
+    const contraryWithExplanation = evaluateRutherfordInquiry({
+      prediction: "increase",
+      run1: runLargeB,
+      run2: runSmallB,
+      lastCapturedSlot: 2,
+      conclusion: "Ban đầu em đoán góc tăng, nhưng đo thực tế cho thấy b tăng làm lực Coulomb yếu đi nên góc lệch giảm.",
+    });
+    assert.strictEqual(contraryWithExplanation.matchesPrediction, false);
+    assert.strictEqual(contraryWithExplanation.isComplete, true);
+  });
 });

@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { B21Hero } from "./B21Hero";
-import { IsotopeActivity, NuclearBuilderActivity, RutherfordActivity } from "./B21Activities";
+import { IsotopeActivity, NuclearBuilderActivity } from "./B21Activities";
+import { FixedPhysicsActivityRenderer } from "./FixedPhysicsActivityRenderer";
 import { LatexMath } from "@/components/learning/LatexMath";
 import styles from "./B21Lesson.module.css";
 
@@ -49,7 +50,24 @@ export function B21Lesson() {
             Chạy hai lượt bắn với cùng năng lượng nhưng lệch tâm khác nhau. So sánh góc lệch rồi đối chiếu với
             dự đoán: nếu điện tích dương trải đều, hạt phải lệch rất ít ở mọi khoảng cách.
           </p>
-          <RutherfordActivity onProgress={(v) => set("rutherford", v)} />
+          <FixedPhysicsActivityRenderer
+            activityKey="rutherford_alpha_scattering"
+            onProgress={(v) => set("rutherford", v)}
+          />
+          <p
+            role="status"
+            data-b21-rutherford-progress={done.rutherford ? "done" : "pending"}
+            style={{
+              marginTop: "12px",
+              fontSize: "14px",
+              fontWeight: 600,
+              color: done.rutherford ? "var(--semantic-success, #047857)" : "var(--text-muted, #64748b)",
+            }}
+          >
+            {done.rutherford
+              ? "✓ Bài 21 đã ghi nhận hoàn thành: Chạy thí nghiệm tán xạ và giải thích góc lệch"
+              : "Tiến độ Bài 21 (Mục I): Chưa hoàn thành — cần dự đoán, lưu 2 lượt đo cùng E khác b và viết lời giải thích."}
+          </p>
         </section>
 
         <section id="muc-2" className={styles.section}>

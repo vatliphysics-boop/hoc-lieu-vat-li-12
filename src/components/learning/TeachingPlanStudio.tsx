@@ -58,6 +58,7 @@ export function TeachingPlanStudio({
   form,
   preparationMode = false,
   initialDraft,
+  initialPlanId,
 }: {
   teacherId?: string;
   materials?: MaterialItem[];
@@ -69,6 +70,7 @@ export function TeachingPlanStudio({
   form?: string;
   preparationMode?: boolean;
   initialDraft?: TeachingPlan;
+  initialPlanId?: string;
 }) {
   const storageKey = `physics-teaching-plans-v1:${teacherId ?? "local"}`;
   const subscribe = useCallback((listener: () => void) => {
@@ -110,7 +112,15 @@ export function TeachingPlanStudio({
       b.updatedAt.localeCompare(a.updatedAt),
     );
   }, [snapshot, initialPlans]);
-  const [selection, setSelection] = useState("draft");
+  const [selection, setSelection] = useState(() =>
+    initialPlanId ? "auto" : "draft"
+  );
+  const resolvedSelection =
+    selection === "auto"
+      ? initialPlanId && saved.some((p) => p.id === initialPlanId)
+        ? initialPlanId
+        : "draft"
+      : selection;
   const [seed, setSeed] = useState(() =>
     initialDraft ?? createPlanTemplate(
       template ??
@@ -180,7 +190,7 @@ export function TeachingPlanStudio({
         <label>
           Mở kế hoạch đã lưu
           <select
-            value={selection}
+            value={resolvedSelection}
             onChange={(e) => {
               setSelection(e.target.value);
               setRevision((n) => n + 1);
@@ -246,9 +256,9 @@ export function TeachingPlanStudio({
       </label>
       {notice && <p role="status">{notice}</p>}
       <PlanEditor
-        key={`${selection}-${revision}`}
+        key={`${resolvedSelection}-${revision}`}
         preparationMode={preparationMode}
-        initialPlan={saved.find((p) => p.id === selection) ?? seed}
+        initialPlan={saved.find((p) => p.id === resolvedSelection) ?? seed}
         teacherId={teacherId}
         materials={materials}
         lessons={lessons}

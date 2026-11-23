@@ -1,12 +1,21 @@
 import Link from "next/link";
 import { PortalShell } from "@/components/PortalShell";
+import { Chapter4Hub } from "@/components/learning/Chapter4Hub";
 import { LearningLibrary } from "@/components/learning/LearningLibrary";
 import { MaterialCatalogRoute } from "@/components/learning/MaterialCatalogRoute";
 import { isUnifiedCatalogEnabled } from "@/lib/feature-flags";
+import styles from "@/components/learning/NuclearLabManual.module.css";
+
 export default async function OpenLearningPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; bai?: string; resource?: string; q?: string; page?: string }>;
+  searchParams: Promise<{
+    type?: string;
+    bai?: string;
+    resource?: string;
+    q?: string;
+    page?: string;
+  }>;
 }) {
   const { type, bai, resource, q, page } = await searchParams;
   return (
@@ -20,34 +29,43 @@ export default async function OpenLearningPage({
         </Link>
       }
     >
-      <header className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "16px" }}>
-        <div>
-          <p className="page-kicker">Vật lí 12 · B21–B25</p>
-          <h1>Chương 4: Vật lí hạt nhân</h1>
-          <p className="page-description">
-            B21–B25: thí nghiệm 3D nhiều góc nhìn, kiến thức, video, phiếu học
-            tập và hoạt động nhóm. Kết quả ở đây dùng tự luyện; nộp bài qua lớp
-            học sau khi đăng nhập.
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          <Link className="btn" href="/hoc-lieu/phong-hat-nhan">Mô hình và video B21–B25</Link>
-          <Link className="btn" href="/hoc-lieu/lop-hoc-dao-nguoc">
-            Cách tổ chức lớp học · Việc của GV &amp; HS
+      <Chapter4Hub />
+
+      <section
+        id="tra-cuu-hoc-lieu-le"
+        className={styles.warehouseSection}
+        aria-labelledby="warehouse-heading"
+      >
+        <div className={styles.warehouseHeader}>
+          <div>
+            <h2 id="warehouse-heading" className={styles.warehouseTitle}>
+              Tra cứu kho tài liệu lẻ theo loại và bài học
+            </h2>
+            <p style={{ margin: "4px 0 0", fontSize: "14px", color: "#525252" }}>
+              Tìm nhanh phiếu học tập PDF, mô phỏng riêng lẻ, video bài giảng và đề tự luyện của Chương IV.
+            </p>
+          </div>
+          <Link href="/hoc-lieu/lop-hoc-dao-nguoc" className="btn small">
+            Hướng dẫn 3 pha dạy học
           </Link>
-          <Link className="btn primary" href="/demo-lesson">
-            Tiến trình 3 giai đoạn →
-          </Link>
         </div>
-      </header>
-      {isUnifiedCatalogEnabled() ? (
-        <MaterialCatalogRoute
-          role="public"
-          basePath="/hoc-lieu"
-          searchParams={{ type, bai, q, page }}
-        />
-      ) : (
-        <LearningLibrary key={`${type}-${bai}-${resource}`} initialType={type} initialLesson={bai} initialResource={resource} />
-      )}    </PortalShell>
+        {isUnifiedCatalogEnabled() ? (
+          <MaterialCatalogRoute
+            role="public"
+            basePath="/hoc-lieu"
+            showLessonCards={false}
+            searchParams={{ type, bai, q, page }}
+          />
+        ) : (
+          <LearningLibrary
+            key={`${type}-${bai}-${resource}`}
+            initialType={type}
+            initialLesson={bai}
+            initialResource={resource}
+            showLessonCards={false}
+          />
+        )}
+      </section>
+    </PortalShell>
   );
 }

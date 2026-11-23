@@ -28,10 +28,12 @@ export function LearningLibrary({
   initialType = "all",
   initialLesson = "all",
   initialResource,
+  showLessonCards = true,
 }: {
   initialType?: string;
   initialLesson?: string;
   initialResource?: string;
+  showLessonCards?: boolean;
 }) {
   const [type, setType] = useState(LEARNING_CATEGORIES.some(([v]) => v === initialType) ? initialType : "all"),
     [lesson, setLesson] = useState(VISUAL_LESSONS.some(l => l.code === initialLesson) ? initialLesson : "all"),
@@ -63,9 +65,13 @@ export function LearningLibrary({
   }
   return (
     <section className="learning-library">
-      <div className="library-start"><div><span className="visual-eyebrow">Chương 4: Vật lí hạt nhân · B21–B25</span><h2>Học liệu theo bài</h2><p>Chọn bài để mở hình minh họa, mô phỏng, video và bản ghi học tập.</p></div><Link className="btn primary" href="/hoc-lieu/truc-quan?bai=B22">Mở học liệu B22</Link></div>
-      <nav className="library-lesson-cards" aria-label="Mở học liệu theo bài">{VISUAL_LESSONS.map(l => <Link href={`/hoc-lieu/truc-quan?bai=${l.code}`} key={l.code}><span>{l.code}</span><img src={`/illustrations/${l.code}-diagram.svg`} alt=""/><strong>{l.shortTitle}</strong><small>Hình · 3D · Video · Bản ghi ↗</small></Link>)}</nav>
-      <div className="planning-callout"><div><strong>Kế hoạch dạy học của giáo viên</strong><p>Chọn học liệu từ kho, chỉnh mục tiêu và nhiệm vụ, thiết kế sản phẩm/đánh giá cho ba pha. Có 5 mẫu B21–B25 để sửa và lưu riêng.</p></div><Link className="btn primary" href="/hoc-lieu/soan-ke-hoach">Soạn kế hoạch dạy học</Link></div>
+      {showLessonCards && (
+        <>
+          <div className="library-start"><div><span className="visual-eyebrow">Chương 4: Vật lí hạt nhân · B21–B25</span><h2>Học liệu theo bài</h2><p>Chọn bài để mở hình minh họa, mô phỏng, video và bản ghi học tập.</p></div><Link className="btn primary" href="/hoc-lieu/truc-quan?bai=B22">Mở học liệu B22</Link></div>
+          <nav className="library-lesson-cards" aria-label="Mở học liệu theo bài">{VISUAL_LESSONS.map(l => <Link href={`/hoc-lieu/truc-quan?bai=${l.code}`} key={l.code}><span>{l.code}</span><img src={`/illustrations/${l.code}-diagram.svg`} alt=""/><strong>{l.shortTitle}</strong><small>Hình · 3D · Video · Bản ghi ↗</small></Link>)}</nav>
+          <div className="planning-callout"><div><strong>Kế hoạch dạy học của giáo viên</strong><p>Chọn học liệu từ kho, chỉnh mục tiêu và nhiệm vụ, thiết kế sản phẩm/đánh giá cho ba pha. Có 5 mẫu B21–B25 để sửa và lưu riêng.</p></div><Link className="btn primary" href="/hoc-lieu/soan-ke-hoach">Soạn kế hoạch dạy học</Link></div>
+        </>
+      )}
       <div className="library-filters">
         <label>
           Tìm học liệu

@@ -3,6 +3,7 @@
 .public-shell { min-height: 100dvh; display: flex; flex-direction: column; background: var(--bg-page); color: var(--text-primary); }
 .public-main { flex: 1; width: 100%; min-width: 0; }
 .public-workspace { width: 100%; max-width: var(--content-width); margin-inline: auto; padding: 28px 24px 48px; }
+.public-workspace:has([data-nuclear-manual]) { max-width: 1360px; padding-top: 10px; min-width: 0; }
 .portal-main { max-width: var(--content-width); padding: 32px clamp(20px, 3vw, 40px) 48px; }
 .portal-topbar { min-height: var(--topbar-height); padding-inline: 24px; }
 .topbar-left { gap: 12px; min-width: 0; }

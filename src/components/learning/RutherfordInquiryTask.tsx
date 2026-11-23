@@ -8,17 +8,22 @@
  * số liệu hiển thị luôn trùng với quỹ đạo và bảng số liệu đang xem.
  */
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  evaluateRutherfordInquiry,
+  PREDICTION_LABELS,
+  type InquiryRun,
+  type RunSlot,
+  type RutherfordPrediction,
+} from "@/simulations-v3/apparatus/rutherford/inquiry";
 
-export interface InquiryRun {
-  readonly b: number;
-  readonly e: number;
-  readonly theta: number;
-}
+export type { InquiryRun, RutherfordPrediction };
 
 export interface RutherfordInquiryTaskProps {
   /** Trạng thái hiện tại của simulator (đọc từ cùng nguồn với cảnh 3D). */
   readonly current: InquiryRun | null;
+  /** Báo trạng thái hoàn thành đủ nhiệm vụ điều tra lên mô phỏng / bài học. */
+  readonly onCompleteChange?: (complete: boolean) => void;
 }
 
 const cardStyle: React.CSSProperties = {
@@ -43,29 +48,55 @@ const optionStyle = (active: boolean): React.CSSProperties => ({
 });
 
 function RunCard({
+  slot,
   title,
   hint,
   run,
+  needsRemeasure,
   onCapture,
   onClear,
 }: {
+  slot: RunSlot;
   title: string;
   hint: string;
   run: InquiryRun | null;
+  needsRemeasure: boolean;
   onCapture: () => void;
   onClear: () => void;
 }) {
+  const bg = needsRemeasure ? "#fffbeb" : run ? "#ecfdf5" : "#f9fafb";
+  const border = needsRemeasure ? "#f59e0b" : run ? "#10b981" : "#d1d5db";
+
   return (
     <div
+      data-run-slot={slot}
+      data-needs-remeasure={needsRemeasure ? "true" : "false"}
       style={{
         padding: "12px",
-        background: run ? "#ecfdf5" : "#f9fafb",
+        background: bg,
         borderRadius: "6px",
         border: "1px solid",
-        borderColor: run ? "#10b981" : "#d1d5db",
+        borderColor: border,
       }}
     >
-      <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "2px" }}>{title}</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "2px" }}>
+        <div style={{ fontSize: "13px", fontWeight: 600 }}>{title}</div>
+        {needsRemeasure && (
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              padding: "2px 6px",
+              borderRadius: "4px",
+              background: "#fef3c7",
+              color: "#b45309",
+              border: "1px solid #f59e0b",
+            }}
+          >
+            Cần đo lại
+          </span>
+        )}
+      </div>
       <div style={{ fontSize: "11px", color: "#6b7280", marginBottom: "8px" }}>{hint}</div>
       {run ? (
         <div style={{ fontSize: "12px", lineHeight: 1.8 }}>
@@ -78,7 +109,17 @@ function RunCard({
             <button
               type="button"
               onClick={onCapture}
-              style={{ fontSize: "11px", padding: "6px 10px", border: "1px solid #d1d5db", borderRadius: "4px", background: "#fff", cursor: "pointer", minHeight: "32px" }}
+              style={{
+                fontSize: "11px",
+                padding: "6px 10px",
+                border: needsRemeasure ? "1px solid #d97706" : "1px solid #d1d5db",
+                borderRadius: "4px",
+                background: needsRemeasure ? "#f59e0b" : "#fff",
+                color: needsRemeasure ? "#fff" : "#111827",
+                fontWeight: needsRemeasure ? 600 : 400,
+                cursor: "pointer",
+                minHeight: "32px",
+              }}
             >
               Ghi đè
             </button>
@@ -104,22 +145,45 @@ function RunCard({
   );
 }
 
-export function RutherfordInquiryTask({ current }: RutherfordInquiryTaskProps) {
-  const [prediction, setPrediction] = useState<string>("");
+export function RutherfordInquiryTask({ current, onCompleteChange }: RutherfordInquiryTaskProps) {
+  const [prediction, setPrediction] = useState<RutherfordPrediction | "">("");
   const [run1, setRun1] = useState<InquiryRun | null>(null);
   const [run2, setRun2] = useState<InquiryRun | null>(null);
+  const [lastCapturedSlot, setLastCapturedSlot] = useState<RunSlot | null>(null);
   const [conclusion, setConclusion] = useState("");
 
-  const bothRuns = run1 !== null && run2 !== null;
-  const sameEnergy = bothRuns && Math.abs(run1.e - run2.e) < 1e-9;
+  const evaluation = useMemo(
+    () =>
+      evaluateRutherfordInquiry({
+        prediction,
+        run1,
+        run2,
+        lastCapturedSlot,
+        conclusion,
+      }),
+    [prediction, run1, run2, lastCapturedSlot, conclusion],
+  );
 
-  const verdict = (() => {
-    if (!bothRuns) return null;
-    if (Math.abs(run2.theta - run1.theta) < 0.01) return "unchanged" as const;
-    return run2.theta < run1.theta ? "decrease" as const : "increase" as const;
-  })();
+  useEffect(() => {
+    onCompleteChange?.(evaluation.isComplete);
+  }, [evaluation.isComplete, onCompleteChange]);
 
-  const matchesPrediction = verdict !== null && prediction !== "" && verdict === prediction;
+  function captureSlot(slot: RunSlot) {
+    if (!current) return;
+    if (slot === 1) setRun1(current);
+    else setRun2(current);
+    setLastCapturedSlot(slot);
+  }
+
+  function clearSlot(slot: RunSlot) {
+    if (slot === 1) {
+      setRun1(null);
+      setLastCapturedSlot(run2 ? 2 : null);
+    } else {
+      setRun2(null);
+      setLastCapturedSlot(run1 ? 1 : null);
+    }
+  }
 
   return (
     <div
@@ -146,11 +210,13 @@ export function RutherfordInquiryTask({ current }: RutherfordInquiryTaskProps) {
           góc lệch sẽ thay đổi thế nào?
         </p>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          {[
-            { value: "increase", label: "Góc lệch tăng" },
-            { value: "decrease", label: "Góc lệch giảm" },
-            { value: "unchanged", label: "Không đổi" },
-          ].map((opt) => (
+          {(
+            [
+              { value: "increase", label: PREDICTION_LABELS.increase },
+              { value: "decrease", label: PREDICTION_LABELS.decrease },
+              { value: "unchanged", label: PREDICTION_LABELS.unchanged },
+            ] as const
+          ).map((opt) => (
             <label key={opt.value} style={optionStyle(prediction === opt.value)}>
               <input
                 type="radio"
@@ -163,50 +229,72 @@ export function RutherfordInquiryTask({ current }: RutherfordInquiryTaskProps) {
             </label>
           ))}
         </div>
+        {evaluation.hasPrediction && evaluation.bothRuns && (
+          <p style={{ fontSize: "12px", color: "#4b5563", marginTop: "10px", marginBottom: 0 }}>
+            Dự đoán đã chọn: <strong>{PREDICTION_LABELS[prediction as RutherfordPrediction]}</strong>. Em hãy giữ nguyên dự đoán ban đầu để đối chiếu với số liệu đo.
+          </p>
+        )}
       </div>
 
       {/* Bước 2 — Hai lượt đo */}
       <div style={{ ...cardStyle, marginBottom: "16px" }}>
         <div style={{ fontWeight: 500, marginBottom: "8px" }}>2. Lấy hai lượt đo cùng E, khác b</div>
         <p style={{ fontSize: "13px", color: "#6b7280", marginBottom: "12px", lineHeight: 1.6 }}>
-          Kéo slider <strong>b</strong> và <strong>E</strong> bên trên, đọc góc tán xạ, rồi lưu vào từng lượt.
-          Nên chọn b nhỏ (khoảng 10 fm) và b lớn (khoảng 60 fm) với cùng một giá trị E.
+          Kéo thanh trượt <strong>b</strong> và <strong>E</strong> bên trên để lấy hai lượt đo ở{" "}
+          <strong>cùng một giá trị E</strong> nhưng <strong>khác giá trị b</strong> (ví dụ khoảng 10 fm và 60 fm, lưu theo thứ tự nào cũng được).
         </p>
         <div style={{ display: "grid", gap: "12px", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
           <RunCard
-            title="Lượt 1 — b nhỏ"
-            hint="Hạt đi sát hạt nhân"
+            slot={1}
+            title="Lượt đo 1"
+            hint="Chọn một giá trị b bất kỳ rồi lưu"
             run={run1}
-            onCapture={() => current && setRun1(current)}
-            onClear={() => setRun1(null)}
+            needsRemeasure={evaluation.remeasureSlot === 1}
+            onCapture={() => captureSlot(1)}
+            onClear={() => clearSlot(1)}
           />
           <RunCard
-            title="Lượt 2 — b lớn"
-            hint="Hạt đi xa hạt nhân"
+            slot={2}
+            title="Lượt đo 2"
+            hint="Đổi sang giá trị b khác (cùng E) rồi lưu"
             run={run2}
-            onCapture={() => current && setRun2(current)}
-            onClear={() => setRun2(null)}
+            needsRemeasure={evaluation.remeasureSlot === 2}
+            onCapture={() => captureSlot(2)}
+            onClear={() => clearSlot(2)}
           />
         </div>
         {current ? (
-          <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "12px" }}>
+          <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "12px", marginBottom: 0 }}>
             Đang xem: b = {current.b} fm, E = {current.e} MeV → θ = {current.theta.toFixed(2)}°
           </p>
         ) : (
-          <p style={{ fontSize: "12px", color: "#b91c1c", marginTop: "12px" }}>
+          <p style={{ fontSize: "12px", color: "#b91c1c", marginTop: "12px", marginBottom: 0 }}>
             Tham số hiện tại không hợp lệ nên chưa lấy được số đo.
           </p>
         )}
-        {bothRuns && !sameEnergy && (
-          <p style={{ fontSize: "12px", color: "#b45309", marginTop: "8px" }}>
-            Hai lượt đang có năng lượng khác nhau ({run1.e} MeV và {run2.e} MeV). Để so sánh đúng ý
-            “giữ nguyên năng lượng”, hãy lấy lại một lượt cùng E.
-          </p>
+
+        {evaluation.remeasureGuidance && (
+          <div
+            role="alert"
+            data-rutherford-invalid-runs={evaluation.invalidReason ?? ""}
+            style={{
+              marginTop: "12px",
+              padding: "12px 14px",
+              background: "#fffbeb",
+              border: "1px solid #f59e0b",
+              borderRadius: "6px",
+              color: "#92400e",
+              fontSize: "13px",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>Cần đo lại Lượt đo {evaluation.remeasureSlot}:</strong> {evaluation.remeasureGuidance}
+          </div>
         )}
       </div>
 
-      {/* Bước 3 — So sánh */}
-      {bothRuns && (
+      {/* Bước 3 — So sánh (chỉ mở khi hai lượt đo hợp lệ: cùng E, khác b) */}
+      {evaluation.validComparison && run1 && run2 && evaluation.smallerBRun && evaluation.largerBRun && (
         <div
           style={{
             marginBottom: "16px",
@@ -217,31 +305,58 @@ export function RutherfordInquiryTask({ current }: RutherfordInquiryTaskProps) {
           }}
         >
           <div style={{ fontWeight: 500, marginBottom: "8px" }}>3. So sánh</div>
-          <div style={{ fontSize: "14px", lineHeight: 1.9 }}>
-            b: <strong>{run1.b} fm</strong> → <strong>{run2.b} fm</strong>
-            <br />
-            θ: <strong>{run1.theta.toFixed(2)}°</strong> → <strong>{run2.theta.toFixed(2)}°</strong>
-            <br />
-            {verdict === "decrease" && <span style={{ color: "#047857" }}>→ Góc lệch giảm khi b tăng.</span>}
-            {verdict === "increase" && <span style={{ color: "#b91c1c" }}>→ Góc lệch tăng khi b tăng.</span>}
-            {verdict === "unchanged" && <span>→ Góc lệch gần như không đổi.</span>}
+          <div style={{ fontSize: "14px", lineHeight: 1.85 }}>
+            <div>
+              Đã ghi nhận: Lượt đo 1 (<strong>b = {run1.b} fm</strong>, E = {run1.e} MeV → <strong>θ = {run1.theta.toFixed(2)}°</strong>) ·{" "}
+              Lượt đo 2 (<strong>b = {run2.b} fm</strong>, E = {run2.e} MeV → <strong>θ = {run2.theta.toFixed(2)}°</strong>).
+            </div>
+            <div style={{ marginTop: "4px" }}>
+              Đối chiếu khi <strong>b tăng</strong> (cùng E = {evaluation.smallerBRun.e} MeV):{" "}
+              b từ <strong>{evaluation.smallerBRun.b} fm</strong> → <strong>{evaluation.largerBRun.b} fm</strong> thì{" "}
+              θ từ <strong>{evaluation.smallerBRun.theta.toFixed(2)}°</strong> → <strong>{evaluation.largerBRun.theta.toFixed(2)}°</strong>.
+            </div>
+            <div style={{ marginTop: "4px", fontWeight: 600 }}>
+              {evaluation.verdict === "decrease" && (
+                <span style={{ color: "#047857" }}>
+                  → Góc lệch giảm khi b tăng (ngược lại: khi b giảm, hạt đi gần tâm hạt nhân hơn thì góc lệch tăng).
+                </span>
+              )}
+              {evaluation.verdict === "increase" && (
+                <span style={{ color: "#b91c1c" }}>→ Góc lệch tăng khi b tăng.</span>
+              )}
+              {evaluation.verdict === "unchanged" && (
+                <span>→ Góc lệch gần như không đổi khi b thay đổi.</span>
+              )}
+            </div>
           </div>
-          {prediction !== "" && (
-            <p style={{ fontSize: "13px", marginTop: "10px", color: matchesPrediction ? "#047857" : "#b45309" }}>
-              {matchesPrediction
-                ? "Dự đoán của em khớp với số liệu hai lượt đo."
-                : "Dự đoán của em chưa khớp với số liệu — hãy giải thích vì sao bên dưới."}
+
+          {evaluation.hasPrediction ? (
+            <p
+              style={{
+                fontSize: "13px",
+                marginTop: "10px",
+                marginBottom: 0,
+                color: evaluation.matchesPrediction ? "#047857" : "#92400e",
+              }}
+            >
+              {evaluation.matchesPrediction
+                ? `Dự đoán ban đầu của em ("${PREDICTION_LABELS[prediction as RutherfordPrediction]}") khớp với số liệu hai lượt đo.`
+                : `Kết quả đo trái với dự đoán ban đầu của em ("${PREDICTION_LABELS[prediction as RutherfordPrediction]}"). Em không cần đổi lại dự đoán ban đầu — hãy giải thích nguyên nhân vật lí ở Bước 4.`}
+            </p>
+          ) : (
+            <p style={{ fontSize: "13px", marginTop: "10px", marginBottom: 0, color: "#b45309" }}>
+              Em chưa chọn dự đoán ở Bước 1. Hãy chọn dự đoán của em trước khi hoàn thành nhiệm vụ.
             </p>
           )}
         </div>
       )}
 
       {/* Bước 4 — Giải thích */}
-      {bothRuns && (
-        <div style={cardStyle}>
+      {evaluation.validComparison && (
+        <div style={{ ...cardStyle, marginBottom: "16px" }}>
           <div style={{ fontWeight: 500, marginBottom: "8px" }}>4. Giải thích</div>
           <p style={{ fontSize: "14px", marginBottom: "10px", lineHeight: 1.7 }}>
-            Hai góc đo được có phù hợp với dự đoán của em không? Dùng số liệu của hai lượt và
+            Hai góc đo được có phù hợp với dự đoán ban đầu của em không? Dùng số liệu của hai lượt và
             lực đẩy điện giữa hạt alpha với hạt nhân vàng để giải thích.
           </p>
           <textarea
@@ -261,11 +376,48 @@ export function RutherfordInquiryTask({ current }: RutherfordInquiryTaskProps) {
               resize: "vertical",
             }}
           />
-          <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "8px" }}>
+          <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "8px", marginBottom: 0 }}>
             Gợi ý kiểm tra lại: lực Coulomb ~ 1/r²; khi b lớn hơn thì khoảng cách gần nhất lớn hơn.
           </p>
         </div>
       )}
+
+      {/* Trạng thái hoàn thành nhiệm vụ */}
+      <div
+        role="status"
+        data-rutherford-task-status={evaluation.isComplete ? "complete" : "incomplete"}
+        style={{
+          padding: "12px 16px",
+          borderRadius: "8px",
+          background: evaluation.isComplete ? "#ecfdf5" : "#ffffff",
+          border: "1px solid",
+          borderColor: evaluation.isComplete ? "#10b981" : "#e5e7eb",
+          fontSize: "13px",
+        }}
+      >
+        <div style={{ fontWeight: 600, color: evaluation.isComplete ? "#047857" : "#374151", marginBottom: "6px" }}>
+          {evaluation.isComplete
+            ? "✓ Đã hoàn thành nhiệm vụ điều tra tán xạ Rutherford"
+            : "Tiến độ hoàn thành nhiệm vụ điều tra:"}
+        </div>
+        <ul style={{ margin: 0, paddingLeft: "20px", lineHeight: 1.7, color: "#4b5563" }}>
+          <li>
+            {evaluation.hasPrediction ? "✓" : "○"} Chọn dự đoán ban đầu ở Bước 1
+          </li>
+          <li>
+            {evaluation.validComparison
+              ? "✓ Đã lưu 2 lượt đo hợp lệ (cùng E, khác b)"
+              : evaluation.savedRunCount === 0
+              ? "○ Lưu 2 lượt đo cùng E nhưng khác b (hiện 0/2 lượt)"
+              : evaluation.savedRunCount === 1
+              ? "○ Lưu thêm 1 lượt đo nữa ở cùng E nhưng khác b (hiện 1/2 lượt)"
+              : `○ Đo lại Lượt đo ${evaluation.remeasureSlot} để hai lượt có cùng E và khác b`}
+          </li>
+          <li>
+            {evaluation.hasExplanation ? "✓" : "○"} Viết lời giải thích vật lí ở Bước 4
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }

@@ -72,9 +72,11 @@ test("true false questions always have exactly four source statements and aligne
  for(const count of [0,1,3,5,8,13])assert.throws(()=>validateUnifiedQuestion({...question,statements:Array(count).fill(question.statements![0])}),/đúng 4 ý/);
  assert.throws(()=>validateUnifiedQuestion({...question,statements:question.statements!.map((s,i)=>i===0?{text:s.text}:s)}),/đáp án/);
 });
-test("splitting and same-topic grouping preserve every original statement exactly once",()=>{
+test("splitting and same-topic grouping preserve every original statement exactly once",(t)=>{
+ const pendingUrl=new URL('../data/book-bank/true-false-pending-statements.json',import.meta.url);
+ if(!fs.existsSync(pendingUrl)){t.skip("Local data/book-bank/ is not present on this checkout");return;}
  const originals=JSON.parse(fs.readFileSync(new URL('../src/data/workbook-nuclear-transcriptions.json',import.meta.url),'utf8')) as UnifiedQuestion[];
- const pending=JSON.parse(fs.readFileSync(new URL('../data/book-bank/true-false-pending-statements.json',import.meta.url),'utf8')) as {questionId:string;topic:string;statementIndex:number;statement:{text:string;answer:boolean}}[];
+ const pending=JSON.parse(fs.readFileSync(pendingUrl,'utf8')) as {questionId:string;topic:string;statementIndex:number;statement:{text:string;answer:boolean}}[];
  const seen=new Set<string>();
  const check=(id:string,index:number,statement:{text:string;answer?:boolean},topic:string)=>{
   const original=originals.find(q=>q.id===id)!;
