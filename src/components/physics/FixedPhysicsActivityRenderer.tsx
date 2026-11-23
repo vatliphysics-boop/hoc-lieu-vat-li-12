@@ -113,18 +113,16 @@ export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProg
       if (part === "observed") observed.current = done;
       else answered.current = done;
 
-      // Với nuclear_structure_builder & isotope_and_nuclear_size: yêu cầu hoàn thành đủ bài tập thực hành
-      // trong ActivityDataPanel (tuyệt đối không tự hoàn thành vì 3D quay 1,5s và không xóa tiến độ đã lưu khi tải lại).
-      const nextDone = isB21NucleonOrIsotope
-        ? answered.current
-        : observed.current && answered.current;
+      // Gắn điều kiện hoàn thành vào việc hoàn thành thực chất bài tập trong ActivityDataPanel
+      // (tuyệt đối không tự hoàn thành chỉ vì 3D xoay 1,5s và không xóa tiến độ đã lưu khi chuyển mục).
+      const nextDone = answered.current;
 
       if (nextDone || hadReportedComplete.current) {
         onProgress?.(nextDone);
       }
       hadReportedComplete.current = nextDone;
     },
-    [isB21NucleonOrIsotope, onProgress],
+    [onProgress],
   );
   const reportObserved = useCallback((done: boolean) => report("observed", done), [report]);
   const reportAnswered = useCallback((done: boolean) => report("answered", done), [report]);
@@ -136,23 +134,24 @@ export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProg
   if (normalized === "rutherford_alpha_scattering") return <RutherfordApparatusV3 onProgress={onProgress} />;
   if (normalized === "radioactive_decay_half_life") return <RadioactiveDecayHalfLife onProgress={onProgress} />;
   if (normalized === "nuclear_fission") return <GuidedFissionLab onProgress={onProgress} />;
-  if (normalized === "reactor_control_concept" || normalized === "nuclear_power_energy_flow") return <ReactorControlConcept onProgress={onProgress} />;
+  if (normalized === "nuclear_power_energy_flow") return <NuclearPowerEnergyFlow onProgress={onProgress} />;
+  if (normalized === "reactor_control_concept") return <ReactorControlConcept onProgress={onProgress} />;
   if (normalized === "nuclear_physics_practice_lab") return <NuclearPhysicsPracticeLab onProgress={onProgress} />;
 
   return (
     <div className="interactive-experiment">
       <Simulation3D activityKey={normalized} customPrompt={customPrompt} onObserved={reportObserved} />
       <details
-        open={isB21NucleonOrIsotope ? true : undefined}
+        open
         style={{ marginTop: "14px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px" }}
       >
         <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>
           {isB21NucleonOrIsotope
             ? "Bàn thực hành cấu tạo hạt nhân, kí hiệu A/Z/N & câu hỏi kiểm tra"
-            : "Mở phiếu bài tập và câu hỏi kiểm tra"}
+            : "Bàn thực hành tương tác, xử lí dữ liệu & câu hỏi kiểm tra"}
         </summary>
         <div style={{ marginTop: "12px" }}>
-          <p className="physics-note">Khung quan sát bổ trợ và bài tập bên dưới là hai hoạt động riêng. Đọc giả thiết của từng phần trước khi đối chiếu.</p>
+          <p className="physics-note">Khung quan sát bổ trợ 3D ở trên và bàn thực hành bên dưới bổ sung cho nhau. Hoàn thành đủ các nhiệm vụ thực hành bên dưới để ghi nhận kết quả.</p>
           <ActivityDataPanel activityKey={normalized} onProgress={reportAnswered} />
         </div>
       </details>

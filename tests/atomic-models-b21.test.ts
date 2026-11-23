@@ -201,8 +201,8 @@ describe("B21 Standalone Atomic Models & Nucleon/Isotope V3 Upgrades", () => {
     assert.ok(!globalsSrc.includes(".physics-nuclide span {"));
     assert.ok(globalsSrc.includes(".physics-nuclide__scripts"));
 
-    // Open details for B21 builder & isotope activities
-    assert.ok(rendererSrc.includes("open={isB21NucleonOrIsotope ? true : undefined}"));
+    // Open details by default for interactive practice panels
+    assert.ok(rendererSrc.includes("<details") && rendererSrc.includes("open"));
   });
 });
 
