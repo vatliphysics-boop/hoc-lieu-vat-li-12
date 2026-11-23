@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
+import { REALTIME_LESSON_BY_ACTIVITY } from "@/lib/realtime-entry";
+import { HalfLifePilot } from "./HalfLifePilot";
 import { LearningResourcePreview } from "./LearningResourcePreview";
 import { EVIDENCE_PROMPTS } from "@/lib/nuclear-learning-sequence";
 import type { LearningPhase } from "@/lib/learning-phases";
@@ -45,7 +47,8 @@ function PathwayStepCard({ step, index, unlocked, phase }: { step: StudentPathwa
     ) : null}
     {step.completed ? <p role="status">✓ Đã lưu bài nộp. Giáo viên sẽ xem xét nội dung.</p> : null}
     {!unlocked ? <p>Em cần hoàn thành các bước bắt buộc trước đó để mở bước này.</p> : <>
-      {(step.activityKey || step.url) && <LearningResourcePreview material={CANONICAL_SYSTEM_MATERIALS.find(m => m.id === step.resourceId) ?? { title: step.title, content_url: step.activityKey ? `activity:${step.activityKey}` : step.url!, material_type: step.type as MaterialType }} onProgress={onActivityProgress} />}
+      {step.activityKey && step.activityKey !== "radioactive_decay_half_life" && REALTIME_LESSON_BY_ACTIVITY[step.activityKey] && <p><a href={`/hoc-lieu/phong-hat-nhan-v2?bai=${REALTIME_LESSON_BY_ACTIVITY[step.activityKey]}#phong-3d`} target="_blank" rel="noreferrer">Mở bài học tương tác bổ trợ ↗</a>. Kết quả của bước được giao vẫn nộp ở biểu mẫu bên dưới.</p>}
+      {step.activityKey === "radioactive_decay_half_life" ? <HalfLifePilot stepId={step.id} onProgress={onActivityProgress} /> : (step.activityKey || step.url) && <LearningResourcePreview material={CANONICAL_SYSTEM_MATERIALS.find(m => m.id === step.resourceId) ?? { title: step.title, content_url: step.activityKey ? `activity:${step.activityKey}` : step.url!, material_type: step.type as MaterialType }} onProgress={onActivityProgress} />}
       {!available ? <p role="alert">Học liệu hiện chưa mở được. Em hãy báo giáo viên để kiểm tra đường dẫn.</p> : null}
       <form onSubmit={event => {
         event.preventDefault();

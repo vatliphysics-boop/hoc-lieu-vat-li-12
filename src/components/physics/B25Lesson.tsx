@@ -1,13 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { B25Hero } from "./B25Hero";
 import { B25DataProcessLab } from "./B25DataProcessLab";
 import { BindingEnergyCalculator, NuclearEquationBalancer } from "./B25Activities";
 import { LatexMath } from "@/components/learning/LatexMath";
 import styles from "./B25Lesson.module.css";
 
+const RealtimeLab = dynamic(() => import("./B25RealtimeLab").then(m => m.B25RealtimeLab), { ssr: false, loading: () => <p role="status">Đang chuẩn bị không gian phân tích…</p> });
+
 const TOC = [
+  ["phong-3d", "Phân tích số liệu"],
   ["khoi-dong", "Khởi động"],
   ["muc-1", "I. Hệ thống hóa công thức"],
   ["muc-2", "II. Đọc đồ thị H(t) — Bảng 25.1"],
@@ -68,6 +72,7 @@ export function B25Lesson() {
       </nav>
 
       <article className={styles.body}>
+        <section id="phong-3d" className={styles.section}><RealtimeLab /></section>
         <section id="muc-1" className={styles.section}>
           <h2>I. Hệ thống hóa công thức</h2>
           <p className={styles.lead}>

@@ -1,0 +1,16 @@
+# Tài liệu làm việc cục bộ của AI
+/.agent/
+
+# Dependencies và sản phẩm build
+/node_modules/
+/dist/
+/coverage/
+
+# Thông tin môi trường cục bộ
+.env
+.env.*
+!.env.example
+
+# Tệp hệ điều hành và log
+.DS_Store
+*.log

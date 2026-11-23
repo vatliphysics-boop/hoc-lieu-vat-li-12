@@ -73,15 +73,23 @@ function HeaderNavigation({ pathname }: { pathname: string }) {
         }}
         onKeyDown={(event) => {
           if (event.key !== "Escape") return;
-          if (open) {
-            setOpen(false);
-            trigger.current?.focus();
-          } else if (toolsMenu.current?.open) {
+          const submenu = (event.target as Element | null)?.closest("details");
+          // Thoát menu con trước, chỉ đóng cả menu khi không còn menu con nào mở.
+          if (submenu && submenu.open) {
+            event.stopPropagation();
+            submenu.open = false;
+            submenu.querySelector("summary")?.focus();
+            return;
+          }
+          if (toolsMenu.current?.open) {
             toolsMenu.current.open = false;
             toolsMenu.current.querySelector("summary")?.focus();
           } else if (phaseMenu.current?.open) {
             phaseMenu.current.open = false;
             phaseMenu.current.querySelector("summary")?.focus();
+          } else if (open) {
+            setOpen(false);
+            trigger.current?.focus();
           }
         }}
       >

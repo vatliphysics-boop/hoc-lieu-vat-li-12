@@ -1,12 +1,16 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import dynamic from "next/dynamic";
 import { B21Hero } from "./B21Hero";
 import { IsotopeActivity, NuclearBuilderActivity, RutherfordActivity } from "./B21Activities";
 import { LatexMath } from "@/components/learning/LatexMath";
 import styles from "./B21Lesson.module.css";
 
+const RealtimeLab = dynamic(() => import("@/components/learning/realtime/B21RealtimeLab").then(m => m.B21RealtimeLab), { ssr: false, loading: () => <p role="status">Đang chuẩn bị phòng học 3D…</p> });
+
 const TOC = [
+  ["phong-3d", "Phòng học 3D"],
   ["khoi-dong", "Khởi động"],
   ["muc-1", "I. Thí nghiệm tán xạ alpha"],
   ["muc-2", "II. Cấu tạo hạt nhân"],
@@ -43,6 +47,7 @@ export function B21Lesson() {
       </nav>
 
       <article className={styles.body}>
+        <section id="phong-3d" className={styles.section}><RealtimeLab /></section>
         <section id="muc-1" className={styles.section}>
           <h2>I. Thí nghiệm tán xạ hạt alpha</h2>
           <p className={styles.lead}>

@@ -11,7 +11,10 @@ const NuclearFission = dynamic(
   { ssr: false, loading: () => <p role="status">Đang tải mô hình 3D phân hạch…</p> },
 );
 
+const RealtimeLab = dynamic(() => import("./B22RealtimeLab").then(m => m.B22RealtimeLab), { ssr: false, loading: () => <p role="status">Đang chuẩn bị phòng phân hạch 3D…</p> });
+
 const TOC = [
+  ["phong-3d", "Phòng học 3D"],
   ["khoi-dong", "Khởi động"],
   ["muc-1", "I. Phản ứng hạt nhân — buồng sương"],
   ["muc-2", "II. Năng lượng liên kết riêng"],
@@ -47,6 +50,7 @@ export function B22Lesson() {
       </nav>
 
       <article className={styles.body}>
+        <section id="phong-3d" className={styles.section}><RealtimeLab /></section>
         <section id="muc-1" className={styles.section}>
           <h2>I. Phản ứng hạt nhân — buồng sương Blackett</h2>
           <p className={styles.lead}>

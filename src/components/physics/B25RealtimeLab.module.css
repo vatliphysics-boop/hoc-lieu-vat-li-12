@@ -1,0 +1,6 @@
+.chart, .table { overflow-x: auto; max-width: 100%; }
+.chart svg { display: block; width: 100%; min-width: 520px; }
+.table { margin: 16px 0; }
+.table table { border-collapse: collapse; width: 100%; min-width: 360px; text-align: left; font-size: .85rem; }
+.table caption { text-align: left; font-weight: 700; margin-bottom: 8px; }
+.table th, .table td { padding: 8px; border-bottom: 1px solid #315263; white-space: nowrap; }

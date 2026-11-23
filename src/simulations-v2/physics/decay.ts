@@ -68,8 +68,7 @@ function countRemaining(lifetimes: readonly number[], timeSeconds: number): numb
  */
 export function stepDecayState(
   state: DecayState,
-  dt: number,
-  _params: ParameterValues
+  dt: number
 ): DecayState {
   const timeSeconds = state.timeSeconds + Math.max(0, dt);
   return {
@@ -79,7 +78,7 @@ export function stepDecayState(
   };
 }
 
-export function deriveDecay(state: DecayState, _params: ParameterValues): readonly DerivedQuantity[] {
+export function deriveDecay(state: DecayState): readonly DerivedQuantity[] {
   const { initialCount, halfLifeSeconds } = state.sample;
   const t = state.timeSeconds;
   const lambda = Math.LN2 / halfLifeSeconds;
@@ -143,7 +142,7 @@ export const B23_DECAY_DEFINITION: SimulationDefinition = {
       max: 30,
       step: 1,
       initial: 10,
-      note: "Thời gian để một nửa số hạt nhân còn lại phân rã.",
+      note: "Khoảng thời gian để số hạt nhân mẹ còn lại theo kì vọng giảm một nửa; một lượt hữu hạn có thể khác.",
     },
     {
       key: PARAM_KEYS.seed,
@@ -242,7 +241,7 @@ export const B23_DECAY_DEFINITION: SimulationDefinition = {
 };
 
 /** Expose the model in PhysicsModel shape for the generic renderer. */
-export const decayPhysicsModel: PhysicsModel<Readonly<Record<string, unknown>>, DecayState> = {
+export const decayPhysicsModel: PhysicsModel<DecayState> = {
   modelNote: B23_DECAY_DEFINITION.limitsNote,
   create: createDecayState,
   step: stepDecayState,

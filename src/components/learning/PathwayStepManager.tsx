@@ -701,6 +701,7 @@ export function PathwayStepManager({
                   {previewTarget.step && ["exercise", "reflection", "checkpoint"].includes(previewTarget.step.step_type) && !previewTarget.material.content_url
                     ? <p>Học sinh đọc nhiệm vụ ở trên và viết lời giải vào ô bài nộp.</p>
                     : <LearningResourcePreview
+                    pilotPreview
                     material={previewTarget.material}
                     onProgress={(done) => {
                       if (done) setPreviewInteracted(true);

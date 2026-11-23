@@ -1,0 +1,46 @@
+.pilot { --ink: #102d3a; --teal: #156d6b; color: var(--ink); font-family: inherit; }
+.pilot:fullscreen { background: #f5faf9; box-sizing: border-box; height: 100%; overflow: auto; padding: clamp(16px, 3vw, 36px); width: 100%; }
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; margin: 36px 0 24px; }
+.eyebrow { color: #16736d; letter-spacing: .12em; font-size: .78rem; font-weight: 800; text-transform: uppercase; }
+.hero h1 { font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.06; letter-spacing: -.04em; margin: .4em 0; }
+.hero p { max-width: 680px; line-height: 1.7; }
+.badge { border: 1px solid #b6d7d3; border-radius: 999px; background: #e6f5f1; padding: 10px 16px; font-weight: 700; font-size: .85rem; white-space: nowrap; }
+.layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, .8fr); gap: 20px; align-items: start; }
+.panel { background: #fff; border: 1px solid #cbdedc; box-shadow: 0 12px 36px #163b3c0b; border-radius: 18px; padding: clamp(16px, 2vw, 25px); min-width: 0; }
+.panel h2 { font-size: 1.3rem; margin: 0 0 12px; }
+.panel h3 { font-size: 1.05rem; margin: 18px 0 8px; }
+.panel p, .panel li { line-height: 1.6; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 16px 0; }
+.controls label, .field { display: grid; gap: 5px; flex: 1 1 130px; font-size: .88rem; font-weight: 650; }
+.pilot button, .pilot select, .pilot input { font: inherit; }
+.pilot button { border: 1px solid #a8c9c7; background: #fff; border-radius: 9px; color: #163e46; padding: 9px 13px; min-height: 42px; cursor: pointer; }
+.pilot button:hover { background: #eaf6f4; }
+.pilot button:disabled { opacity: .5; cursor: not-allowed; }
+.pilot .primary { background: #126d69; border-color: #126d69; color: white; }
+.pilot :is(button,input,select):focus-visible { outline: 3px solid #d77e26; outline-offset: 2px; }
+.pilot input[type=range] { width: 100%; accent-color: var(--teal); }
+.pilot select, .pilot input[type=number] { border: 1px solid #a8c9c7; background: white; padding: 8px; border-radius: 8px; min-width: 0; }
+.metrics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; margin: 16px 0; }
+.metrics div { background: #eaf5f3; border-radius: 10px; padding: 12px; }
+.metrics dt { font-size: .8rem; }
+.metrics dd { margin: 4px 0 0; font-size: 1.2rem; font-weight: 750; }
+.note { background: #f1f7f6; padding: 12px; border-radius: 10px; font-size: .9rem; }
+.question { background: #f4f8f7; border-radius: 12px; padding: 16px; margin-top: 14px; }
+.options { display: grid; gap: 8px; margin: 12px 0; }
+.options button { text-align: left; }
+.status { color: #12625e; font-weight: 650; }
+.small { font-size: .85rem; color: #47646a; }
+.consent { border-top: 1px solid #d1e1df; margin-top: 20px; padding-top: 12px; }
+.consent label { display: flex; align-items: start; gap: 8px; line-height: 1.5; }
+.consent input { margin-top: .35em; }
+.chart { margin-top: 16px; }
+@media(max-width: 850px) { .layout { grid-template-columns: 1fr; } .layout > aside { order: -1; } .hero { grid-template-columns: 1fr; } .badge { justify-self: start; } }
+@media(max-width: 500px) { .metrics { grid-template-columns: 1fr; } .controls button { flex: 1 1 auto; } }
+@media(prefers-reduced-motion: reduce) { .pilot * { scroll-behavior: auto !important; transition-duration: 0s !important; animation-duration: 0s !important; } }
+.pilot table { width: 100%; min-width: 520px; border-collapse: collapse; text-align: left; font-size: .86rem; }
+.pilot caption { text-align: left; font-weight: 700; margin: 12px 0; }
+.pilot th, .pilot td { padding: 9px 10px; border-bottom: 1px solid #d4e4e2; white-space: nowrap; }
+.modes { display:flex; flex-wrap:wrap; gap:8px; margin: 0 0 18px; }
+.modes button[aria-pressed="true"], .pilot button[aria-pressed="true"] { color:#fff; background:#126d69; border-color:#126d69; }
+.guide { background:#eef8f5; border:1px solid #c3dfd8; border-radius:16px; padding:clamp(16px,2vw,24px); margin-bottom:20px; }
+.guide h2 { margin:4px 0 8px; font-size:1.35rem; }.guide p { line-height:1.6; margin:6px 0; }

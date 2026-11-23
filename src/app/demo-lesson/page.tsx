@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { PublicShell } from "@/app/PublicShell";
 import { LatexMath } from "@/components/learning/LatexMath";
@@ -236,7 +236,10 @@ function phaseFromQuery(): 1 | 2 | 3 | null {
 }
 
 export default function DemoLessonPage() {
-  const [activePhase, setActivePhase] = useState<1 | 2 | 3>(1);
+  const [activePhase, setActivePhase] = useState<1 | 2 | 3>(() => {
+    const phase = phaseFromQuery();
+    return phase || 1;
+  });
   const [selectedLesson, setSelectedLesson] = useState<string>("B23");
   const [selected3DActivity, setSelected3DActivity] = useState<CanonicalActivityKey>("radiation_properties");
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
@@ -255,11 +258,6 @@ export default function DemoLessonPage() {
   });
   const [srlReflection, setSrlReflection] = useState<string>("");
   const [srlSaved, setSrlSaved] = useState<boolean>(false);
-
-  useEffect(() => {
-    const phase = phaseFromQuery();
-    if (phase) setActivePhase(phase);
-  }, []);
 
   const activePersona =
     ROLE_PLAY_PERSONAS.find((p) => p.id === selectedRole) || ROLE_PLAY_PERSONAS[0];

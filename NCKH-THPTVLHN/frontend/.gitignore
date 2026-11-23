@@ -1,0 +1,13 @@
+# Tài liệu làm việc nội bộ của AI, chỉ lưu trên máy.
+/.agent/
+
+# Phụ thuộc, kết quả build và cấu hình cục bộ.
+/node_modules/
+/dist/
+/build/
+/coverage/
+.env
+.env.*
+!.env.example
+.DS_Store
+npm-debug.log*

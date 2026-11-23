@@ -11,7 +11,10 @@ const ReactorControlConcept = dynamic(
   { ssr: false, loading: () => <p role="status">Đang tải mô hình lò phản ứng…</p> },
 );
 
+const RealtimeLab = dynamic(() => import("@/components/learning/B24RealtimeLab").then(m => m.B24RealtimeLab), { ssr: false, loading: () => <p role="status">Đang chuẩn bị mô hình nhà máy 3D…</p> });
+
 const TOC = [
+  ["phong-3d", "Phòng học 3D"],
   ["khoi-dong", "Khởi động"],
   ["muc-1", "I. Lò phản ứng hạt nhân"],
   ["muc-2", "II. Y học hạt nhân"],
@@ -40,6 +43,7 @@ export function B24Lesson() {
       </nav>
 
       <article className={styles.body}>
+        <section id="phong-3d" className={styles.section}><RealtimeLab /></section>
         <section id="muc-1" className={styles.section}>
           <h2>I. Lò phản ứng hạt nhân</h2>
           <p className={styles.lead}>

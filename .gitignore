@@ -1,7 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# dependencies (all depths)
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,20 +10,28 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# testing & local QA captures
 /coverage
+/test-results/
+/playwright-report/
+/e2e-screenshots/
+/docs/e2e-screenshots/
+e2e-rutherford-qa.cjs
 
-# next.js
+# next.js & build
 /.next/
 /.next-ui/
 /out/
-
-# production
 /build
 
-# misc
+# misc & python/office temporaries
 .DS_Store
 *.pem
+~$*
+__pycache__/
+*.pyc
+.venv/
+venv/
 
 # debug
 npm-debug.log*
@@ -31,8 +39,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (keep safe template .env.example)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -50,3 +59,17 @@ next-env.d.ts
 
 # Reproducible local speech models, virtual environments and render intermediates
 /tmp/nuclear-voice/
+/tmp/b21-video/
+/tmp/b23-*/
+/tmp/b24-*/
+/tmp/b25-*/
+/tmp/gemini-antigravity-ban-giao.log
+/deliverables/
+
+# Local AI agent notes, downloaded skills, and restricted personal proposal drafts (per QUY_DINH_CHUNG.md)
+.agent/
+.agents/
+/docs/nckh-review-20261111/
+/*.docx
+/ĐÃ DUYỆT TMĐT*.pdf
+src/components/PortalShell.old.tsx

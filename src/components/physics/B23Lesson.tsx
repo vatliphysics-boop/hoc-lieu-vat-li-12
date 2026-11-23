@@ -7,7 +7,7 @@ import { RadiationTypesExplorer } from "./RadiationTypesExplorer";
 import { GeigerRandomDecay, RadiationSafety, SafetyPrinciples } from "./B23Activities";
 import styles from "./B23Lesson.module.css";
 
-const DecayLab = dynamic(() => import("./DecayProcessLab").then((m) => m.DecayProcessLab), {
+const DecayLab = dynamic(() => import("@/components/learning/HalfLifePilot").then((m) => m.HalfLifePilot), {
   ssr: false,
   loading: () => <p role="status">Đang tải mô phỏng phân rã…</p>,
 });

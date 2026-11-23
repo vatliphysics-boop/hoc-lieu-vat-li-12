@@ -1,28 +1,36 @@
 /**
  * Cấu hình điều hướng website — mô hình 3 giai đoạn (Flipped Classroom)
  *
- * CHẶNG 1: TÁI THIẾT MENU.
+ * CHẶNG 1: 13 TRANG RIÊNG — 1 KHO HỌC LIỆU + 5 + 4 + 3.
  * - Mỗi mục menu phải trỏ tới một route có thật, HOẶC được đánh dấu
  *   `status: "planned"` để giao diện hiển thị nhãn "Đang xây dựng".
- * - Không tạo URL chứa tham số mà trang đích không xử lý.
+ * - Không tạo URL chứa tham số `?type=` hoặc `?giai-doan=` để giả làm trang riêng.
  *
- * Route hiện có (đã kiểm tra):
- *   /hoc-lieu                       — kho học liệu công khai
+ * Route công khai đã có:
+ *   /hoc-lieu                       — kho học liệu tổng hợp
  *   /hoc-lieu/phong-hat-nhan        — thí nghiệm 3D + video (có ?bai=B21..B25)
  *   /hoc-lieu/truc-quan             — phòng trực quan, mô phỏng 3D (có ?bai=)
- *   /hoc-lieu/thi-nghiem-ban-ra     — thí nghiệm bán rã, xử lý số liệu
  *   /hoc-lieu/lop-hoc-dao-nguoc     — hướng dẫn ba giai đoạn
  *   /hoc-lieu/ai                    — trợ lí học tập AI
  *   /hoc-lieu/chuong-trinh          — chương trình Vật lí 12
  *   /hoc-lieu/soan-ke-hoach         — soạn kế hoạch dạy học
  *   /hoc-lieu/ai-giao-vien          — studio công cụ giáo viên
- *   /demo-lesson                    — bài mẫu đủ 3 giai đoạn (có infographic
- *                                     lịch sử, bản đồ tư duy, trò chơi ôn tập)
+ *   /demo-lesson                    — bài mẫu tương tác (giữ lại cho scientist history)
  *   /gioi-thieu                     — giới thiệu dự án (có lịch sử nhà khoa học)
  *
- * Kho học liệu (/hoc-lieu và các trang materials) chỉ lọc theo
- * `type` | `bai` | `q` | `page`. KHÔNG có bộ lọc `phase`, nên menu
- * không dùng tham số `?phase=`.
+ * Route 3 giai đoạn (13 trang độc lập):
+ *   /truoc-gio-hoc/video-hoat-hinh
+ *   /truoc-gio-hoc/mo-phong
+ *   /truoc-gio-hoc/infographic-lich-su
+ *   /truoc-gio-hoc/phieu-hoc-tap
+ *   /truoc-gio-hoc/video-bai-giang
+ *   /trong-gio-hoc/xu-ly-du-lieu
+ *   /trong-gio-hoc/so-do-tu-duy
+ *   /trong-gio-hoc/tinh-huong-dong-vai
+ *   /trong-gio-hoc/tro-choi-on-tap
+ *   /sau-gio-hoc/on-tap-tu-kiem-tra
+ *   /sau-gio-hoc/phan-hoi-tu-dieu-chinh
+ *   /sau-gio-hoc/van-dung-mo-rong
  */
 
 export type NavigationLinkStatus = "available" | "planned";
@@ -51,7 +59,7 @@ export const MATERIALS_HUB_LINK: NavigationLink = {
   status: "available",
 };
 
-/** GIAI ĐOẠN 1 — TRƯỚC GIỜ HỌC */
+/** GIAI ĐOẠN 1 — TRƯỚC GIỜ HỌC (5 mục) */
 export const PHASE_1_BEFORE_CLASS: NavigationGroup = {
   id: "phase-1-before",
   label: "Giai đoạn 1 — Trước giờ học",
@@ -59,31 +67,31 @@ export const PHASE_1_BEFORE_CLASS: NavigationGroup = {
   description: "Chuẩn bị kiến thức tại nhà",
   links: [
     {
-      href: "/hoc-lieu/phong-hat-nhan",
+      href: "/truoc-gio-hoc/video-hoat-hinh",
       label: "Video hoạt hình khoa học ngắn",
       description: "Mô hình hạt nhân 3D và video minh họa B21–B25",
       status: "available",
     },
     {
-      href: "/hoc-lieu/truc-quan",
+      href: "/truoc-gio-hoc/mo-phong",
       label: "Mô phỏng tương tác trực tuyến",
       description: "Phòng trực quan, mô phỏng 3D từng bài",
       status: "available",
     },
     {
-      href: "/demo-lesson?giai-doan=1",
+      href: "/truoc-gio-hoc/infographic-lich-su",
       label: "Infographic tương tác & Sơ đồ lịch sử",
       description: "Dòng thời gian và chân dung nhà khoa học",
       status: "available",
     },
     {
-      href: "/hoc-lieu?type=document",
-      label: "Phiếu học tập số",
+      href: "/truoc-gio-hoc/phieu-hoc-tap",
+      label: "Phiếu học tập số & trắc nghiệm chẩn đoán",
       description: "PDF và tài liệu chuẩn bị",
       status: "available",
     },
     {
-      href: "/hoc-lieu?type=lecture_video",
+      href: "/truoc-gio-hoc/video-bai-giang",
       label: "Video từng bài giảng",
       description: "Bài giảng ghi hình theo từng bài",
       status: "available",
@@ -91,7 +99,7 @@ export const PHASE_1_BEFORE_CLASS: NavigationGroup = {
   ],
 };
 
-/** GIAI ĐOẠN 2 — TRONG GIỜ HỌC */
+/** GIAI ĐOẠN 2 — TRONG GIỜ HỌC (4 mục) */
 export const PHASE_2_IN_CLASS: NavigationGroup = {
   id: "phase-2-during",
   label: "Giai đoạn 2 — Trong giờ học",
@@ -99,33 +107,33 @@ export const PHASE_2_IN_CLASS: NavigationGroup = {
   description: "Hoạt động trên lớp",
   links: [
     {
-      href: "/hoc-lieu/thi-nghiem-ban-ra",
-      label: "Dữ liệu thí nghiệm ảo & xử lý số liệu",
+      href: "/trong-gio-hoc/xu-ly-du-lieu",
+      label: "Dữ liệu thí nghiệm thực tế ảo & xử lý số liệu",
       description: "Đo đạc, dựng bảng số liệu, rút ra quy luật",
       status: "available",
     },
     {
-      href: "/demo-lesson?giai-doan=2#mindmap",
+      href: "/trong-gio-hoc/so-do-tu-duy",
       label: "Bản đồ tư duy cộng tác nhóm",
       description: "Cùng dựng sơ đồ trên một thiết bị",
       status: "available",
     },
     {
-      href: "/demo-lesson?giai-doan=2#roleplay",
-      label: "Trò chơi đóng vai & tình huống giả định",
+      href: "/trong-gio-hoc/tinh-huong-dong-vai",
+      label: "Mô hình trò chơi đóng vai / tình huống giả định",
       description: "Tình huống ứng dụng trong thực tiễn",
       status: "available",
     },
     {
-      href: "/demo-lesson?giai-doan=2",
+      href: "/trong-gio-hoc/tro-choi-on-tap",
       label: "Trò chơi ôn tập cạnh tranh",
-      description: "Chưa có chế độ thi đấu riêng; hiện chỉ có bài luyện tập nhanh trong bài mẫu",
-      status: "planned",
+      description: "Hai đội ôn tập cạnh tranh trên một thiết bị",
+      status: "available",
     },
   ],
 };
 
-/** GIAI ĐOẠN 3 — SAU GIỜ HỌC */
+/** GIAI ĐOẠN 3 — SAU GIỜ HỌC (3 mục) */
 export const PHASE_3_AFTER_CLASS: NavigationGroup = {
   id: "phase-3-after",
   label: "Giai đoạn 3 — Sau giờ học",
@@ -133,22 +141,22 @@ export const PHASE_3_AFTER_CLASS: NavigationGroup = {
   description: "Ôn tập và vận dụng",
   links: [
     {
-      href: "/hoc-lieu?type=assessment",
+      href: "/sau-gio-hoc/on-tap-tu-kiem-tra",
       label: "Ôn tập & tự kiểm tra",
-      description: "Đề kiểm tra và trắc nghiệm",
+      description: "Đề kiểm tra và trắc nghiệm tự động chấm",
       status: "available",
     },
     {
-      href: "/demo-lesson?giai-doan=3",
+      href: "/sau-gio-hoc/phan-hoi-tu-dieu-chinh",
       label: "Phản hồi & tự điều chỉnh",
-      description: "Tự đánh giá năng lực tự học và viết phản tư (bài mẫu)",
+      description: "Tự đánh giá năng lực tự học và viết phản tư",
       status: "available",
     },
     {
-      href: "/hoc-lieu/truc-quan",
+      href: "/sau-gio-hoc/van-dung-mo-rong",
       label: "Vận dụng & mở rộng",
-      description: "Chưa có hoạt động vận dụng riêng; hiện mở phòng trực quan",
-      status: "planned",
+      description: "Ứng dụng thực tiễn và lập dàn ý báo cáo",
+      status: "available",
     },
   ],
 };

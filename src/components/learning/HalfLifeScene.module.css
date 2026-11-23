@@ -1,0 +1,17 @@
+.scene { background: #102b3c; border: 1px solid #31576a; border-radius: 16px; color: #e5f4f5; overflow: hidden; }
+.heading, .footer { align-items: center; display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; padding: 14px 16px; }
+.heading p, .footer p, .help { color: #c3d9df; font-size: 0.875rem; margin: 4px 0 0; }
+.scene button { background: #1d4253; border: 1px solid #69909e; border-radius: 8px; color: #fff; cursor: pointer; min-height: 40px; padding: 8px 12px; }
+.scene button:disabled { cursor: not-allowed; opacity: 0.5; }
+.scene button:focus-visible, .canvas:focus-visible { outline: 3px solid #ffd884; outline-offset: -3px; }
+.canvas { height: clamp(240px, 38vw, 420px); touch-action: none; width: 100%; }
+.canvas canvas { display: block; height: 100%; width: 100%; }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.live, .decayed { border-radius: 50%; display: inline-block; height: 10px; width: 10px; }
+.live { background: #5ae5c1; }
+.decayed { background: #678291; }
+.help { padding: 0 16px 16px; }
+.fallback { background: #1a3c4d; margin: 12px 16px; padding: 16px; }
+.scene:fullscreen { border: 0; border-radius: 0; display: flex; flex-direction: column; overflow: auto; }
+.scene:fullscreen .canvas { flex: 1; min-height: 240px; }
+@media (max-width: 480px) { .canvas { height: 260px; } }

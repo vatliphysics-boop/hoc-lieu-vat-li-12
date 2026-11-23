@@ -1,0 +1,539 @@
+/**
+ * ĐẤU TRƯỜNG VẬT LÍ HẠT NHÂN — Game show two-team competition
+ * Distinctive design: scoreboard-first, nuclear science theme, projector-friendly
+ */
+
+.arena {
+  --arena-bg: #0B0E14;
+  --arena-surface: #1E293B;
+  --arena-border: #334155;
+  --arena-text: #F8FAFC;
+  --arena-muted: #94A3B8;
+  --arena-teamA: #38BDF8;
+  --arena-teamB: #F97316;
+  --arena-correct: #22C55E;
+  --arena-wrong: #EF4444;
+  --arena-steal: #FBBF24;
+  --arena-easy: #10B981;
+  --arena-medium: #F59E0B;
+  --arena-hard: #EF4444;
+  min-height: 100vh;
+  background: var(--arena-bg);
+  color: var(--arena-text);
+  padding: 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem;
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.teamScore {
+  text-align: center;
+  padding: 1.5rem;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.teamScore[data-active="true"] {
+  border-color: currentColor;
+  box-shadow: 0 0 24px currentColor;
+}
+
+.teamScore[data-id="A"] {
+  color: var(--arena-teamA);
+}
+
+.teamScore[data-id="B"] {
+  color: var(--arena-teamB);
+}
+
+.teamName {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  opacity: 0.9;
+}
+
+.teamPoints {
+  display: block;
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.matchStatus {
+  text-align: center;
+  padding: 1rem;
+}
+
+.roundLabel {
+  font-size: 0.875rem;
+  color: var(--arena-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.phaseLabel {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.roleIndicator {
+  margin-top: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9px;
+  font-size: 0.9375rem;
+  color: var(--arena-muted);
+}
+
+.roleIndicator strong {
+  color: var(--arena-text);
+  font-weight: 600;
+}
+
+.questionBoard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.questionCard {
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 9px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.questionCard:hover:not(:disabled) {
+  border-color: var(--arena-teamA);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+}
+
+.questionCard:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.questionTopic {
+  font-size: 0.8125rem;
+  color: var(--arena-muted);
+  margin-bottom: 0.5rem;
+}
+
+.questionDifficulty {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.questionDifficulty[data-level="easy"] {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--arena-easy);
+}
+
+.questionDifficulty[data-level="medium"] {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--arena-medium);
+}
+
+.questionDifficulty[data-level="hard"] {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--arena-hard);
+}
+
+.questionPoints {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.questionView {
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.questionText {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.optionsList {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.optionButton {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid var(--arena-border);
+  border-radius: 9px;
+  color: var(--arena-text);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 56px;
+}
+
+.optionButton:hover:not(:disabled) {
+  border-color: var(--arena-teamA);
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.optionButton:disabled {
+  cursor: not-allowed;
+}
+
+.optionButton[data-selected="true"] {
+  border-color: var(--arena-teamA);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.optionButton[data-correct="true"] {
+  border-color: var(--arena-correct);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.optionButton[data-wrong="true"] {
+  border-color: var(--arena-wrong);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.optionLetter {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--arena-border);
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.optionText {
+  flex: 1;
+}
+
+.feedback {
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid;
+  border-radius: 9px;
+  margin-top: 1.5rem;
+}
+
+.feedback[data-correct="true"] {
+  border-color: var(--arena-correct);
+}
+
+.feedback[data-correct="false"] {
+  border-color: var(--arena-wrong);
+}
+
+.feedback[data-steal="true"] {
+  border-color: var(--arena-steal);
+}
+
+.feedbackTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feedbackTitle[data-correct="true"] {
+  color: var(--arena-correct);
+}
+
+.feedbackTitle[data-correct="false"] {
+  color: var(--arena-wrong);
+}
+
+.feedbackTitle[data-steal="true"] {
+  color: var(--arena-steal);
+}
+
+.feedbackText {
+  color: var(--arena-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.5rem;
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--arena-border);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--arena-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+}
+
+.btn:hover:not(:disabled) {
+  border-color: var(--arena-teamA);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn[data-variant="primary"] {
+  background: var(--arena-teamA);
+  border-color: var(--arena-teamA);
+  color: #0B0E14;
+}
+
+.btn[data-variant="primary"]:hover:not(:disabled) {
+  background: #0EA5E9;
+  border-color: #0EA5E9;
+}
+
+.btn[data-variant="danger"] {
+  background: var(--arena-wrong);
+  border-color: var(--arena-wrong);
+  color: white;
+}
+
+.btn[data-variant="danger"]:hover:not(:disabled) {
+  background: #DC2626;
+  border-color: #DC2626;
+}
+
+.setupScreen {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+}
+
+.setupScreen h2 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+}
+
+.formField {
+  margin-bottom: 1.5rem;
+}
+
+.formField label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--arena-muted);
+  font-size: 0.9375rem;
+}
+
+.formField input,
+.formField select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--arena-border);
+  border-radius: 9px;
+  color: var(--arena-text);
+  font-size: 1rem;
+  min-height: 44px;
+}
+
+.formField input:focus,
+.formField select:focus {
+  outline: 2px solid var(--arena-teamA);
+  outline-offset: 2px;
+}
+
+.modeSelector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.modeCard {
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid var(--arena-border);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.modeCard:hover {
+  border-color: var(--arena-teamA);
+}
+
+.modeCard[data-selected="true"] {
+  border-color: var(--arena-teamA);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.modeCard h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.modeCard p {
+  margin: 0;
+  color: var(--arena-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.matchSummary {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.winnerAnnouncement {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 1rem 0 2rem;
+  padding: 1.5rem;
+  background: rgba(56, 189, 248, 0.1);
+  border-radius: 9px;
+}
+
+.winnerAnnouncement[data-team="A"] {
+  color: var(--arena-teamA);
+}
+
+.winnerAnnouncement[data-team="B"] {
+  color: var(--arena-teamB);
+}
+
+.statsTable {
+  width: 100%;
+  margin: 2rem 0;
+  border-collapse: collapse;
+}
+
+.statsTable th,
+.statsTable td {
+  padding: 0.75rem;
+  border: 1px solid var(--arena-border);
+}
+
+.statsTable th {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+  color: var(--arena-muted);
+}
+
+.statsTable td {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 850px) {
+  .scoreboard {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .matchStatus {
+    order: -1;
+  }
+
+  .teamPoints {
+    font-size: 2.5rem;
+  }
+
+  .questionBoard {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 1200px) and (orientation: landscape) {
+  /* Projector mode */
+  .arena {
+    padding: 2rem;
+  }
+
+  .scoreboard {
+    padding: 2.5rem;
+  }
+
+  .teamPoints {
+    font-size: 4rem;
+  }
+
+  .questionText {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    min-height: 52px;
+    font-size: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arena *,
+  .arena *::before,
+  .arena *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

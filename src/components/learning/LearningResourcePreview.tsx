@@ -1,5 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element -- Resource images include teacher URLs and animated SVGs. */
+import { REALTIME_LESSON_BY_ACTIVITY } from "@/lib/realtime-entry";
+import { HalfLifePilot } from "./HalfLifePilot";
 import { FixedPhysicsActivityRenderer } from "@/components/physics/FixedPhysicsActivityRenderer";
 import { normalizeActivityKey } from "@/lib/curriculum";
 import { safeLearningUrl } from "@/lib/pathway-progress";
@@ -24,10 +26,12 @@ export function LearningResourcePreview({
   material,
   customPrompt,
   onProgress,
+  pilotPreview = false,
 }: {
   material: Resource;
   customPrompt?: string;
   onProgress?: (done: boolean) => void;
+  pilotPreview?: boolean;
 }) {
   const key = normalizeActivityKey(
       material.metadata?.activityKey ?? material.content_url,
@@ -56,14 +60,18 @@ export function LearningResourcePreview({
   if (workspace === "assessment" && material.metadata?.examId) return <NuclearExamWorkspace key={material.metadata.examId} examId={material.metadata.examId} />;
   if ((workspace === "teaching-guide" || workspace === "remediation") && guideCode) return <TeachingGuideWorkspace key={guideCode} code={guideCode} remediation={workspace === "remediation"} />;
   if (workspace === "rubric") return <SelfLearningRubric />;
+  if (key === "radioactive_decay_half_life") return <HalfLifePilot preview={pilotPreview} onProgress={onProgress} />;
   if (key)
     return (
+      <>
+      {pilotPreview && REALTIME_LESSON_BY_ACTIVITY[key] && <p><a href={`/hoc-lieu/xem-truoc-3d?bai=${REALTIME_LESSON_BY_ACTIVITY[key]}`} target="_blank" rel="noreferrer">Xem thử bài học tương tác mới ↗</a> · Bản xem thử không tạo bài nộp.</p>}
       <FixedPhysicsActivityRenderer
         key={key}
         activityKey={key}
         customPrompt={customPrompt}
         onProgress={onProgress}
       />
+      </>
     );
   if (workspace === "mindmap" || workspace === "roleplay")
     return <NuclearGroupWorkspace kind={workspace} />;

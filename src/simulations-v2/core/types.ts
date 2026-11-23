@@ -87,7 +87,7 @@ export interface SceneVisualState {
 }
 
 /** Contract every v2 physics model satisfies. Pure, testable, no Three.js. */
-export interface PhysicsModel<P, S> {
+export interface PhysicsModel<S> {
   /** Human-readable model statement incl. assumptions and limits. */
   readonly modelNote: string;
   /** Build the initial state from parameter values. */

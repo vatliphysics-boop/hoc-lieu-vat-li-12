@@ -132,7 +132,7 @@ test("decay: N(t) decreases monotonically", () => {
   let s = createDecayState(BASE, 1);
   let prev = s.remaining;
   for (let i = 0; i < 40; i++) {
-    s = stepDecayState(s, 0.5, BASE);
+    s = stepDecayState(s, 0.5);
     assert.ok(s.remaining <= prev, "remaining must never increase");
     prev = s.remaining;
   }
@@ -153,7 +153,7 @@ test("decay: different seed gives different sample", () => {
 test("decay: after one half-life, simulated count near N0/2 (within statistics)", () => {
   // 4000 nuclei → σ ≈ √(N0·0.25) ≈ 31.6; 3σ ≈ 95. Use a generous bound.
   const s0 = createDecayState({ initialCount: 4000, halfLifeSeconds: 10, seed: 7 }, 1);
-  const s1 = stepDecayState(s0, 10, BASE);
+  const s1 = stepDecayState(s0, 10);
   const expected = 2000;
   const error = Math.abs(s1.remaining - expected);
   assert.ok(error < 120, `got ${s1.remaining} expected ~${expected} (err ${error})`);
@@ -163,7 +163,7 @@ test("decay: simulated count stays near theory across the run", () => {
   const N0 = 4000, T = 10, seed = 11;
   let s = createDecayState({ initialCount: N0, halfLifeSeconds: T, seed }, 1);
   for (let step = 1; step <= 30; step++) {
-    s = stepDecayState(s, 1, BASE);
+    s = stepDecayState(s, 1);
     const theory = theoreticalRemaining(N0, T, s.timeSeconds);
     const tol = Math.max(60, 0.12 * theory); // generous: ~4-5σ at N=1000+
     assert.ok(
@@ -175,7 +175,7 @@ test("decay: simulated count stays near theory across the run", () => {
 
 test("decay: derive returns required quantities and valid units", () => {
   const s = createDecayState(BASE, 1);
-  const q = deriveDecay(s, BASE);
+  const q = deriveDecay(s);
   const keys = q.map((x) => x.key);
   assert.deepEqual(keys, ["remaining", "expected", "lambda", "activity"]);
   for (const item of q) {
@@ -187,7 +187,7 @@ test("decay: derive returns required quantities and valid units", () => {
 
 test("decay: lambda = ln2/T", () => {
   const s = createDecayState({ initialCount: 100, halfLifeSeconds: 8, seed: 1 }, 1);
-  const q = deriveDecay(s, BASE).find((x) => x.key === "lambda")!;
+  const q = deriveDecay(s).find((x) => x.key === "lambda")!;
   const expected = (Math.LN2 / 8).toFixed(4);
   assert.ok(q.value.startsWith(expected), `lambda → ${q.value}`);
 });
@@ -211,7 +211,7 @@ test("decay: no NaN/negative for any valid parameter combination", () => {
   ];
   for (const c of combos) {
     let s = createDecayState(c, 1);
-    for (let i = 0; i < 20; i++) s = stepDecayState(s, 1, c);
+    for (let i = 0; i < 20; i++) s = stepDecayState(s, 1);
     assert.ok(Number.isFinite(s.remaining));
     assert.ok(s.remaining >= 0 && s.remaining <= c.initialCount);
   }

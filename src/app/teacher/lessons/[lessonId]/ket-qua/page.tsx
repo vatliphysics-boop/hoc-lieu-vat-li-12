@@ -6,6 +6,8 @@ import { validatePathwayEvidence } from "@/lib/pathway-progress";
 import { RichPhysicsText } from "@/components/learning/RichPhysicsText";
 import { EVIDENCE_PROMPTS } from "@/lib/nuclear-learning-sequence";
 import { legacyNuclearMath } from "@/lib/legacy-nuclear-math";
+import { validateHalfLifeSnapshot } from "@/lib/half-life-classroom";
+import { HalfLifeTeacherResults } from "@/components/learning/HalfLifeTeacherResults";
 import type { ClassMember } from "@/app/teacher/actions";
 export default async function LessonEvidencePage({ params, searchParams }: { params: Promise<{ lessonId: string }>; searchParams: Promise<{ student?: string; phase?: string }> }) {
   const { lessonId } = await params, filters = await searchParams;
@@ -16,6 +18,11 @@ export default async function LessonEvidencePage({ params, searchParams }: { par
   const phase = PLAN_PHASES.find(p => p === filters.phase) ?? "before_class";
   const steps = await supabase.from("lesson_pathway_steps").select("id,title,instructions,is_required,is_published,step_order").eq("lesson_id", lessonId).eq("phase", phase).order("step_order").order("id");
   const progress = selected && steps.data?.length ? await supabase.from("student_step_progress").select("step_id,is_completed,evidence,completed_at").eq("lesson_id", lessonId).eq("student_id", selected.student_id).in("step_id", steps.data.map(s => s.id)) : { data: [], error: null };
+  // Restrict the RLS-protected query to the selected pupil and this lesson's
+  // steps; the table deliberately does not expose account IDs to exports.
+  const halfLife = curriculum.code === "B23" && selected && steps.data?.length
+    ? await supabase.from("half_life_classroom_progress").select("step_id,snapshot,submitted_at").eq("student_id", selected.student_id).in("step_id", steps.data.map(s => s.id))
+    : { data: [], error: null };
   const phaseProg = selected ? await supabase.from("student_phase_progress").select("phase,is_completed,simulation_completed,assessment_answers,completed_at").eq("lesson_id", lessonId).eq("student_id", selected.student_id).eq("phase", phase).maybeSingle() : { data: null, error: null };
   const reflection = selected && phase === "after_class" ? await supabase.from("lesson_reflections").select("learned,difficult,next_step,confidence,updated_at").eq("lesson_id", lessonId).eq("student_id", selected.student_id).maybeSingle() : { data: null, error: null };
   const assessment = selected && phase === "after_class"
@@ -30,6 +37,7 @@ export default async function LessonEvidencePage({ params, searchParams }: { par
     <p>“Đã nộp” xác nhận đã lưu sản phẩm. Giáo viên cần đọc nội dung để nhận xét mức độ hiểu và việc cần sửa.</p>
     {failed ? <p role="alert">Chưa tải đủ nhiệm vụ hoặc bài nộp. Kiểm tra kết nối, quyền lớp và dữ liệu tiến trình trước khi kết luận học sinh chưa làm bài.</p> : !selected ? <p>{filters.student ? "Học sinh được chọn không thuộc lớp này." : "Lớp chưa có học sinh để theo dõi."}</p> : <section className="lesson-evidence">
       <h2>{selected.full_name} · {PHASE_NAMES[phase]}</h2>
+      {halfLife.error && <p role="alert">{["42P01", "PGRST205"].includes(halfLife.error.code) ? "Chưa có bảng tiến độ B23. Cần áp dụng migration 021 sau khi kiểm thử và phê duyệt phù hợp." : "Không tải được tiến độ B23. Kiểm tra kết nối và quyền lớp; không kết luận học sinh chưa làm."}</p>}
       <article className="card" data-testid="teacher-phase-summary">
         <h3>Tổng quan tiến độ giai đoạn ({PHASE_NAMES[phase]})</h3>
         <p><strong>Trạng thái hoàn thành pha:</strong> {phaseProg.data?.is_completed ? "Đã hoàn thành pha" : "Chưa hoàn thành pha"}</p>
@@ -63,6 +71,8 @@ export default async function LessonEvidencePage({ params, searchParams }: { par
       </article>
       {!steps.data?.length ? <p>Chưa có bước học trong giai đoạn này.</p> : steps.data.map(step => {
         const submission = progress.data?.find(p => p.step_id === step.id), evidence = validatePathwayEvidence(submission?.evidence);
+        const halfLifeRecord = halfLife.data?.find(item => item.step_id === step.id);
+        const halfLifeSnapshot = halfLifeRecord ? validateHalfLifeSnapshot(halfLifeRecord.snapshot) : null;
         return <article className="card" key={step.id}>
           <h3>{step.title}</h3>
           <p>{step.is_published ? "Đã giao" : "Bản nháp"} · {step.is_required ? "Bắt buộc" : "Tự chọn"}</p>
@@ -81,6 +91,7 @@ export default async function LessonEvidencePage({ params, searchParams }: { par
               </dl> : submission ? <p>Bằng chứng đã lưu chưa đủ định dạng để hiển thị.</p> : null}
             </div>
           </div>
+          {halfLifeRecord && <section aria-label="Bằng chứng thí nghiệm bán rã"><h4>Bằng chứng thí nghiệm bán rã B23</h4>{halfLifeSnapshot ? <HalfLifeTeacherResults inquiry={halfLifeSnapshot.inquiry} measurements={halfLifeSnapshot.measurements} events={halfLifeSnapshot.events} submitted={!!halfLifeRecord.submitted_at} /> : <p role="alert">Bản lưu B23 không hợp lệ hoặc không còn tương thích; không thể kết luận kết quả học tập.</p>}</section>}
         </article>;
       })}
     </section>}
