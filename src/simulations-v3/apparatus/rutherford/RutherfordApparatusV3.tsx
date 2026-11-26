@@ -39,10 +39,12 @@ import {
   describeObserverPosition,
   INITIAL_RUTHERFORD_V3_STATE,
   parseRutherfordV3State,
+  probeWebGLSupport,
   resolveRutherfordRaycastPart,
   RUTHERFORD_COMPONENTS,
   sampleEqualTimeFlashCount,
 } from "./parts";
+import { RutherfordFallbackDiagram } from "./RutherfordFallbackDiagram";
 import { evaluateRutherfordInquiry } from "./inquiry";
 import {
   CAMERA_PRESETS,
@@ -59,6 +61,25 @@ import {
 } from "@/components/learning/RutherfordInquiryTask";
 
 const EMPTY_RAW = () => "";
+const WEBGL_REPROBE_EVENT = "rutherford-v3-webgl-reprobe";
+let cachedWebGLProbed: boolean | null = null;
+
+function subscribeWebGLProbe(listener: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(WEBGL_REPROBE_EVENT, listener);
+  return () => window.removeEventListener(WEBGL_REPROBE_EVENT, listener);
+}
+
+function getClientWebGLSnapshot(): "supported" | "unsupported" {
+  if (cachedWebGLProbed === null) {
+    cachedWebGLProbed = probeWebGLSupport();
+  }
+  return cachedWebGLProbed ? "supported" : "unsupported";
+}
+
+function getServerWebGLSnapshot(): "ssr" {
+  return "ssr";
+}
 
 const PRIMARY_CAMERA_MODES: readonly CameraMode[] = [
   "orbit",
@@ -79,7 +100,7 @@ const CAMERA_POSITIONS: Record<
 > = {
   orbit: { pos: [-2.4, 10.6, -22.8], target: [0, -1.15, 0] },
   cutaway: { pos: [-1.6, 9.6, -18.5], target: [0, -0.6, 0] },
-  instrument: { pos: [11.8, 0.55, 0], target: [7.2, 0, 0] },
+  instrument: { pos: [9.85, 0.06, 0], target: [7.45, 0, 0] },
   top: { pos: [0, 23.5, -0.08], target: [0, 0, 0] },
   exploded: { pos: [-2.0, 12.5, -27.5], target: [0, -0.5, 0] },
   measurement: { pos: [3.2, 14.5, -15.5], target: [0, -0.4, 0] },
@@ -132,17 +153,75 @@ const OBSERVER_QUICK_PRESETS: readonly { readonly deg: number; readonly label: s
   { deg: 160, label: "160° · Vị trí (2)" },
 ];
 
+function disposeMaterial(mat: THREE.Material) {
+  const anyMat = mat as unknown as Record<string, unknown>;
+  for (const val of Object.values(anyMat)) {
+    if (val instanceof THREE.Texture) {
+      val.dispose();
+    }
+  }
+  mat.dispose();
+}
+
 function disposeGroup(group: THREE.Object3D) {
   group.traverse((obj) => {
-    if (obj instanceof THREE.Mesh || obj instanceof THREE.Line) {
+    if (obj instanceof THREE.Mesh || obj instanceof THREE.Line || obj instanceof THREE.Points) {
       obj.geometry.dispose();
       if (Array.isArray(obj.material)) {
-        obj.material.forEach((m) => m.dispose());
-      } else {
-        obj.material.dispose();
+        obj.material.forEach(disposeMaterial);
+      } else if (obj.material) {
+        disposeMaterial(obj.material);
       }
     }
   });
+}
+
+function isolateComponentMaterials(components: Map<string, BuiltComponent>) {
+  for (const [, built] of components) {
+    built.mesh.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh) || obj.userData.isHitVolume) return;
+      if (Array.isArray(obj.material)) {
+        obj.material = obj.material.map((m) => m.clone());
+      } else if (obj.material) {
+        const cloned = obj.material.clone();
+        if (cloned instanceof THREE.MeshStandardMaterial) {
+          cloned.userData.__origEmissiveHex = cloned.emissive.getHex();
+          cloned.userData.__origEmissiveIntensity = cloned.emissiveIntensity;
+        }
+        obj.material = cloned;
+      }
+    });
+  }
+}
+
+function applyPartHighlightToComponents(
+  components: Map<string, BuiltComponent>,
+  selectedId: string | null,
+) {
+  for (const [id, built] of components) {
+    const isHighlighted = selectedId !== null && id === selectedId;
+    built.mesh.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh) || obj.userData.isHitVolume) return;
+      const mat = obj.material;
+      if (mat instanceof THREE.MeshStandardMaterial) {
+        const baseHex =
+          typeof mat.userData.__origEmissiveHex === "number"
+            ? (mat.userData.__origEmissiveHex as number)
+            : 0x000000;
+        const baseIntensity =
+          typeof mat.userData.__origEmissiveIntensity === "number"
+            ? (mat.userData.__origEmissiveIntensity as number)
+            : 0;
+        if (isHighlighted) {
+          mat.emissive.setHex(0x22d3ee);
+          mat.emissiveIntensity = Math.max(0.65, baseIntensity + 0.55);
+        } else {
+          mat.emissive.setHex(baseHex);
+          mat.emissiveIntensity = baseIntensity;
+        }
+      }
+    });
+  }
 }
 
 export interface RutherfordApparatusV3Props {
@@ -157,6 +236,7 @@ export function RutherfordApparatusV3({
   lockedPhase1Prediction,
   onOpenPhase1,
 }: RutherfordApparatusV3Props) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const labelElsRef = useRef<Record<string, HTMLDivElement | HTMLButtonElement | null>>({});
   const anchorsRef = useRef<{
@@ -328,16 +408,294 @@ export function RutherfordApparatusV3({
     hadCompleteRef.current = inquiryEvaluation.isComplete;
   }, [inquiryEvaluation.isComplete, onProgress]);
 
-  // Initialize Three.js scene & 2D projection loop for 3D labels
+  const webglSupportSnapshot = useSyncExternalStore(
+    subscribeWebGLProbe,
+    getClientWebGLSnapshot,
+    getServerWebGLSnapshot,
+  );
+  const [webglRuntimeError, setWebglRuntimeError] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
+  const [isHostVisible, setIsHostVisible] = useState(true);
+
+  const isWebGLActive = webglSupportSnapshot === "supported" && !webglRuntimeError;
+  const isFallbackActive = webglSupportSnapshot === "unsupported" || webglRuntimeError;
+
+  const visibleTrailSamples = useMemo(() => {
+    if (!trail || !run) return [];
+    const ratio =
+      elapsedZs === "completed"
+        ? 1
+        : run.durationZs > 0
+          ? Math.min(1, effectiveElapsedZs / run.durationZs)
+          : 1;
+    const visibleCount = Math.max(2, Math.floor(ratio * trail.length));
+    return trail.slice(0, visibleCount);
+  }, [trail, run, elapsedZs, effectiveElapsedZs]);
+
+  // Observe whether the host section (<article hidden={!isActive}>) is visible so leaving the section releases WebGL resources
   useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof MutationObserver === "undefined") return;
+
+    const checkVisibility = () => {
+      const el = rootRef.current;
+      if (!el) return;
+      const visible = el.closest("[hidden]") === null;
+      setIsHostVisible((prev) => (prev === visible ? prev : visible));
+    };
+
+    const rafId = requestAnimationFrame(checkVisibility);
+    const observer = new MutationObserver(checkVisibility);
+
+    let ancestor: HTMLElement | null = root.parentElement;
+    while (ancestor) {
+      observer.observe(ancestor, {
+        attributes: true,
+        attributeFilter: ["hidden", "style", "class"],
+      });
+      ancestor = ancestor.parentElement;
+    }
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
+  }, []);
+
+  // Keep a unified scene synchronization helper so initial mount, section return, and live prop edits share identical state
+  const syncSceneRef = useRef<(() => void) | null>(null);
+  const prevCameraSigRef = useRef<string>("");
+
+  useEffect(() => {
+    const isExploded = cameraMode === "exploded";
+
+    // Always keep 3D label anchors updated
+    anchorsRef.current.M = polarAngleToWorld(
+      observerAngleDeg,
+      11.55,
+      0.85 + (isExploded ? EXPLODED_OFFSETS["rotating-microscope"][1] : 0),
+    );
+    anchorsRef.current.R = new THREE.Vector3(
+      -6.6 + (isExploded ? EXPLODED_OFFSETS["alpha-source"][0] : 0),
+      1.35 + (isExploded ? EXPLODED_OFFSETS["alpha-source"][1] : 0),
+      0,
+    );
+    anchorsRef.current.D = new THREE.Vector3(
+      0,
+      1.85 + (isExploded ? EXPLODED_OFFSETS["gold-foil"][1] : 0),
+      0,
+    );
+    anchorsRef.current.S = polarAngleToWorld(
+      54,
+      DETECTOR_RADIUS_UNITS,
+      1.05 + (isExploded ? EXPLODED_OFFSETS["scintillation-screen"][1] : 0),
+    );
+
+    const syncNow = () => {
+      const state = sceneRef.current;
+      if (!state) return;
+
+      // 1. Camera preset & Optical Microscope POV ("instrument")
+      const camSig = `${cameraMode}:${observerAngleDeg}`;
+      if (prevCameraSigRef.current !== camSig) {
+        prevCameraSigRef.current = camSig;
+        if (cameraMode === "instrument") {
+          state.camera.fov = 34;
+          state.camera.updateProjectionMatrix();
+          const eyeWorld = polarAngleToWorld(
+            observerAngleDeg,
+            DETECTOR_RADIUS_UNITS + 2.35,
+            0.06,
+          );
+          const screenTarget = polarAngleToWorld(
+            observerAngleDeg,
+            DETECTOR_RADIUS_UNITS - 0.05,
+            0,
+          );
+          state.controls.target.copy(screenTarget);
+          state.camera.position.copy(eyeWorld);
+          state.controls.saveState();
+          state.controls.reset();
+          state.camera.lookAt(screenTarget);
+        } else {
+          state.camera.fov = 42;
+          state.camera.updateProjectionMatrix();
+          const preset = CAMERA_POSITIONS[cameraMode];
+          state.controls.target.set(...preset.target);
+          state.camera.position.set(...preset.pos);
+          state.controls.saveState();
+          state.controls.reset();
+          state.camera.lookAt(...preset.target);
+        }
+      }
+
+      // 2. Component positions (exploded vs assembled) & rotating microscope M angle
+      for (const [id, built] of state.components) {
+        if (id === "rotating-microscope") {
+          const offset = isExploded ? EXPLODED_OFFSETS[id] : undefined;
+          setMicroscopeAngle(built, observerAngleDeg, offset);
+          continue;
+        }
+        const base = built.originalPosition;
+        if (isExploded) {
+          const offset = EXPLODED_OFFSETS[id] ?? [0, 0, 0];
+          built.mesh.position.set(
+            base.x + offset[0],
+            base.y + offset[1],
+            base.z + offset[2],
+          );
+        } else {
+          built.mesh.position.copy(base);
+        }
+      }
+
+      // 3. Visibility in Cutaway & Microscope POV ("instrument" looks from inside M straight onto screen S)
+      for (const [id, built] of state.components) {
+        const hideForCutaway =
+          cameraMode === "cutaway" && CUTAWAY_HIDDEN_PARTS.includes(id);
+        const hideForMicroscopePov =
+          cameraMode === "instrument" &&
+          (id === "rotating-microscope" || id === "chamber-window");
+        const shouldHide = hideForCutaway || hideForMicroscopePov;
+        built.mesh.traverse((obj) => {
+          obj.visible = !shouldHide;
+        });
+      }
+
+      // 4. Highlight selected part (both emissive material glow on the 3D object & cyan ring)
+      applyPartHighlightToComponents(state.components, selectedPartId);
+
+      if (state.selectionRing) {
+        state.scene.remove(state.selectionRing);
+        state.selectionRing.geometry.dispose();
+        (state.selectionRing.material as THREE.Material).dispose();
+        state.selectionRing = null;
+      }
+
+      if (selectedPartId) {
+        const targetBuilt = state.components.get(selectedPartId);
+        if (targetBuilt && targetBuilt.mesh.visible) {
+          const ringRadius =
+            selectedPartId === "scintillation-screen" || selectedPartId === "angular-scale"
+              ? 7.65
+              : selectedPartId === "vacuum-chamber" || selectedPartId === "chamber-window"
+                ? 9.25
+                : selectedPartId === "base-platform"
+                  ? 5.2
+                  : selectedPartId === "gold-foil" || selectedPartId === "foil-holder"
+                    ? 1.65
+                    : 1.55;
+
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(ringRadius, 0.095, 12, 64),
+            new THREE.MeshBasicMaterial({ color: 0x22d3ee }),
+          );
+
+          if (selectedPartId === "rotating-microscope") {
+            const mFocus = polarAngleToWorld(observerAngleDeg, 9.4, 0);
+            ring.position.copy(mFocus);
+            ring.rotation.x = Math.PI / 2;
+          } else {
+            ring.position.copy(targetBuilt.mesh.position);
+            if (selectedPartId === "base-platform") {
+              ring.position.y = -4.2;
+            }
+            ring.rotation.x = Math.PI / 2;
+          }
+
+          state.scene.add(ring);
+          state.selectionRing = ring;
+        }
+      }
+
+      // 5. Layer 1: Experimental ZnS scintillation flashes on screen S
+      if (state.scintillationGroup) {
+        state.scene.remove(state.scintillationGroup);
+        disposeGroup(state.scintillationGroup);
+        state.scintillationGroup = null;
+      }
+      if (!showScintillation) {
+        anchorsRef.current.hitFlash = null;
+      } else {
+        const hitVec = run ? engineFmToWorld(run.hit.xFm, run.hit.yFm) : null;
+        anchorsRef.current.hitFlash =
+          hitVec && hasReachedScreen
+            ? hitVec.clone().add(new THREE.Vector3(0, 0.92, 0))
+            : null;
+        const group = buildScintillationLayer(hitVec, hasReachedScreen);
+        state.scene.add(group);
+        state.scintillationGroup = group;
+      }
+
+      // 6. Layer 2: "Mô hình giải thích" (trajectory curve + 3D angle arc + dedicated label anchors)
+      if (state.trailGroup) {
+        state.scene.remove(state.trailGroup);
+        disposeGroup(state.trailGroup);
+        state.trailGroup = null;
+      }
+      if (!showBeam || visibleTrailSamples.length < 2 || !run) {
+        anchorsRef.current.trajectory = null;
+        anchorsRef.current.angle = null;
+      } else {
+        const points3D = visibleTrailSamples.map((s) => engineFmToWorld(s.xFm, s.yFm));
+        const builtModel = buildExplanatoryModelLayer(
+          points3D,
+          settings.impactFm,
+          run.scatteringAngleDeg,
+          run.detectorAngleDeg,
+        );
+        anchorsRef.current.trajectory = builtModel.trajectoryLabelAnchor;
+        anchorsRef.current.angle = builtModel.angleLabelAnchor;
+        state.scene.add(builtModel.group);
+        state.trailGroup = builtModel.group;
+      }
+    };
+
+    syncSceneRef.current = syncNow;
+    syncNow();
+  }, [
+    cameraMode,
+    observerAngleDeg,
+    selectedPartId,
+    showScintillation,
+    run,
+    hasReachedScreen,
+    showBeam,
+    visibleTrailSamples,
+    settings.impactFm,
+  ]);
+
+  // Initialize Three.js scene when WebGL is available & section is active; dispose GPU resources when leaving
+  useEffect(() => {
+    if (!isWebGLActive || !isHostVisible) return;
     const container = containerRef.current;
     if (!container) return;
 
     const initW = Math.max(container.clientWidth, 1);
     const initH = Math.max(container.clientHeight, 1);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: false,
+        powerPreference: "default",
+      });
+    } catch {
+      queueMicrotask(() => setWebglRuntimeError(true));
+      return;
+    }
+
+    let disposed = false;
+    const onContextLost = (event: Event) => {
+      event.preventDefault();
+      if (!disposed) {
+        setWebglRuntimeError(true);
+      }
+    };
+    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(initW, initH);
     renderer.setClearColor(0x080f1e, 1);
     container.appendChild(renderer.domElement);
@@ -346,7 +704,7 @@ export function RutherfordApparatusV3({
     scene.fog = new THREE.Fog(0x080f1e, 38, 78);
 
     // Rich scientific studio lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 0.68));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
 
     const keyLight = new THREE.DirectionalLight(0xfffbeb, 1.35);
     keyLight.position.set(-8, 18, -14);
@@ -368,7 +726,7 @@ export function RutherfordApparatusV3({
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.07;
-    controls.minDistance = 5.5;
+    controls.minDistance = 1.6;
     controls.maxDistance = 46;
     controls.target.set(...preset.target);
 
@@ -378,6 +736,7 @@ export function RutherfordApparatusV3({
     scene.add(grid);
 
     const components = buildRutherfordApparatus(RUTHERFORD_COMPONENTS);
+    isolateComponentMaterials(components);
     for (const [, built] of components) {
       scene.add(built.mesh);
     }
@@ -398,16 +757,24 @@ export function RutherfordApparatusV3({
       frameId: 0,
     };
 
-    function updateProjectedLabel(key: string, worldPos: THREE.Vector3 | null, w: number, h: number) {
+    // Force fresh camera + layers sync upon creation / return from another section
+    prevCameraSigRef.current = "";
+    syncSceneRef.current?.();
+
+    function updateProjectedLabel(
+      key: string,
+      worldPos: THREE.Vector3 | null,
+      w: number,
+      h: number,
+    ) {
       const el = labelElsRef.current[key];
       if (!el) return;
       if (!worldPos) {
-        el.style.opacity = "0";
-        el.style.pointerEvents = "none";
+        if (el.style.opacity !== "0") el.style.opacity = "0";
+        if (el.style.pointerEvents !== "none") el.style.pointerEvents = "none";
         return;
       }
       projected.copy(worldPos).project(camera);
-      // Hide if behind camera or outside viewport bounds
       if (
         projected.z > 1 ||
         projected.x < -0.96 ||
@@ -415,8 +782,8 @@ export function RutherfordApparatusV3({
         projected.y < -0.94 ||
         projected.y > 0.92
       ) {
-        el.style.opacity = "0";
-        el.style.pointerEvents = "none";
+        if (el.style.opacity !== "0") el.style.opacity = "0";
+        if (el.style.pointerEvents !== "none") el.style.pointerEvents = "none";
         return;
       }
       const px = (projected.x * 0.5 + 0.5) * w;
@@ -430,7 +797,7 @@ export function RutherfordApparatusV3({
 
     let lastRender = 0;
     function animate(now = 0) {
-      if (!sceneRef.current || !container) return;
+      if (disposed || !sceneRef.current || !container) return;
       sceneRef.current.frameId = requestAnimationFrame(animate);
       if (now - lastRender < 33) return;
       lastRender = now;
@@ -455,7 +822,7 @@ export function RutherfordApparatusV3({
     animate();
 
     function onResize() {
-      if (!container || !sceneRef.current) return;
+      if (disposed || !container || !sceneRef.current) return;
       const w = container.clientWidth;
       const h = container.clientHeight;
       if (w <= 0 || h <= 0) return;
@@ -473,9 +840,12 @@ export function RutherfordApparatusV3({
     }
 
     function onClick(event: MouseEvent) {
-      if (!container || !sceneRef.current) return;
+      if (disposed || !container || !sceneRef.current) return;
       if (pointerDownPos) {
-        const dist = Math.hypot(event.clientX - pointerDownPos.x, event.clientY - pointerDownPos.y);
+        const dist = Math.hypot(
+          event.clientX - pointerDownPos.x,
+          event.clientY - pointerDownPos.y,
+        );
         if (dist > 6) return;
       }
       const rect = renderer.domElement.getBoundingClientRect();
@@ -533,220 +903,31 @@ export function RutherfordApparatusV3({
     renderer.domElement.addEventListener("click", onClick);
 
     return () => {
-      if (sceneRef.current) {
-        cancelAnimationFrame(sceneRef.current.frameId);
-        sceneRef.current.renderer.dispose();
-        disposeGroup(sceneRef.current.scene);
-      }
-      resizeObserver.disconnect();
+      disposed = true;
+      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       renderer.domElement.removeEventListener("click", onClick);
+      resizeObserver.disconnect();
+
+      if (sceneRef.current) {
+        cancelAnimationFrame(sceneRef.current.frameId);
+        sceneRef.current.controls.dispose();
+        disposeGroup(sceneRef.current.scene);
+      }
+
+      try {
+        renderer.forceContextLoss?.();
+      } catch {
+        // Ignore if context already lost
+      }
+      renderer.dispose();
+
       if (renderer.domElement.parentNode === container) {
         container.removeChild(renderer.domElement);
       }
       sceneRef.current = null;
     };
-  }, []);
-
-  // Update camera preset & follow observerAngleDeg in Microscope POV ("instrument")
-  useEffect(() => {
-    const state = sceneRef.current;
-    if (!state) return;
-    if (cameraMode === "instrument") {
-      const eyeWorld = polarAngleToWorld(observerAngleDeg, 12.2, 0.72);
-      const screenTarget = polarAngleToWorld(observerAngleDeg, DETECTOR_RADIUS_UNITS - 0.2, 0);
-      state.controls.target.copy(screenTarget);
-      state.camera.position.copy(eyeWorld);
-      state.controls.saveState();
-      state.controls.reset();
-      state.camera.lookAt(screenTarget);
-      return;
-    }
-    const preset = CAMERA_POSITIONS[cameraMode];
-    state.controls.target.set(...preset.target);
-    state.camera.position.set(...preset.pos);
-    state.controls.saveState();
-    state.controls.reset();
-    state.camera.lookAt(...preset.target);
-  }, [cameraMode, observerAngleDeg]);
-
-  // Update exploded positions & rotating microscope M angle + 3D label anchors
-  useEffect(() => {
-    const state = sceneRef.current;
-    const isExploded = cameraMode === "exploded";
-
-    anchorsRef.current.M = polarAngleToWorld(
-      observerAngleDeg,
-      11.55,
-      0.85 + (isExploded ? EXPLODED_OFFSETS["rotating-microscope"][1] : 0),
-    );
-    anchorsRef.current.R = new THREE.Vector3(
-      -6.6 + (isExploded ? EXPLODED_OFFSETS["alpha-source"][0] : 0),
-      1.35 + (isExploded ? EXPLODED_OFFSETS["alpha-source"][1] : 0),
-      0,
-    );
-    anchorsRef.current.D = new THREE.Vector3(
-      0,
-      1.85 + (isExploded ? EXPLODED_OFFSETS["gold-foil"][1] : 0),
-      0,
-    );
-    anchorsRef.current.S = polarAngleToWorld(
-      54,
-      DETECTOR_RADIUS_UNITS,
-      1.05 + (isExploded ? EXPLODED_OFFSETS["scintillation-screen"][1] : 0),
-    );
-
-    if (!state) return;
-    for (const [id, built] of state.components) {
-      if (id === "rotating-microscope") {
-        const offset = isExploded ? EXPLODED_OFFSETS[id] : undefined;
-        setMicroscopeAngle(built, observerAngleDeg, offset);
-        continue;
-      }
-      const base = built.originalPosition;
-      if (isExploded) {
-        const offset = EXPLODED_OFFSETS[id] ?? [0, 0, 0];
-        built.mesh.position.set(
-          base.x + offset[0],
-          base.y + offset[1],
-          base.z + offset[2],
-        );
-      } else {
-        built.mesh.position.copy(base);
-      }
-    }
-  }, [cameraMode, observerAngleDeg]);
-
-  // Update cutaway visibility (hides vacuum-chamber, chamber-window)
-  useEffect(() => {
-    const state = sceneRef.current;
-    if (!state) return;
-    for (const [id, built] of state.components) {
-      const shouldHide =
-        cameraMode === "cutaway" && CUTAWAY_HIDDEN_PARTS.includes(id);
-      built.mesh.traverse((obj) => {
-        obj.visible = !shouldHide;
-      });
-    }
-  }, [cameraMode]);
-
-  // Highlight selected 3D part with an indicator ring
-  useEffect(() => {
-    const state = sceneRef.current;
-    if (!state) return;
-
-    if (state.selectionRing) {
-      state.scene.remove(state.selectionRing);
-      state.selectionRing.geometry.dispose();
-      (state.selectionRing.material as THREE.Material).dispose();
-      state.selectionRing = null;
-    }
-
-    if (!selectedPartId) return;
-    const targetBuilt = state.components.get(selectedPartId);
-    if (!targetBuilt || !targetBuilt.mesh.visible) return;
-
-    const ringRadius =
-      selectedPartId === "scintillation-screen" || selectedPartId === "angular-scale"
-        ? 7.65
-        : selectedPartId === "vacuum-chamber" || selectedPartId === "chamber-window"
-          ? 9.25
-          : selectedPartId === "base-platform"
-            ? 5.2
-            : selectedPartId === "gold-foil" || selectedPartId === "foil-holder"
-              ? 1.65
-              : 1.55;
-
-    const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(ringRadius, 0.085, 12, 64),
-      new THREE.MeshBasicMaterial({ color: 0x22d3ee }),
-    );
-
-    if (selectedPartId === "rotating-microscope") {
-      const mFocus = polarAngleToWorld(observerAngleDeg, 9.4, 0);
-      ring.position.copy(mFocus);
-      ring.rotation.x = Math.PI / 2;
-    } else {
-      ring.position.copy(targetBuilt.mesh.position);
-      if (selectedPartId === "base-platform") {
-        ring.position.y = -4.2;
-      }
-      ring.rotation.x = Math.PI / 2;
-    }
-
-    state.scene.add(ring);
-    state.selectionRing = ring;
-  }, [selectedPartId, cameraMode, observerAngleDeg]);
-
-  // Layer 1: Experimental ZnS scintillation flashes on screen S
-  useEffect(() => {
-    const state = sceneRef.current;
-    if (!state) return;
-
-    if (state.scintillationGroup) {
-      state.scene.remove(state.scintillationGroup);
-      disposeGroup(state.scintillationGroup);
-      state.scintillationGroup = null;
-    }
-
-    if (!showScintillation) {
-      anchorsRef.current.hitFlash = null;
-      return;
-    }
-
-    const hitVec = run ? engineFmToWorld(run.hit.xFm, run.hit.yFm) : null;
-    anchorsRef.current.hitFlash =
-      hitVec && hasReachedScreen
-        ? hitVec.clone().add(new THREE.Vector3(0, 0.92, 0))
-        : null;
-
-    const group = buildScintillationLayer(hitVec, hasReachedScreen);
-    state.scene.add(group);
-    state.scintillationGroup = group;
-  }, [showScintillation, run, hasReachedScreen]);
-
-  // Layer 2: "Mô hình giải thích" (trajectory curve + 3D angle arc + dedicated label anchors)
-  useEffect(() => {
-    const state = sceneRef.current;
-    if (!state) return;
-
-    if (state.trailGroup) {
-      state.scene.remove(state.trailGroup);
-      disposeGroup(state.trailGroup);
-      state.trailGroup = null;
-    }
-
-    if (!showBeam || !trail || !run) {
-      anchorsRef.current.trajectory = null;
-      anchorsRef.current.angle = null;
-      return;
-    }
-
-    const ratio =
-      elapsedZs === "completed"
-        ? 1
-        : run.durationZs > 0
-          ? Math.min(1, effectiveElapsedZs / run.durationZs)
-          : 1;
-    const visibleCount = Math.max(2, Math.floor(ratio * trail.length));
-
-    const points3D = trail
-      .slice(0, visibleCount)
-      .map((s) => engineFmToWorld(s.xFm, s.yFm));
-
-    const builtModel = buildExplanatoryModelLayer(
-      points3D,
-      settings.impactFm,
-      run.scatteringAngleDeg,
-      run.detectorAngleDeg,
-    );
-
-    anchorsRef.current.trajectory = builtModel.trajectoryLabelAnchor;
-    anchorsRef.current.angle = builtModel.angleLabelAnchor;
-
-    state.scene.add(builtModel.group);
-    state.trailGroup = builtModel.group;
-  }, [trail, run, elapsedZs, effectiveElapsedZs, showBeam, settings.impactFm]);
+  }, [isWebGLActive, isHostVisible, retryNonce]);
 
   // Flight animation timer (~0.95s wall-clock flight from source R through foil D to screen S)
   useEffect(() => {
@@ -842,8 +1023,20 @@ export function RutherfordApparatusV3({
     hasReachedScreen &&
     Math.abs(Math.abs(run.detectorAngleDeg) - observerAngleDeg) <= 12;
 
+  const renderModeAttr = isFallbackActive
+    ? "fallback-2d"
+    : isWebGLActive
+      ? isHostVisible
+        ? "webgl-active"
+        : "webgl-released"
+      : "initializing";
+
   return (
-    <div style={{ display: "grid", gap: "16px", minWidth: 0 }}>
+    <div
+      ref={rootRef}
+      data-rutherford-render-mode={renderModeAttr}
+      style={{ display: "grid", gap: "16px", minWidth: 0 }}
+    >
       {/* 1. Nhận diện 4 bộ phận cốt lõi R–D–S–M (và G, P) đối chiếu Hình 21.2 SGK tr. 91 */}
       <section
         aria-label="Nhận diện 4 bộ phận R, D, S, M theo Hình 21.2 SGK"
@@ -1021,8 +1214,9 @@ export function RutherfordApparatusV3({
         )}
       </section>
 
-      {/* 2. Khung mô hình 3D Rutherford (Toàn cảnh, Cắt lớp, Qua kính hiển vi, Mặt cắt 21.2b) */}
+      {/* 2. Khung mô hình 3D Rutherford (hoặc Sơ đồ quan sát dự phòng khi trình duyệt thiếu WebGL) */}
       <div
+        data-testid="rutherford-simulation-frame"
         style={{
           position: "relative",
           borderRadius: "12px",
@@ -1031,206 +1225,326 @@ export function RutherfordApparatusV3({
           background: "#080f1e",
         }}
       >
-        <div
-          ref={containerRef}
-          style={{ width: "100%", height: "490px", display: "block", touchAction: "none" }}
-          data-rutherford-canvas
-        />
+        {isFallbackActive ? (
+          <RutherfordFallbackDiagram
+            cameraMode={cameraMode}
+            activeCorePartId={activeCorePartId}
+            observerAngleDeg={observerAngleDeg}
+            observerSummary={observerSummary}
+            show3DPins={show3DPins}
+            showScintillation={showScintillation}
+            showBeam={showBeam}
+            hasReachedScreen={hasReachedScreen}
+            isHitInsideMicroscopeWindow={isHitInsideMicroscopeWindow}
+            scatteringAngleDeg={run ? run.scatteringAngleDeg : null}
+            detectorAngleDeg={run ? run.detectorAngleDeg : null}
+            impactFm={settings.impactFm}
+            visibleTrailSamples={visibleTrailSamples}
+            eyepieceFlashSpots={EYEPIECE_FLASH_SPOTS}
+            flashBeat={flashBeat}
+            onSelectPart={(partId) =>
+              writeRutherfordV3State((prev) => ({
+                ...prev,
+                selectedPartId: prev.selectedPartId === partId ? null : partId,
+              }))
+            }
+            onRetryWebGL={() => {
+              cachedWebGLProbed = probeWebGLSupport();
+              setWebglRuntimeError(false);
+              setRetryNonce((n) => n + 1);
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new Event(WEBGL_REPROBE_EVENT));
+              }
+            }}
+          />
+        ) : (
+          <>
+            <div
+              ref={containerRef}
+              style={{ width: "100%", height: "490px", display: "block", touchAction: "none" }}
+              data-rutherford-canvas
+            />
 
-        {/* Lớp nhãn 3D chiếu trực tiếp lên tọa độ linh kiện, vị trí (1)-(2), đốm lóe & Mô hình giải thích */}
-        <div
-          aria-hidden={!show3DPins && !showBeam}
-          style={{
-            position: "absolute",
-            inset: 0,
-            pointerEvents: "none",
-            overflow: "hidden",
-          }}
-        >
-          {/* 4 nhãn R, D, S, M bám theo vật thể 3D */}
-          {(
-            [
-              { key: "R", partId: "alpha-source", text: "R · Nguồn hạt α", accent: "#fbbf24" },
-              { key: "D", partId: "gold-foil", text: "D · Lá vàng", accent: "#fde047" },
-              { key: "S", partId: "scintillation-screen", text: "S · Màn huỳnh quang", accent: "#4ade80" },
-              { key: "M", partId: "rotating-microscope", text: `M · Kính (${observerAngleDeg}°)`, accent: "#38bdf8" },
-            ] as const
-          ).map((pin) => {
-            const selected = activeCorePartId === pin.partId;
-            return (
-              <button
-                key={pin.key}
-                ref={(el) => {
-                  labelElsRef.current[pin.key] = el;
+            {/* Lớp thị kính tròn & đốm lóe trên màn S khi đang ở góc nhìn “Qua kính hiển vi” */}
+            {cameraMode === "instrument" && (
+              <div
+                data-microscope-eyepiece-overlay
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  pointerEvents: "none",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background:
+                    "radial-gradient(circle at 50% 50%, rgba(4, 24, 15, 0.04) 0%, rgba(4, 24, 15, 0.14) 36%, rgba(3, 7, 18, 0.94) 52%, rgba(2, 6, 14, 0.98) 100%)",
                 }}
-                type="button"
-                data-3d-pin={pin.key}
-                onClick={() =>
-                  writeRutherfordV3State((prev) => ({
-                    ...prev,
-                    selectedPartId:
-                      prev.selectedPartId === pin.partId ? null : pin.partId,
-                  }))
-                }
+              >
+                <svg
+                  viewBox="-160 -160 320 320"
+                  style={{
+                    width: "min(370px, 78%)",
+                    height: "min(370px, 78%)",
+                    overflow: "visible",
+                  }}
+                >
+                  {/* Vành đồng thị kính hiển vi M */}
+                  <circle cx="0" cy="0" r="146" fill="none" stroke="#d4a017" strokeWidth="4" strokeOpacity="0.9" />
+                  <circle cx="0" cy="0" r="139" fill="none" stroke="#22c55e" strokeWidth="1.6" strokeOpacity="0.7" />
+                  {/* Dây tóc ngắm chữ thập & vòng chia độ của thị kính */}
+                  <line x1="-136" y1="0" x2="136" y2="0" stroke="rgba(74, 222, 128, 0.38)" strokeWidth="1" />
+                  <line x1="0" y1="-136" x2="0" y2="136" stroke="rgba(74, 222, 128, 0.38)" strokeWidth="1" />
+                  <circle cx="0" cy="0" r="68" fill="none" stroke="rgba(74, 222, 128, 0.32)" strokeWidth="1" strokeDasharray="4 4" />
+
+                  {/* Chớp đốm lóe huỳnh quang thực nghiệm trên màn S nhìn qua kính hiển vi M */}
+                  {showScintillation && (
+                    <g>
+                      {observerSummary.zone === "position_1" &&
+                        [0, 1, 2, 3, 4].map((k) => {
+                          const idx = (flashBeat * 3 + k * 5) % EYEPIECE_FLASH_SPOTS.length;
+                          const [sx, sy, sr] = EYEPIECE_FLASH_SPOTS[idx];
+                          return (
+                            <g key={k}>
+                              <circle cx={sx * 2.5} cy={sy * 2.5} r={sr * 3.8} fill="#4ade80" fillOpacity={k === 0 ? 0.34 : 0.2} />
+                              <circle cx={sx * 2.5} cy={sy * 2.5} r={sr * 1.6} fill="#bbf7d0" fillOpacity={k === 0 ? 1 : 0.72} />
+                            </g>
+                          );
+                        })}
+                      {observerSummary.zone === "intermediate" && flashBeat % 2 === 0 && (
+                        <g>
+                          <circle cx="22" cy="-18" r="13" fill="#4ade80" fillOpacity="0.3" />
+                          <circle cx="22" cy="-18" r="5" fill="#bbf7d0" />
+                        </g>
+                      )}
+                      {observerSummary.zone === "position_2" && flashBeat % 5 === 0 && (
+                        <g>
+                          <circle cx="-18" cy="14" r="14" fill="#4ade80" fillOpacity="0.32" />
+                          <circle cx="-18" cy="14" r="5.2" fill="#bbf7d0" />
+                        </g>
+                      )}
+
+                      {hasReachedScreen && isHitInsideMicroscopeWindow && (
+                        <g>
+                          <circle cx="0" cy="0" r="32" fill="#22c55e" fillOpacity="0.32" />
+                          <circle cx="0" cy="0" r="18" fill="#4ade80" fillOpacity="0.65" />
+                          <circle cx="0" cy="0" r="8" fill="#ecfdf5" />
+                          <rect x="-82" y="-58" width="164" height="22" rx="5" fill="rgba(5, 46, 22, 0.94)" stroke="#4ade80" strokeWidth="1.2" />
+                          <text x="0" y="-43" textAnchor="middle" fill="#86efac" fontSize="11.5" fontWeight="700">
+                            ✦ Đốm lóe trên màn S
+                          </text>
+                        </g>
+                      )}
+                    </g>
+                  )}
+
+                  {/* Nhãn vùng màn S dưới đáy thị kính */}
+                  <rect x="-92" y="106" width="184" height="22" rx="11" fill="rgba(4, 24, 15, 0.9)" stroke="#4ade80" strokeWidth="1" />
+                  <text x="0" y="121" textAnchor="middle" fill="#bbf7d0" fontSize="10.8" fontWeight="700">
+                    Màn huỳnh quang S ({observerAngleDeg}°)
+                  </text>
+                </svg>
+              </div>
+            )}
+
+            {/* Lớp nhãn 3D chiếu trực tiếp lên tọa độ linh kiện, vị trí (1)-(2), đốm lóe & Mô hình giải thích */}
+            <div
+              aria-hidden={!show3DPins && !showBeam}
+              style={{
+                position: "absolute",
+                inset: 0,
+                pointerEvents: "none",
+                overflow: "hidden",
+              }}
+            >
+              {/* 4 nhãn R, D, S, M bám theo vật thể 3D (ẩn khi đang ở chế độ thị kính cận cảnh để tránh che vùng ngắm) */}
+              {(
+                [
+                  { key: "R", partId: "alpha-source", text: "R · Nguồn hạt α", accent: "#fbbf24" },
+                  { key: "D", partId: "gold-foil", text: "D · Lá vàng", accent: "#fde047" },
+                  { key: "S", partId: "scintillation-screen", text: "S · Màn huỳnh quang", accent: "#4ade80" },
+                  { key: "M", partId: "rotating-microscope", text: `M · Kính (${observerAngleDeg}°)`, accent: "#38bdf8" },
+                ] as const
+              ).map((pin) => {
+                const selected = activeCorePartId === pin.partId;
+                return (
+                  <button
+                    key={pin.key}
+                    ref={(el) => {
+                      labelElsRef.current[pin.key] = el;
+                    }}
+                    type="button"
+                    data-3d-pin={pin.key}
+                    onClick={() =>
+                      writeRutherfordV3State((prev) => ({
+                        ...prev,
+                        selectedPartId:
+                          prev.selectedPartId === pin.partId ? null : pin.partId,
+                      }))
+                    }
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      display: show3DPins && cameraMode !== "instrument" ? "inline-flex" : "none",
+                      alignItems: "center",
+                      gap: "4px",
+                      padding: "3px 8px",
+                      borderRadius: "999px",
+                      border: selected ? "2px solid #22d3ee" : `1px solid ${pin.accent}`,
+                      background: selected ? "rgba(8, 47, 73, 0.94)" : "rgba(15, 23, 42, 0.86)",
+                      color: "#f8fafc",
+                      fontSize: "11.5px",
+                      fontWeight: 700,
+                      whiteSpace: "nowrap",
+                      cursor: "pointer",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.45)",
+                      opacity: 0,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "7px",
+                        height: "7px",
+                        borderRadius: "50%",
+                        background: pin.accent,
+                      }}
+                    />
+                    {pin.text}
+                  </button>
+                );
+              })}
+
+              {/* Nhãn Vị trí (1) gần hướng tới và Vị trí (2) ở góc lớn */}
+              <div
+                ref={(el) => {
+                  labelElsRef.current.pos1 = el;
+                }}
+                data-3d-pos-marker="1"
                 style={{
                   position: "absolute",
                   left: 0,
                   top: 0,
-                  display: show3DPins ? "inline-flex" : "none",
-                  alignItems: "center",
-                  gap: "4px",
-                  padding: "3px 8px",
-                  borderRadius: "999px",
-                  border: selected ? "2px solid #22d3ee" : `1px solid ${pin.accent}`,
-                  background: selected ? "rgba(8, 47, 73, 0.94)" : "rgba(15, 23, 42, 0.86)",
-                  color: "#f8fafc",
-                  fontSize: "11.5px",
+                  display: show3DPins && cameraMode !== "instrument" ? "block" : "none",
+                  padding: "2px 7px",
+                  borderRadius: "4px",
+                  background: "rgba(20, 83, 45, 0.92)",
+                  border: "1px solid #4ade80",
+                  color: "#bbf7d0",
+                  fontSize: "11px",
                   fontWeight: 700,
                   whiteSpace: "nowrap",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.45)",
                   opacity: 0,
                 }}
               >
-                <span
-                  style={{
-                    width: "7px",
-                    height: "7px",
-                    borderRadius: "50%",
-                    background: pin.accent,
-                  }}
-                />
-                {pin.text}
-              </button>
-            );
-          })}
+                Vị trí (1) · 0° (gần hướng tới)
+              </div>
 
-          {/* Nhãn Vị trí (1) và Vị trí (2) chuẩn Hình 21.2b */}
-          <div
-            ref={(el) => {
-              labelElsRef.current.pos1 = el;
-            }}
-            data-3d-pos-marker="1"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              display: show3DPins ? "block" : "none",
-              padding: "2px 7px",
-              borderRadius: "4px",
-              background: "rgba(20, 83, 45, 0.9)",
-              border: "1px solid #4ade80",
-              color: "#bbf7d0",
-              fontSize: "11px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              opacity: 0,
-            }}
-          >
-            Vị trí (1) · 0°
-          </div>
+              <div
+                ref={(el) => {
+                  labelElsRef.current.pos2 = el;
+                }}
+                data-3d-pos-marker="2"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  display: show3DPins && cameraMode !== "instrument" ? "block" : "none",
+                  padding: "2px 7px",
+                  borderRadius: "4px",
+                  background: "rgba(136, 19, 55, 0.92)",
+                  border: "1px solid #fb7185",
+                  color: "#fecdd3",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  opacity: 0,
+                }}
+              >
+                Vị trí (2) · &gt; 90° (góc lớn)
+              </div>
 
-          <div
-            ref={(el) => {
-              labelElsRef.current.pos2 = el;
-            }}
-            data-3d-pos-marker="2"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              display: show3DPins ? "block" : "none",
-              padding: "2px 7px",
-              borderRadius: "4px",
-              background: "rgba(136, 19, 55, 0.9)",
-              border: "1px solid #fb7185",
-              color: "#fecdd3",
-              fontSize: "11px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              opacity: 0,
-            }}
-          >
-            Vị trí (2) · &gt; 90°
-          </div>
+              {/* Nhãn Đốm lóe trên màn S khi hạt α chạm màn */}
+              <div
+                ref={(el) => {
+                  labelElsRef.current.hitFlash = el;
+                }}
+                data-scintillation-flash-label={showScintillation && hasReachedScreen ? "visible" : "hidden"}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  display: showScintillation && hasReachedScreen ? "block" : "none",
+                  padding: "3px 8px",
+                  borderRadius: "4px",
+                  background: "rgba(5, 46, 22, 0.92)",
+                  border: "1.5px solid #4ade80",
+                  color: "#86efac",
+                  fontSize: "11.5px",
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  boxShadow: "0 0 12px rgba(74, 222, 128, 0.45)",
+                  opacity: 0,
+                }}
+              >
+                ✦ Đốm lóe trên màn S
+              </div>
 
-          {/* Nhãn Đốm lóe trên màn S khi hạt α chạm màn */}
-          <div
-            ref={(el) => {
-              labelElsRef.current.hitFlash = el;
-            }}
-            data-scintillation-flash-label={showScintillation && hasReachedScreen ? "visible" : "hidden"}
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              display: showScintillation && hasReachedScreen ? "block" : "none",
-              padding: "3px 8px",
-              borderRadius: "4px",
-              background: "rgba(5, 46, 22, 0.92)",
-              border: "1.5px solid #4ade80",
-              color: "#86efac",
-              fontSize: "11.5px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              boxShadow: "0 0 12px rgba(74, 222, 128, 0.45)",
-              opacity: 0,
-            }}
-          >
-            ✦ Đốm lóe trên màn S
-          </div>
+              {/* HAI NHÃN RIÊNG TRONG CHẾ ĐỘ “MÔ HÌNH GIẢI THÍCH” (đường đi & góc lệch θ) */}
+              <div
+                ref={(el) => {
+                  labelElsRef.current.trajectory = el;
+                }}
+                data-explanatory-label="trajectory"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  display: showBeam ? "block" : "none",
+                  padding: "3px 8px",
+                  borderRadius: "4px",
+                  background: "rgba(12, 74, 110, 0.94)",
+                  border: "1px solid #38bdf8",
+                  color: "#e0f2fe",
+                  fontSize: "11.5px",
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  opacity: 0,
+                }}
+              >
+                Mô hình giải thích: Đường đi hạt α
+              </div>
 
-          {/* HAI NHÃN RIÊNG TRONG CHẾ ĐỘ “MÔ HÌNH GIẢI THÍCH” (đường đi & góc lệch θ) */}
-          <div
-            ref={(el) => {
-              labelElsRef.current.trajectory = el;
-            }}
-            data-explanatory-label="trajectory"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              display: showBeam ? "block" : "none",
-              padding: "3px 8px",
-              borderRadius: "4px",
-              background: "rgba(12, 74, 110, 0.92)",
-              border: "1px solid #38bdf8",
-              color: "#e0f2fe",
-              fontSize: "11.5px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              opacity: 0,
-            }}
-          >
-            Đường đi hạt α (mô hình)
-          </div>
+              <div
+                ref={(el) => {
+                  labelElsRef.current.angle = el;
+                }}
+                data-explanatory-label="angle"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 0,
+                  display: showBeam && run ? "block" : "none",
+                  padding: "3px 8px",
+                  borderRadius: "4px",
+                  background: "rgba(120, 53, 15, 0.94)",
+                  border: "1px solid #fbbf24",
+                  color: "#fef08a",
+                  fontSize: "11.5px",
+                  fontWeight: 700,
+                  whiteSpace: "nowrap",
+                  opacity: 0,
+                }}
+              >
+                {run
+                  ? `Mô hình giải thích: Góc lệch θ = ${format(run.scatteringAngleDeg)}°`
+                  : "Mô hình giải thích: Góc lệch θ"}
+              </div>
+            </div>
+          </>
+        )}
 
-          <div
-            ref={(el) => {
-              labelElsRef.current.angle = el;
-            }}
-            data-explanatory-label="angle"
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              display: showBeam && run ? "block" : "none",
-              padding: "3px 8px",
-              borderRadius: "4px",
-              background: "rgba(120, 53, 15, 0.92)",
-              border: "1px solid #fbbf24",
-              color: "#fef08a",
-              fontSize: "11.5px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              opacity: 0,
-            }}
-          >
-            {run ? `Góc lệch θ = ${format(run.scatteringAngleDeg)}°` : "Góc lệch θ"}
-          </div>
-        </div>
-
-        {/* Thanh chọn góc nhìn camera trên khung 3D */}
+        {/* Thanh chọn góc nhìn camera trên khung mô phỏng */}
         <div
           style={{
             position: "absolute",
@@ -1241,6 +1555,7 @@ export function RutherfordApparatusV3({
             gap: "6px",
             flexWrap: "wrap",
             alignItems: "center",
+            zIndex: 3,
           }}
         >
           {primaryPresets.map((preset) => (
@@ -1329,8 +1644,8 @@ export function RutherfordApparatusV3({
             ))}
         </div>
 
-        {/* HUD Thị kính hiển vi M khi học sinh chọn góc nhìn “Qua kính hiển vi” */}
-        {cameraMode === "instrument" && (
+        {/* HUD Thị kính hiển vi M khi học sinh chọn góc nhìn “Qua kính hiển vi” trên 3D */}
+        {!isFallbackActive && cameraMode === "instrument" && (
           <div
             role="region"
             aria-label="Góc nhìn qua thị kính hiển vi M"
@@ -1339,14 +1654,15 @@ export function RutherfordApparatusV3({
               position: "absolute",
               top: "54px",
               right: "12px",
-              width: "min(250px, calc(100% - 24px))",
+              width: "min(272px, calc(100% - 24px))",
               padding: "10px 12px",
-              background: "rgba(4, 15, 12, 0.92)",
+              background: "rgba(4, 15, 12, 0.94)",
               border: "1.5px solid #4ade80",
               borderRadius: "10px",
               color: "#ecfdf5",
               fontSize: "12px",
               lineHeight: 1.45,
+              zIndex: 3,
             }}
           >
             <div style={{ fontWeight: 700, color: "#86efac", marginBottom: "4px" }}>
@@ -1355,15 +1671,90 @@ export function RutherfordApparatusV3({
             <div style={{ fontWeight: 600, color: "#fde047", marginBottom: "4px" }}>
               {observerSummary.shortBadge}
             </div>
-            <div style={{ color: "#cbd5e1" }}>
+            <div style={{ color: "#cbd5e1", marginBottom: "6px" }}>
               {isHitInsideMicroscopeWindow
-                ? "✦ Hạt α đang xét vừa đập vào vùng màn S trong thị trường kính M!"
+                ? "✦ Hạt α đang xét vừa tạo đốm lóe trên màn huỳnh quang S ngay trong thị trường kính M!"
                 : observerSummary.relativeFrequencyLabel}
+            </div>
+            {showBeam && run && (
+              <div
+                style={{
+                  padding: "5px 8px",
+                  borderRadius: "6px",
+                  background: "rgba(12, 74, 110, 0.85)",
+                  border: "1px solid #38bdf8",
+                  color: "#e0f2fe",
+                  fontSize: "11.5px",
+                  marginBottom: "6px",
+                }}
+              >
+                <strong>Mô hình giải thích:</strong> Quỹ đạo (b = {settings.impactFm} fm) · Góc lệch{" "}
+                <strong>θ = {format(run.scatteringAngleDeg)}°</strong>
+              </div>
+            )}
+            <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={() =>
+                  writeRutherfordV3State((prev) => ({ ...prev, observerAngleDeg: 0 }))
+                }
+                style={{
+                  padding: "3px 7px",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  borderRadius: "4px",
+                  border: "1px solid #4ade80",
+                  background: observerAngleDeg === 0 ? "rgba(74, 222, 128, 0.3)" : "rgba(15, 23, 42, 0.85)",
+                  color: "#bbf7d0",
+                  cursor: "pointer",
+                }}
+              >
+                0° · Vị trí (1)
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  writeRutherfordV3State((prev) => ({ ...prev, observerAngleDeg: 140 }))
+                }
+                style={{
+                  padding: "3px 7px",
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  borderRadius: "4px",
+                  border: "1px solid #fb7185",
+                  background: observerAngleDeg === 140 ? "rgba(251, 113, 133, 0.3)" : "rgba(15, 23, 42, 0.85)",
+                  color: "#fecdd3",
+                  cursor: "pointer",
+                }}
+              >
+                140° · Vị trí (2)
+              </button>
+              {run && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const targetDeg = Math.min(160, Math.max(0, Math.round(Math.abs(run.detectorAngleDeg))));
+                    writeRutherfordV3State((prev) => ({ ...prev, observerAngleDeg: targetDeg }));
+                  }}
+                  style={{
+                    padding: "3px 7px",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    borderRadius: "4px",
+                    border: "1px solid #38bdf8",
+                    background: "rgba(12, 74, 110, 0.55)",
+                    color: "#bae6fd",
+                    cursor: "pointer",
+                  }}
+                >
+                  Tới đốm lóe ({Math.min(160, Math.max(0, Math.round(Math.abs(run.detectorAngleDeg))))}°)
+                </button>
+              )}
             </div>
           </div>
         )}
 
-        {/* Thanh chỉ dẫn thao tác xoay / zoom / chọn linh kiện ở đáy khung 3D */}
+        {/* Thanh chỉ dẫn thao tác xoay / zoom / chọn linh kiện ở đáy khung */}
         <div
           style={{
             position: "absolute",
@@ -1376,6 +1767,7 @@ export function RutherfordApparatusV3({
             flexWrap: "wrap",
             gap: "8px",
             pointerEvents: "none",
+            zIndex: 3,
           }}
         >
           <span
@@ -1399,7 +1791,9 @@ export function RutherfordApparatusV3({
               fontSize: "11.5px",
             }}
           >
-            Kéo để xoay 360° · Cuộn/chụm 2 ngón để zoom · Chạm linh kiện để đọc công dụng
+            {isFallbackActive
+              ? "Sơ đồ dự phòng tương tác · Chạm linh kiện R–D–S–M để làm nổi & đọc công dụng"
+              : "Kéo để xoay 360° · Cuộn/chụm 2 ngón để zoom · Chạm linh kiện để đọc công dụng"}
           </span>
         </div>
       </div>
@@ -1746,12 +2140,17 @@ export function RutherfordApparatusV3({
                 <g>
                   <line x1="196" y1={svgCy} x2={svgCx - svgR} y2={svgCy} stroke="#94a3b8" strokeWidth="1.2" strokeDasharray="3 2" />
                   {run && (
-                    <polyline
-                      points={`196,${svgCy} ${svgCx},${svgCy} ${hitSvgX.toFixed(1)},${hitSvgY.toFixed(1)}`}
-                      fill="none"
-                      stroke="#38bdf8"
-                      strokeWidth="2.2"
-                    />
+                    <>
+                      <polyline
+                        points={`196,${svgCy} ${svgCx},${svgCy} ${hitSvgX.toFixed(1)},${hitSvgY.toFixed(1)}`}
+                        fill="none"
+                        stroke="#38bdf8"
+                        strokeWidth="2.2"
+                      />
+                      <text x={svgCx} y="216" textAnchor="middle" fill="#7dd3fc" fontSize="8.8" fontWeight="700">
+                        Mô hình giải thích: quỹ đạo &amp; θ = {format(run.scatteringAngleDeg, 1)}°
+                      </text>
+                    </>
                   )}
                 </g>
               )}
@@ -1783,10 +2182,13 @@ export function RutherfordApparatusV3({
                 </g>
               )}
 
-              {/* Chỉ rõ Vị trí (1) và Vị trí (2) đúng Hình 21.2b */}
+              {/* Chỉ rõ Vị trí (1) gần hướng tới và Vị trí (2) ở góc lớn đúng Hình 21.2b */}
               <circle cx={svgCx - svgR} cy={svgCy} r="4.5" fill="none" stroke="#86efac" strokeWidth="1.6" />
-              <text x="12" y={svgCy + 4} fill="#86efac" fontSize="10.5" fontWeight="700">
+              <text x="6" y={svgCy - 4} fill="#86efac" fontSize="9.5" fontWeight="700">
                 (1) 0°
+              </text>
+              <text x="6" y={svgCy + 8} fill="#86efac" fontSize="8.2" fontWeight="600">
+                gần hướng tới
               </text>
 
               <circle
@@ -1797,8 +2199,11 @@ export function RutherfordApparatusV3({
                 stroke="#fda4af"
                 strokeWidth="1.6"
               />
-              <text x="196" y="176" fill="#fda4af" fontSize="10.5" fontWeight="700">
+              <text x="192" y="173" fill="#fda4af" fontSize="9.5" fontWeight="700">
                 (2) &gt;90°
+              </text>
+              <text x="192" y="184" fill="#fda4af" fontSize="8.2" fontWeight="600">
+                góc lớn
               </text>
 
               {/* Kính hiển vi M đang quan sát */}

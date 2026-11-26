@@ -221,10 +221,19 @@ const OUTER_SHELL_PART_IDS = new Set([
   "base-platform",
 ]);
 
+const PRIMARY_RDSM_PART_IDS = new Set([
+  "alpha-source",
+  "gold-foil",
+  "scintillation-screen",
+  "rotating-microscope",
+]);
+
 export function resolveRutherfordRaycastPart(
   hitPartIdsInDepthOrder: readonly string[],
 ): string | null {
   if (hitPartIdsInDepthOrder.length === 0) return null;
+  const primaryHit = hitPartIdsInDepthOrder.find((id) => PRIMARY_RDSM_PART_IDS.has(id));
+  if (primaryHit) return primaryHit;
   const innerHit = hitPartIdsInDepthOrder.find((id) => !OUTER_SHELL_PART_IDS.has(id));
   return innerHit ?? hitPartIdsInDepthOrder[0] ?? null;
 }
@@ -232,9 +241,9 @@ export function resolveRutherfordRaycastPart(
 /**
  * Mô tả hiện tượng quan sát qua kính hiển vi M theo góc đặt kính (0°..160°)
  * Đối chiếu đúng Hình 21.2b SGK Vật lí 12 tr. 91:
- *   - Vị trí (1): 0° (đối diện nguồn phát R) — tần suất đốm sáng lớn nhất
+ *   - Vị trí (1): 0° (gần hướng tới của chùm hạt α, đối diện nguồn R) — tần suất đốm sáng lớn nhất
  *   - Góc trung gian: tần suất giảm rất nhanh khi tăng góc lệch
- *   - Vị trí (2): > 90° (bật ngược lại phía nguồn) — vẫn có đốm sáng nhưng tần suất nhỏ hơn vị trí (1) cỡ 10⁴ lần
+ *   - Vị trí (2): ở góc lớn (> 90°, lệch ngược về phía nguồn R) — vẫn có đốm sáng nhưng tần suất nhỏ hơn vị trí (1) cỡ 10⁴ lần
  */
 export interface ObserverPositionSummary {
   readonly angleDeg: number;
@@ -252,9 +261,9 @@ export function describeObserverPosition(rawAngleDeg: number): ObserverPositionS
     return {
       angleDeg,
       zone: "position_1",
-      shortBadge: "Đang ở Vị trí (1)",
-      positionTitle: `Vị trí (1) · Đối diện nguồn R (${angleDeg}°)`,
-      relativeFrequencyLabel: "Tần suất đốm lóe lớn nhất (chuẩn so sánh = 1; ~10 000 đốm / 10 s)",
+      shortBadge: "Vị trí (1) · gần hướng tới",
+      positionTitle: `Vị trí (1) · Gần hướng tới chùm hạt α (${angleDeg}°, đối diện nguồn R)`,
+      relativeFrequencyLabel: "Tần suất đốm lóe trên màn S lớn nhất (chuẩn so sánh = 1; ~10 000 đốm / 10 s)",
       sampleFlashCount: 28,
       physicalMeaning:
         "Hầu hết hạt α đi thẳng xuyên qua lá vàng D tới vị trí (1) chứng tỏ phần lớn không gian nguyên tử vàng là khoảng trống.",
@@ -266,11 +275,11 @@ export function describeObserverPosition(rawAngleDeg: number): ObserverPositionS
       angleDeg,
       zone: "intermediate",
       shortBadge: `Giữa (1) và (2) · ${angleDeg}°`,
-      positionTitle: `Góc lệch trung gian (${angleDeg}° · đang di chuyển từ (1) sang (2))`,
+      positionTitle: `Góc lệch trung gian (${angleDeg}° · di chuyển từ (1) sang (2))`,
       relativeFrequencyLabel:
         angleDeg <= 45
-          ? "Tần suất đốm lóe giảm rất nhanh so với vị trí (1)"
-          : "Đốm lóe rất thưa khi tiến gần 90°",
+          ? "Tần suất đốm lóe trên màn S giảm rất nhanh so với vị trí (1)"
+          : "Đốm lóe trên màn S rất thưa khi tiến gần 90°",
       sampleFlashCount,
       physicalMeaning:
         "Một số hạt α đi gần tâm mang điện dương chịu lực đẩy tĩnh điện Coulomb nên bị lệch hướng chuyển động.",
@@ -279,12 +288,12 @@ export function describeObserverPosition(rawAngleDeg: number): ObserverPositionS
   return {
     angleDeg,
     zone: "position_2",
-    shortBadge: "Đang ở Vị trí (2)",
-    positionTitle: `Vị trí (2) · Lệch > 90° về phía nguồn R (${angleDeg}°)`,
+    shortBadge: "Vị trí (2) · ở góc lớn",
+    positionTitle: `Vị trí (2) · Ở góc lớn > 90° về phía nguồn R (${angleDeg}°)`,
     relativeFrequencyLabel: "Ít hơn vị trí (1) cỡ 10⁴ lần (tỉ lệ ~10⁻⁴, chỉ ~1 trong 10 000 hạt α)",
     sampleFlashCount: 1,
     physicalMeaning:
-      "Theo SGK Vật lí 12 tr. 91–92, tại vị trí (2) vẫn xuất hiện đốm sáng nhưng tần suất ít hơn vị trí (1) cỡ 10⁴ lần — chứng tỏ điện tích dương và gần như toàn bộ khối lượng nguyên tử tập trung ở hạt nhân rất nhỏ.",
+      "Theo SGK Vật lí 12 tr. 91–92, tại vị trí (2) ở góc lệch lớn vẫn xuất hiện đốm sáng trên màn S nhưng tần suất ít hơn vị trí (1) cỡ 10⁴ lần — chứng tỏ điện tích dương và gần như toàn bộ khối lượng nguyên tử tập trung ở hạt nhân rất nhỏ.",
   };
 }
 
@@ -376,6 +385,7 @@ export interface RutherfordV3PersistedState {
   readonly run2: InquiryRun | null;
   readonly lastCapturedSlot: RunSlot | null;
   readonly conclusion: string;
+  readonly explanationSubmitted?: boolean;
 }
 
 export const INITIAL_RUTHERFORD_V3_STATE: RutherfordV3PersistedState = {
@@ -394,7 +404,31 @@ export const INITIAL_RUTHERFORD_V3_STATE: RutherfordV3PersistedState = {
   run2: null,
   lastCapturedSlot: null,
   conclusion: "",
+  explanationSubmitted: false,
 };
+
+/**
+ * Kiểm tra an toàn khả năng tạo ngữ cảnh WebGL trước khi khởi tạo THREE.WebGLRenderer
+ * để tránh ném ngoại lệ làm sập trang trên trình duyệt tắt hoặc thiếu WebGL.
+ */
+export function probeWebGLSupport(): boolean {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return false;
+  }
+  try {
+    const canvas = document.createElement("canvas");
+    const gl =
+      canvas.getContext("webgl2", { failIfMajorPerformanceCaveat: false }) ||
+      canvas.getContext("webgl", { failIfMajorPerformanceCaveat: false }) ||
+      canvas.getContext("experimental-webgl");
+    if (!gl) return false;
+    const loseExt = (gl as WebGLRenderingContext).getExtension?.("WEBGL_lose_context");
+    loseExt?.loseContext();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 const VALID_CAMERA_MODES: readonly CameraMode[] = [
   "orbit",
@@ -482,6 +516,10 @@ export function parseRutherfordV3State(raw: string): RutherfordV3PersistedState 
       p.lastCapturedSlot === 1 || p.lastCapturedSlot === 2 ? p.lastCapturedSlot : null;
     const conclusion =
       typeof p.conclusion === "string" ? p.conclusion.slice(0, 2000) : "";
+    const explanationSubmitted =
+      typeof p.explanationSubmitted === "boolean"
+        ? p.explanationSubmitted && conclusion.trim().length > 0
+        : conclusion.trim().length > 0;
 
     return {
       impactFm,
@@ -499,6 +537,7 @@ export function parseRutherfordV3State(raw: string): RutherfordV3PersistedState 
       run2,
       lastCapturedSlot,
       conclusion,
+      explanationSubmitted,
     };
   } catch {
     return INITIAL_RUTHERFORD_V3_STATE;

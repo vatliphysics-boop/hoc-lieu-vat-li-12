@@ -22,6 +22,8 @@ export interface RutherfordInquiryState {
   /** Lượt vừa được lưu gần nhất để chỉ rõ lượt cần đo lại khi hai lượt không hợp lệ */
   readonly lastCapturedSlot: RunSlot | null;
   readonly conclusion: string;
+  /** Trạng thái đã bấm nộp lời giải thích (nếu truyền rõ boolean thì bắt buộc đã nộp mới hoàn thành) */
+  readonly explanationSubmitted?: boolean;
 }
 
 export interface RutherfordInquiryEvaluation {
@@ -40,6 +42,7 @@ export interface RutherfordInquiryEvaluation {
   readonly verdict: RutherfordPrediction | null;
   readonly matchesPrediction: boolean | null;
   readonly hasExplanation: boolean;
+  readonly isExplanationSubmitted: boolean;
   readonly isComplete: boolean;
 }
 
@@ -135,7 +138,9 @@ export function evaluateRutherfordInquiry(
       : null;
 
   const hasExplanation = state.conclusion.trim().length > 0;
-  const isComplete = hasPrediction && validComparison && hasExplanation;
+  const isExplanationSubmitted =
+    hasExplanation && (state.explanationSubmitted === undefined ? true : state.explanationSubmitted);
+  const isComplete = hasPrediction && validComparison && isExplanationSubmitted;
 
   return {
     hasPrediction,
@@ -152,6 +157,7 @@ export function evaluateRutherfordInquiry(
     verdict,
     matchesPrediction,
     hasExplanation,
+    isExplanationSubmitted,
     isComplete,
   };
 }

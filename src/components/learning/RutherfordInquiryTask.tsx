@@ -327,7 +327,7 @@ export function RutherfordInquiryTask({
     [storedRaw],
   );
 
-  const { prediction, run1, run2, lastCapturedSlot, conclusion } = persisted;
+  const { prediction, run1, run2, lastCapturedSlot, conclusion, explanationSubmitted } = persisted;
 
   const evaluation = useMemo(
     () =>
@@ -337,8 +337,9 @@ export function RutherfordInquiryTask({
         run2,
         lastCapturedSlot,
         conclusion,
+        explanationSubmitted: Boolean(explanationSubmitted),
       }),
-    [prediction, run1, run2, lastCapturedSlot, conclusion],
+    [prediction, run1, run2, lastCapturedSlot, conclusion, explanationSubmitted],
   );
 
   useEffect(() => {
@@ -644,54 +645,129 @@ export function RutherfordInquiryTask({
           </div>
         )}
 
-        {evaluation.validComparison && run1 && run2 && evaluation.smallerBRun && evaluation.largerBRun ? (
-          <div style={{ fontSize: "14px", lineHeight: 1.75 }}>
-            <div style={{ overflowX: "auto", marginBottom: "10px" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  background: "#ffffff",
-                  fontSize: "13px",
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                <thead>
-                  <tr style={{ background: "#f1f5f9", textAlign: "left" }}>
-                    <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Lượt lưu</th>
-                    <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Động năng E (MeV)</th>
-                    <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Tham số va chạm b (fm)</th>
-                    <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Góc lệch θ (°)</th>
-                    <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Vùng trên màn S</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1", fontWeight: 700 }}>Lượt 1</td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>{run1.e.toFixed(1)} MeV</td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>{run1.b} fm</td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1", fontWeight: 700, color: "#0369a1" }}>
-                      {run1.theta.toFixed(2)}°
-                    </td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>{formatSgkZone(run1.theta)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1", fontWeight: 700 }}>Lượt 2</td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>{run2.e.toFixed(1)} MeV</td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>{run2.b} fm</td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1", fontWeight: 700, color: "#0369a1" }}>
-                      {run2.theta.toFixed(2)}°
-                    </td>
-                    <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>{formatSgkZone(run2.theta)}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        {/* Bảng hiển thị riêng E (MeV), b (fm) và góc lệch θ (°) của từng lượt khảo sát */}
+        {(run1 !== null || run2 !== null) && (
+          <div style={{ overflowX: "auto", marginBottom: "12px" }}>
+            <table
+              data-testid="rutherford-runs-table"
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                background: "#ffffff",
+                fontSize: "13px",
+                fontVariantNumeric: "tabular-nums",
+              }}
+            >
+              <thead>
+                <tr style={{ background: "#f1f5f9", textAlign: "left" }}>
+                  <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Lượt khảo sát</th>
+                  <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>E (MeV)</th>
+                  <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>b (fm)</th>
+                  <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Góc lệch (°)</th>
+                  <th style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>Trạng thái &amp; vùng trên màn S</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(
+                  [
+                    { slot: 1 as const, label: "Lượt 1", data: run1 },
+                    { slot: 2 as const, label: "Lượt 2", data: run2 },
+                  ] as const
+                ).map(({ slot, label, data }) => {
+                  const rowNeedsRemeasure = evaluation.remeasureSlot === slot;
+                  return (
+                    <tr
+                      key={slot}
+                      data-table-run-slot={slot}
+                      data-table-needs-remeasure={rowNeedsRemeasure ? "true" : "false"}
+                      style={{
+                        background: rowNeedsRemeasure ? "#fffbeb" : "#ffffff",
+                      }}
+                    >
+                      <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1", fontWeight: 700 }}>
+                        {label}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          border: "1px solid #cbd5e1",
+                          fontWeight:
+                            rowNeedsRemeasure &&
+                            (evaluation.invalidReason === "different_energy" || evaluation.invalidReason === "both")
+                              ? 700
+                              : 500,
+                          color:
+                            rowNeedsRemeasure &&
+                            (evaluation.invalidReason === "different_energy" || evaluation.invalidReason === "both")
+                              ? "#b45309"
+                              : "#0f172a",
+                        }}
+                      >
+                        {data ? `${data.e.toFixed(1)} MeV` : "Chưa lưu"}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          border: "1px solid #cbd5e1",
+                          fontWeight:
+                            rowNeedsRemeasure &&
+                            (evaluation.invalidReason === "same_impact" || evaluation.invalidReason === "both")
+                              ? 700
+                              : 500,
+                          color:
+                            rowNeedsRemeasure &&
+                            (evaluation.invalidReason === "same_impact" || evaluation.invalidReason === "both")
+                              ? "#b45309"
+                              : "#0f172a",
+                        }}
+                      >
+                        {data ? `${data.b} fm` : "Chưa lưu"}
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          border: "1px solid #cbd5e1",
+                          fontWeight: 700,
+                          color: data ? "#0369a1" : "#64748b",
+                        }}
+                      >
+                        {data ? `${data.theta.toFixed(2)}°` : "—"}
+                      </td>
+                      <td style={{ padding: "8px 10px", border: "1px solid #cbd5e1" }}>
+                        {!data ? (
+                          <span style={{ color: "#64748b" }}>Đang chờ chạy &amp; lưu {label}</span>
+                        ) : rowNeedsRemeasure ? (
+                          <strong style={{ color: "#b45309" }}>
+                            ⚠ Cần đo lại {label} ({invalidSlotTag(evaluation.invalidReason)})
+                          </strong>
+                        ) : (
+                          <span style={{ color: "#065f46" }}>✓ {formatSgkZone(data.theta)}</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
 
+        {evaluation.validComparison && run1 && run2 && evaluation.smallerBRun && evaluation.largerBRun ? (
+          <div
+            data-testid="rutherford-valid-comparison-panel"
+            style={{
+              fontSize: "14px",
+              lineHeight: 1.75,
+              padding: "12px 14px",
+              background: "#ffffff",
+              border: "1px solid #eab308",
+              borderRadius: "6px",
+            }}
+          >
             <div>
-              Đối chiếu ở cùng động năng <strong>E = {evaluation.smallerBRun.e.toFixed(1)} MeV</strong>: khi tham số va chạm{" "}
+              <strong>So sánh hai lượt đo hợp lệ (cùng E = {evaluation.smallerBRun.e.toFixed(1)} MeV):</strong> Khi tham số va chạm{" "}
               <strong>b tăng</strong> từ <strong>{evaluation.smallerBRun.b} fm</strong> lên{" "}
-              <strong>{evaluation.largerBRun.b} fm</strong>, góc lệch <strong>θ</strong> đổi từ{" "}
+              <strong>{evaluation.largerBRun.b} fm</strong>, góc lệch <strong>θ</strong> giảm từ{" "}
               <strong>{evaluation.smallerBRun.theta.toFixed(2)}°</strong> xuống{" "}
               <strong>{evaluation.largerBRun.theta.toFixed(2)}°</strong> (độ chênh{" "}
               <strong>
@@ -730,36 +806,38 @@ export function RutherfordInquiryTask({
               </p>
             ) : (
               <p style={{ fontSize: "13px", marginTop: "8px", marginBottom: 0, color: "#b45309", fontWeight: 600 }}>
-                Em chưa chọn dự đoán ở Bước 1 — hãy chọn dự đoán ở Bước 1 trước khi hoàn tất phiếu.
+                Em chưa chọn dự đoán ở Bước 1 — hãy chọn dự đoán ở Bước 1 trước khi nộp lời giải thích hoàn tất phiếu.
               </p>
             )}
           </div>
         ) : (
-          <p style={{ margin: 0, fontSize: "13.5px", color: "#475569" }}>
+          <p style={{ margin: 0, fontSize: "13.5px", color: evaluation.bothRuns ? "#b45309" : "#475569", fontWeight: evaluation.bothRuns ? 600 : 400 }}>
             {evaluation.bothRuns
-              ? `Hai lượt hiện tại chưa đủ điều kiện đối chiếu — hãy đo lại Lượt ${evaluation.remeasureSlot} theo hướng dẫn màu vàng ở Bước 2.`
-              : "Sau khi lưu đủ Lượt 1 và Lượt 2 (cùng động năng E, khác tham số va chạm b), bảng đối chiếu hai góc lệch θ sẽ hiển thị ngay tại đây."}
+              ? `⚠ Phần so sánh tạm khóa vì Lượt ${evaluation.remeasureSlot} chưa hợp lệ — hãy đo lại Lượt ${evaluation.remeasureSlot} theo hướng dẫn màu vàng ở Bước 2 để mở so sánh.`
+              : "Sau khi lưu đủ Lượt 1 và Lượt 2 (cùng động năng E, khác tham số va chạm b), phần so sánh hai góc lệch θ sẽ mở ngay tại đây."}
           </p>
         )}
       </div>
 
-      {/* Bước 4 — Giải thích dựa trên kết quả quan sát */}
+      {/* Bước 4 — Nộp lời giải thích dựa trên hai lượt đo */}
       {evaluation.validComparison && (
-        <div style={{ ...cardStyle, marginBottom: "16px" }}>
+        <div data-testid="rutherford-explanation-step" style={{ ...cardStyle, marginBottom: "16px" }}>
           <div style={{ fontWeight: 700, marginBottom: "8px", color: "#0f172a" }}>
-            4. Viết lời giải thích dựa trên kết quả quan sát
+            4. Viết và nộp lời giải thích dựa trên hai lượt đo
           </div>
           <p style={{ fontSize: "14px", marginBottom: "10px", lineHeight: 1.65 }}>
-            Từ kết quả quan sát đốm lóe trên màn S (vị trí <strong>(1)</strong> so với vị trí <strong>(2)</strong>), hai lượt đo{" "}
+            Từ kết quả quan sát đốm lóe trên màn S (vị trí <strong>(1)</strong> gần hướng tới so với vị trí <strong>(2)</strong> ở góc lớn), hai lượt đo{" "}
             <strong>(E, b, θ)</strong> ở trên và dự đoán Pha 1 đã khóa, em hãy giải thích vì sao đa số hạt α đi thẳng nhưng vẫn có một tỉ lệ rất nhỏ (~10⁻⁴) bị lệch góc lớn (&gt; 90°):
           </p>
           <textarea
+            data-testid="rutherford-explanation-textarea"
             value={conclusion}
             onChange={(e) => {
               const nextConclusion = e.target.value;
               writeRutherfordV3State((prev) => ({
                 ...prev,
                 conclusion: nextConclusion,
+                explanationSubmitted: false,
               }));
             }}
             placeholder="Ví dụ: Đa số hạt α có b lớn đi qua khoảng trống của nguyên tử nên tới vị trí (1) với góc lệch rất nhỏ; chỉ những hạt hiếm hoi đi rất sát hạt nhân vàng mang điện dương tập trung ở vùng cực nhỏ (b nhỏ) mới chịu lực đẩy Coulomb mạnh và bật về vị trí (2)..."
@@ -776,9 +854,77 @@ export function RutherfordInquiryTask({
               resize: "vertical",
             }}
           />
-          <p style={{ fontSize: "12px", color: "#64748b", marginTop: "8px", marginBottom: 0 }}>
-            Lời giải thích và hai lượt đo của em được tự động lưu vào trình duyệt và giữ nguyên sau khi tải lại trang.
-          </p>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "10px",
+              marginTop: "10px",
+            }}
+          >
+            <button
+              type="button"
+              data-submit-rutherford-explanation
+              disabled={!evaluation.hasExplanation}
+              onClick={() => {
+                if (!evaluation.hasExplanation) return;
+                writeRutherfordV3State((prev) => ({
+                  ...prev,
+                  explanationSubmitted: true,
+                }));
+              }}
+              style={{
+                padding: "10px 18px",
+                minHeight: "42px",
+                fontSize: "14px",
+                fontWeight: 700,
+                borderRadius: "8px",
+                border: "none",
+                background: evaluation.hasExplanation ? "#15803d" : "#94a3b8",
+                color: "#ffffff",
+                cursor: evaluation.hasExplanation ? "pointer" : "not-allowed",
+              }}
+            >
+              {evaluation.isExplanationSubmitted ? "✓ Đã nộp lời giải thích" : "Nộp lời giải thích"}
+            </button>
+
+            <span style={{ fontSize: "12px", color: "#64748b" }}>
+              Bản nháp và hai lượt đo tự động lưu vào trình duyệt; bấm <strong>“Nộp lời giải thích”</strong> để xác nhận hoàn thành mục Rutherford V3.
+            </span>
+          </div>
+
+          {evaluation.isExplanationSubmitted && evaluation.smallerBRun && evaluation.largerBRun && (
+            <div
+              role="status"
+              data-rutherford-explanation-feedback
+              style={{
+                marginTop: "12px",
+                padding: "12px 14px",
+                borderRadius: "6px",
+                background: "#f0fdf4",
+                border: "1px solid #86efac",
+                borderLeft: "4px solid #16a34a",
+                fontSize: "13px",
+                lineHeight: 1.6,
+                color: "#14532d",
+              }}
+            >
+              <div style={{ fontWeight: 700, marginBottom: "4px" }}>
+                ✓ Đã lưu &amp; nộp lời giải thích của em kèm bằng chứng thực nghiệm:
+              </div>
+              <div>
+                • Số liệu đối chiếu ở <strong>E = {evaluation.smallerBRun.e.toFixed(1)} MeV</strong>:{" "}
+                <strong>b = {evaluation.smallerBRun.b} fm → θ = {evaluation.smallerBRun.theta.toFixed(2)}°</strong> so với{" "}
+                <strong>b = {evaluation.largerBRun.b} fm → θ = {evaluation.largerBRun.theta.toFixed(2)}°</strong>.
+              </div>
+              <div>
+                • Đối chiếu chuẩn SGK (tr. 92): Hầu hết không gian nguyên tử là khoảng trống nên đa số hạt α tới vị trí (1); toàn bộ điện tích dương và gần như toàn bộ khối lượng nguyên tử tập trung tại <strong>hạt nhân kích thước cực nhỏ</strong> ở tâm nên chỉ ~10⁻⁴ hạt đi rất sát tâm mới lệch &gt; 90° về vị trí (2).
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -817,7 +963,12 @@ export function RutherfordInquiryTask({
                   ? "○ Lưu thêm 1 lượt khảo sát nữa ở cùng E nhưng khác b (hiện 1/2 lượt)"
                   : `○ Đo lại Lượt khảo sát ${evaluation.remeasureSlot} để hai lượt có cùng E và khác b`}
           </li>
-          <li>{evaluation.hasExplanation ? "✓" : "○"} Viết lời giải thích dựa trên kết quả quan sát ở Bước 4</li>
+          <li>
+            {evaluation.isExplanationSubmitted && evaluation.validComparison
+              ? "✓"
+              : "○"}{" "}
+            Viết và bấm “Nộp lời giải thích” dựa trên hai lượt đo ở Bước 4
+          </li>
         </ul>
       </div>
     </div>

@@ -444,9 +444,13 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
     RUTHERFORD_COMPONENTS,
     describeObserverPosition,
     parseRutherfordV3State,
+    probeWebGLSupport,
     resolveRutherfordRaycastPart,
     sampleEqualTimeFlashCount,
   } = await import("../src/simulations-v3/apparatus/rutherford/parts");
+  const { evaluateRutherfordInquiry } = await import(
+    "../src/simulations-v3/apparatus/rutherford/inquiry"
+  );
   const {
     buildExplanatoryModelLayer,
     buildRutherfordApparatus,
@@ -455,6 +459,10 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
     setMicroscopeAngle,
   } = await import("../src/simulations-v3/apparatus/rutherford/geometry");
 
+  await t.test("probeWebGLSupport returns false safely without DOM/WebGL", () => {
+    assert.strictEqual(probeWebGLSupport(), false);
+  });
+
   await t.test("CORE_SGK_21_2_PARTS exposes primary R, D, S, M and supporting G, P", () => {
     const primarySymbols = CORE_SGK_21_2_PARTS.filter((p) => p.isPrimaryRDSM).map((p) => p.sgkSymbol);
     assert.deepStrictEqual(primarySymbols, ["R", "D", "S", "M"]);
@@ -462,10 +470,18 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
     assert.deepStrictEqual(allSymbols, ["R", "D", "S", "M", "G", "P"]);
   });
 
-  await t.test("resolveRutherfordRaycastPart prioritizes inner parts (R, D, S, M) through outer glass G", () => {
+  await t.test("resolveRutherfordRaycastPart prioritizes primary R–D–S–M over overlapping housings and outer glass G", () => {
     assert.strictEqual(
-      resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber", "gold-foil", "base-platform"]),
+      resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber", "foil-holder", "gold-foil", "base-platform"]),
       "gold-foil",
+    );
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "collimator", "alpha-source"]),
+      "alpha-source",
+    );
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "rotating-microscope", "vacuum-chamber"]),
+      "rotating-microscope",
     );
     assert.strictEqual(
       resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber"]),
@@ -474,14 +490,18 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
     assert.strictEqual(resolveRutherfordRaycastPart([]), null);
   });
 
-  await t.test("describeObserverPosition & sampleEqualTimeFlashCount reflect Position (1) vs Position (2) ~10⁴ ratio", () => {
+  await t.test("describeObserverPosition & sampleEqualTimeFlashCount reflect Position (1) near incident vs Position (2) large angle ~10⁴ ratio", () => {
     const pos1 = describeObserverPosition(0);
     const mid = describeObserverPosition(45);
     const pos2 = describeObserverPosition(140);
 
     assert.strictEqual(pos1.zone, "position_1");
+    assert.ok(pos1.positionTitle.toLowerCase().includes("gần hướng tới"));
+    assert.ok(pos1.shortBadge.includes("gần hướng tới"));
     assert.strictEqual(mid.zone, "intermediate");
     assert.strictEqual(pos2.zone, "position_2");
+    assert.ok(pos2.positionTitle.toLowerCase().includes("ở góc lớn"));
+    assert.ok(pos2.shortBadge.includes("ở góc lớn"));
     assert.ok(pos2.relativeFrequencyLabel.includes("10⁴"));
 
     const flash1 = sampleEqualTimeFlashCount(0, 7);
@@ -490,8 +510,8 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
     assert.ok(flash2.count >= 1 && flash2.count < 20);
   });
 
-  await t.test("parseRutherfordV3State deep-clones and restores independent run1 & run2", () => {
-    const raw = JSON.stringify({
+  await t.test("parseRutherfordV3State deep-clones runs and preserves/tracks explanationSubmitted", () => {
+    const legacyRaw = JSON.stringify({
       impactFm: 60,
       energyMeV: 8,
       cameraMode: "cutaway",
@@ -501,21 +521,57 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
       observerAngleDeg: 140,
       prediction: "decrease",
       run1: { b: 10, e: 8, theta: 109.77 },
-      run2: { b: 60, e: 8, theta: 26.75 },
+      run2: { b: 60, e: 8, theta: 26.67 },
       lastCapturedSlot: 2,
       conclusion: "Khi b tăng thì góc lệch giảm do hạt α đi xa hạt nhân vàng hơn.",
     });
 
-    const parsed = parseRutherfordV3State(raw);
-    assert.strictEqual(parsed.cameraMode, "cutaway");
-    assert.strictEqual(parsed.selectedPartId, "gold-foil");
-    assert.strictEqual(parsed.observerAngleDeg, 140);
-    assert.deepStrictEqual(parsed.run1, { b: 10, e: 8, theta: 109.77 });
-    assert.deepStrictEqual(parsed.run2, { b: 60, e: 8, theta: 26.75 });
-    assert.notStrictEqual(parsed.run1, parsed.run2);
+    const parsedLegacy = parseRutherfordV3State(legacyRaw);
+    assert.strictEqual(parsedLegacy.cameraMode, "cutaway");
+    assert.strictEqual(parsedLegacy.selectedPartId, "gold-foil");
+    assert.strictEqual(parsedLegacy.observerAngleDeg, 140);
+    assert.deepStrictEqual(parsedLegacy.run1, { b: 10, e: 8, theta: 109.77 });
+    assert.deepStrictEqual(parsedLegacy.run2, { b: 60, e: 8, theta: 26.67 });
+    assert.notStrictEqual(parsedLegacy.run1, parsedLegacy.run2);
+    assert.strictEqual(parsedLegacy.explanationSubmitted, true);
+
+    const draftRaw = JSON.stringify({
+      prediction: "decrease",
+      run1: { b: 10, e: 8, theta: 109.77 },
+      run2: { b: 60, e: 8, theta: 26.67 },
+      lastCapturedSlot: 2,
+      conclusion: "Bản nháp chưa bấm nộp",
+      explanationSubmitted: false,
+    });
+    const parsedDraft = parseRutherfordV3State(draftRaw);
+    assert.strictEqual(parsedDraft.explanationSubmitted, false);
+
+    const evalDraft = evaluateRutherfordInquiry({
+      prediction: parsedDraft.prediction,
+      run1: parsedDraft.run1,
+      run2: parsedDraft.run2,
+      lastCapturedSlot: parsedDraft.lastCapturedSlot,
+      conclusion: parsedDraft.conclusion,
+      explanationSubmitted: parsedDraft.explanationSubmitted,
+    });
+    assert.strictEqual(evalDraft.validComparison, true);
+    assert.strictEqual(evalDraft.hasExplanation, true);
+    assert.strictEqual(evalDraft.isExplanationSubmitted, false);
+    assert.strictEqual(evalDraft.isComplete, false);
+
+    const evalSubmitted = evaluateRutherfordInquiry({
+      prediction: parsedDraft.prediction,
+      run1: parsedDraft.run1,
+      run2: parsedDraft.run2,
+      lastCapturedSlot: parsedDraft.lastCapturedSlot,
+      conclusion: parsedDraft.conclusion,
+      explanationSubmitted: true,
+    });
+    assert.strictEqual(evalSubmitted.isExplanationSubmitted, true);
+    assert.strictEqual(evalSubmitted.isComplete, true);
   });
 
-  await t.test("buildRutherfordApparatus builds unique meshes and separate trajectory/angle label anchors", () => {
+  await t.test("buildRutherfordApparatus builds unique meshes, hit volumes, and separate trajectory/angle label anchors", () => {
     const built = buildRutherfordApparatus(RUTHERFORD_COMPONENTS);
     assert.strictEqual(built.size, RUTHERFORD_COMPONENTS.length);
 
@@ -553,4 +609,5 @@ test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry
     );
   });
 });
+
 

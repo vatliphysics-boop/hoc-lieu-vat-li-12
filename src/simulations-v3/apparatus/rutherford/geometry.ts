@@ -162,6 +162,19 @@ export function buildAlphaSource(
   tipRing.position.set(1.52, 0, 0);
   group.add(tipRing);
 
+  // Invisible raycast hit-volume so tapping/clicking R on the 3D scene easily selects alpha-source
+  const hitVolume = new THREE.Mesh(
+    new THREE.BoxGeometry(2.6, 1.9, 2.0),
+    new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    }),
+  );
+  hitVolume.position.set(0.15, 0, 0);
+  hitVolume.userData.isHitVolume = true;
+  group.add(hitVolume);
+
   group.position.set(-6.6, 0, 0);
 
   return {
@@ -265,6 +278,18 @@ export function buildGoldFoil(
     mat.gold,
   );
   group.add(leaf);
+
+  // Invisible raycast hit-volume so tapping edge-on thin foil D on mobile/desktop hits gold-foil cleanly
+  const hitVolume = new THREE.Mesh(
+    new THREE.BoxGeometry(0.85, 2.65, 2.15),
+    new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    }),
+  );
+  hitVolume.userData.isHitVolume = true;
+  group.add(hitVolume);
 
   group.position.set(0, 0, 0);
 
@@ -711,13 +736,22 @@ export function buildScintillationLayer(
   showActiveHitFlash: boolean,
 ): THREE.Group {
   const group = new THREE.Group();
-  const sampleRadius = DETECTOR_RADIUS_UNITS - 0.08;
+  // Place flashes right across screen S (r = 7.50) so they shine clearly both from inside and through microscope M outside!
+  const sampleRadius = DETECTOR_RADIUS_UNITS;
 
-  const sampleGeo = new THREE.SphereGeometry(0.095, 10, 10);
+  const sampleGeo = new THREE.SphereGeometry(0.135, 12, 12);
   const sampleMat = new THREE.MeshBasicMaterial({
-    color: 0x4ade80,
+    color: 0x86efac,
     transparent: true,
-    opacity: 0.62,
+    opacity: 0.85,
+  });
+
+  const sampleHaloGeo = new THREE.RingGeometry(0.14, 0.27, 18);
+  const sampleHaloMat = new THREE.MeshBasicMaterial({
+    color: 0x22c55e,
+    transparent: true,
+    opacity: 0.48,
+    side: THREE.DoubleSide,
   });
 
   for (const spot of SAMPLE_SCINTILLATION_SPOTS) {
@@ -725,45 +759,56 @@ export function buildScintillationLayer(
     const dot = new THREE.Mesh(sampleGeo, sampleMat);
     dot.position.copy(pos);
     group.add(dot);
+
+    const outerPos = polarAngleToWorld(spot.deg, sampleRadius + 0.035, spot.y);
+    const halo = new THREE.Mesh(sampleHaloGeo, sampleHaloMat);
+    halo.position.copy(outerPos);
+    halo.rotation.y = (spot.deg * Math.PI) / 180 + Math.PI / 2;
+    group.add(halo);
   }
 
   if (hitPoint3D && showActiveHitFlash) {
-    // Bright scintillation flash core on screen S
+    // Bright scintillation flash core spanning both faces of screen S
     const coreFlash = new THREE.Mesh(
-      new THREE.SphereGeometry(0.32, 20, 20),
-      new THREE.MeshBasicMaterial({ color: 0xbbf7d0 }),
+      new THREE.SphereGeometry(0.34, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xecfdf5 }),
     );
     coreFlash.position.copy(hitPoint3D);
     group.add(coreFlash);
 
-    // Inner bright green halo oriented tangent to screen S
     const hitAngleRad = Math.atan2(-hitPoint3D.z, hitPoint3D.x);
-    const glowHalo = new THREE.Mesh(
-      new THREE.RingGeometry(0.34, 0.78, 28),
-      new THREE.MeshBasicMaterial({
-        color: 0x22c55e,
-        transparent: true,
-        opacity: 0.9,
-        side: THREE.DoubleSide,
-      }),
-    );
-    glowHalo.position.copy(hitPoint3D);
-    glowHalo.rotation.y = hitAngleRad + Math.PI / 2;
-    group.add(glowHalo);
+    const radialOut = new THREE.Vector3(Math.cos(hitAngleRad), 0, -Math.sin(hitAngleRad));
 
-    // Outer soft flash burst ring
-    const outerBurst = new THREE.Mesh(
-      new THREE.RingGeometry(0.82, 1.18, 28),
-      new THREE.MeshBasicMaterial({
-        color: 0x4ade80,
-        transparent: true,
-        opacity: 0.42,
-        side: THREE.DoubleSide,
-      }),
-    );
-    outerBurst.position.copy(hitPoint3D);
-    outerBurst.rotation.y = hitAngleRad + Math.PI / 2;
-    group.add(outerBurst);
+    // Render vivid green halo on both inner and outer faces of screen S
+    for (const signedOffset of [-0.04, 0.045]) {
+      const facePos = hitPoint3D.clone().addScaledVector(radialOut, signedOffset);
+
+      const glowHalo = new THREE.Mesh(
+        new THREE.RingGeometry(0.34, 0.8, 28),
+        new THREE.MeshBasicMaterial({
+          color: 0x22c55e,
+          transparent: true,
+          opacity: 0.92,
+          side: THREE.DoubleSide,
+        }),
+      );
+      glowHalo.position.copy(facePos);
+      glowHalo.rotation.y = hitAngleRad + Math.PI / 2;
+      group.add(glowHalo);
+
+      const outerBurst = new THREE.Mesh(
+        new THREE.RingGeometry(0.84, 1.22, 28),
+        new THREE.MeshBasicMaterial({
+          color: 0x4ade80,
+          transparent: true,
+          opacity: 0.46,
+          side: THREE.DoubleSide,
+        }),
+      );
+      outerBurst.position.copy(facePos);
+      outerBurst.rotation.y = hitAngleRad + Math.PI / 2;
+      group.add(outerBurst);
+    }
   }
 
   return group;
