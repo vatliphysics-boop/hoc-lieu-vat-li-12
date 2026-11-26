@@ -166,7 +166,18 @@ export function FixedPhysicsActivityRenderer({
   if (normalized === "carbon14_dating") {
     return <Carbon14Dating onProgress={onProgress} />;
   }
-  if (normalized === "nuclear_fission") return <GuidedFissionLab onProgress={onProgress} />;
+  if (normalized === "nuclear_reaction_balancer") {
+    return <NuclearReactionBalancer onProgress={onProgress} />;
+  }
+  if (normalized === "binding_energy_lab") {
+    return <BindingEnergyLab onProgress={onProgress} />;
+  }
+  if (normalized === "nuclear_fission") {
+    return <GuidedFissionLab onProgress={onProgress} />;
+  }
+  if (normalized === "nuclear_fusion") {
+    return <NuclearFusion onProgress={onProgress} />;
+  }
   if (normalized === "reactor_control_concept" || normalized === "nuclear_power_energy_flow") return <ReactorControlConcept onProgress={onProgress} />;
   if (normalized === "nuclear_physics_practice_lab") return <NuclearPhysicsPracticeLab onProgress={onProgress} />;
 

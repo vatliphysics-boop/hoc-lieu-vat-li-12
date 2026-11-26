@@ -9,6 +9,7 @@ import {
   recordPreClassPrediction,
   saveStudentNotebook,
   type B21ApparatusPartCode,
+  type B22TrackPartCode,
   type Chapter4SectionSpec,
   type StudentLessonNotebook,
 } from "@/lib/chapter4-lessons";
@@ -19,6 +20,7 @@ import {
   BindingEnergyCalculator,
   NuclearEquationBalancer,
 } from "@/components/physics/B25Activities";
+import { BlackettApparatusV3 } from "@/simulations-v3/apparatus/blackett/BlackettApparatusV3";
 import { LatexMath } from "./LatexMath";
 import { NuclearLessonVideo } from "./NuclearLessonVideo";
 import { Nuclide } from "./Nuclide";
@@ -82,6 +84,79 @@ const B21_PRE_SELF_CHECK_OPTIONS = [
       "Khi chuyển kính M từ vị trí (1) sang vị trí (2), tần suất đốm sáng trên màn S xuất hiện ngang bằng nhau ở mọi góc.",
     feedback:
       "Chưa chính xác. Theo SGK tr. 91, khi di chuyển kính M từ (1) đến (2), tần suất đốm sáng giảm rất nhanh; tại (2) ít hơn tại (1) cỡ 10⁴ lần.",
+  },
+] as const;
+
+const B22_PREDICTION_CHOICES = [
+  {
+    id: "elastic_scatter",
+    label:
+      "Hạt α chỉ va chạm đàn hồi đẩy hạt nhân khí Nitrogen nảy sang bên rồi hạt α tiếp tục bay theo nhánh còn lại; không có nguyên tố mới tạo thành.",
+  },
+  {
+    id: "nuclear_transmutation",
+    label:
+      "Hạt α bị hạt nhân Nitrogen bắt giữ ngay tại đỉnh (2) và biến đổi thành hai hạt nhân mới, nên vệt α kết thúc tại đỉnh và chỉ tách ra 2 nhánh chữ Y.",
+  },
+  {
+    id: "alpha_splits_alone",
+    label:
+      "Hạt α tự vỡ đôi giữa không trung mà không cần tương tác với bất kì hạt nhân khí Nitrogen nào trong buồng sương.",
+  },
+] as const;
+
+const B22_TRACK_PARTS: readonly {
+  readonly code: B22TrackPartCode;
+  readonly label: string;
+  readonly correctRole: string;
+}[] = [
+  { code: "1", label: "Chi tiết (1) — Vệt thẳng đi tới từ trái", correctRole: "incident_alpha" },
+  { code: "2", label: "Chi tiết (2) — Đỉnh rẽ nhánh chữ Y", correctRole: "collision_vertex" },
+  { code: "3", label: "Chi tiết (3) — Nhánh vệt sương mảnh, vươn dài", correctRole: "light_fast_branch" },
+  { code: "4", label: "Chi tiết (4) — Nhánh vệt sương rất đậm, ngắn", correctRole: "heavy_recoil_branch" },
+] as const;
+
+const B22_TRACK_ROLE_OPTIONS = [
+  { value: "", label: "— Chọn đúng vai trò của chi tiết trên Hình 22.2 —" },
+  {
+    value: "incident_alpha",
+    label: "Vệt giọt sương của hạt α bay tới từ khe nguồn và kết thúc hẳn tại đỉnh tương tác",
+  },
+  {
+    value: "collision_vertex",
+    label: "Điểm va chạm nơi hạt α tương tác trực diện với hạt nhân khí Nitrogen trong buồng",
+  },
+  {
+    value: "light_fast_branch",
+    label: "Vệt của hạt nhẹ mang điện nhỏ văng đi xa với tốc độ lớn, mật độ ion hóa thưa",
+  },
+  {
+    value: "heavy_recoil_branch",
+    label: "Vệt của hạt nhân mới nặng hơn, điện tích lớn gây ion hóa dày đặc và dừng lại nhanh",
+  },
+] as const;
+
+const B22_PRE_SELF_CHECK_OPTIONS = [
+  {
+    id: "same_as_b21",
+    label:
+      "Cả thí nghiệm lá vàng ở Bài 21 lẫn vết chữ Y của Blackett ở Bài 22 đều chỉ là tán xạ tĩnh điện, nguyên tố hạt nhân bia giữ nguyên không đổi.",
+    feedback:
+      "Chưa chính xác. Ở Bài 21 hạt nhân vàng giữ nguyên là vàng; còn ở vết chữ Y của Blackett (Bài 22), hạt α đã nhập vào hạt nhân ¹⁴₇N biến đổi thành nguyên tố mới ¹⁷₈O kèm hạt ¹₁H.",
+  },
+  {
+    id: "two_branches_transmute",
+    label:
+      "Khác với tán xạ ở Bài 21, tại đỉnh chữ Y của Blackett vệt α kết thúc và chỉ xuất hiện 2 nhánh mới (không có nhánh thứ 3), chứng minh hạt nhân Nitrogen đã biến đổi thành nguyên tố khác.",
+    feedback:
+      "✓ Chính xác! Sự vắng mặt của nhánh thứ ba sau đỉnh (2) là bằng chứng trực tiếp cho thấy hạt α đã hợp nhất vào ¹⁴₇N tạo ra ¹⁷₈O và ¹₁H (phản ứng hạt nhân nhân tạo đầu tiên).",
+  },
+  {
+    id: "chemical_reaction",
+    label:
+      "Vết chữ Y là phản ứng hóa học giữa khí Helium và khí Nitrogen tạo phân tử hợp chất mới.",
+    feedback:
+      "Chưa chính xác. Phản ứng hóa học chỉ trao đổi electron lớp vỏ và luôn bảo toàn nguyên tố; còn ở đây hạt nhân biến đổi từ Nitrogen (Z = 7) sang Oxygen (Z = 8).",
   },
 ] as const;
 
@@ -224,10 +299,14 @@ export function Chapter4SectionBody({
   const [structCheckedLocal, setStructCheckedLocal] = useState(false);
   const [isoCheckedLocal, setIsoCheckedLocal] = useState(false);
   const [alCheckedLocal, setAlCheckedLocal] = useState(false);
+  const [b22AfterCheckedLocal, setB22AfterCheckedLocal] = useState(false);
+  const [b22O17A, setB22O17A] = useState("17");
+  const [b22O17Z, setB22O17Z] = useState("8");
+  const [b22P1A, setB22P1A] = useState("1");
+  const [b22P1Z, setB22P1Z] = useState("1");
   const [b23AfterCheckedLocal, setB23AfterCheckedLocal] = useState(false);
 
-  // State cho các bài B22–B25 (giữ nguyên ngoài phạm vi lượt này)
-  const [b22AfterChoice, setB22AfterChoice] = useState("");
+  // State cho các bài B24–B25 (giữ nguyên ngoài phạm vi lượt này)
   const [b24AfterChoice, setB24AfterChoice] = useState("");
   const [b25ElecChoice, setB25ElecChoice] = useState("");
   const [b25AfterDays, setB25AfterDays] = useState("");
@@ -245,6 +324,9 @@ export function Chapter4SectionBody({
   )?.label;
   const currentPredictionLabel = B21_PREDICTION_CHOICES.find(
     (c) => c.id === notebook.preClassPredictionChoice
+  )?.label;
+  const lockedB22PredictionLabel = B22_PREDICTION_CHOICES.find(
+    (c) => c.id === lockedInitialChoiceId
   )?.label;
   const lockedB23PredictionLabel = B23_PREDICTION_CHOICES.find(
     (c) => c.id === lockedInitialChoiceId
@@ -2098,102 +2180,700 @@ export function Chapter4SectionBody({
         })()}
 
       {/* ====================================================================
-          BÀI 22 — PHẢN ỨNG HẠT NHÂN & NĂNG LƯỢNG LIÊN KẾT
+          BÀI 22 — PHẢN ỨNG HẠT NHÂN & NĂNG LƯỢNG LIÊN KẾT (SGK TR. 96–103)
           ==================================================================== */}
-      {section.kind === "b22_blackett_track" && (
+      {section.kind === "b22_blackett_track" &&
+        (() => {
+          const lockedB22Label = lockedB22PredictionLabel;
+          const trackRoles = notebook.preClassWork?.b22TrackRoles ?? {};
+          const matchedTrackCount = B22_TRACK_PARTS.filter(
+            (p) => trackRoles[p.code] === p.correctRole
+          ).length;
+          const allTracksMatched = matchedTrackCount === B22_TRACK_PARTS.length;
+          const b22SelfCheck = notebook.preClassWork?.selfCheckChoice ?? "";
+          const b22SelfOpt = B22_PRE_SELF_CHECK_OPTIONS.find((o) => o.id === b22SelfCheck);
+
+          const checkB22PreReady = (
+            nb: StudentLessonNotebook,
+            rolesOv?: Readonly<Partial<Record<B22TrackPartCode, string>>>,
+            selfOv?: string
+          ) => {
+            const hasP = Boolean(
+              (nb.initialPredictionChoice ?? nb.preClassPredictionChoice ?? "").trim()
+            );
+            const hasR = Boolean(
+              (nb.initialPredictionReason ?? nb.preClassPredictionReason ?? "").trim()
+            );
+            const rMap = rolesOv ?? nb.preClassWork?.b22TrackRoles ?? {};
+            const rolesOk = B22_TRACK_PARTS.every((p) => rMap[p.code] === p.correctRole);
+            const sc = selfOv ?? nb.preClassWork?.selfCheckChoice ?? "";
+            return hasP && hasR && rolesOk && sc === "two_branches_transmute";
+          };
+
+          const b22Ready = checkB22PreReady(notebook);
+          const azInputsOk =
+            Number(b22O17A.trim()) === 17 &&
+            Number(b22O17Z.trim()) === 8 &&
+            Number(b22P1A.trim()) === 1 &&
+            Number(b22P1Z.trim()) === 1;
+
+          return (
+            <div>
+              {/* Bước 1: Đối chiếu Hình 22.1 – 22.2 & Buồng sương Blackett 3D */}
+              <section
+                style={{
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                  Bước 1 · Phân biệt sơ đồ Rutherford (Hình 22.1) với buồng sương Blackett (Hình 22.2) &amp; Khảo sát 3D
+                </h4>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 270px), 1fr))",
+                    gap: "12px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  {/* Hình 22.1 SGK tr. 96: Sơ đồ Rutherford 1919 */}
+                  <figure
+                    style={{
+                      margin: 0,
+                      border: "1px solid #d0d7de",
+                      background: "#f8fafc",
+                      padding: "12px",
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 340 155"
+                      role="img"
+                      aria-label="Hình 22.1 SGK trang 96: Sơ đồ thí nghiệm năm 1919 của Rutherford với nguồn P, bình khí Nitrogen có van A, màn huỳnh quang S và kính hiển vi K"
+                      style={{ width: "100%", height: "auto", display: "block" }}
+                    >
+                      <rect x="20" y="38" width="216" height="92" fill="#ffffff" stroke="#334155" strokeWidth="2" />
+                      <line x1="72" y1="38" x2="72" y2="18" stroke="#0f62fe" strokeWidth="2" />
+                      <line x1="196" y1="38" x2="196" y2="18" stroke="#0f62fe" strokeWidth="2" />
+                      <text x="68" y="14" fontSize="11" fontWeight="700" fill="#0f172a">A</text>
+                      <text x="192" y="14" fontSize="11" fontWeight="700" fill="#0f172a">A</text>
+                      <rect x="136" y="76" width="12" height="32" fill="#dc2626" />
+                      <line x1="148" y1="88" x2="226" y2="88" stroke="#dc2626" strokeWidth="2" strokeDasharray="4 3" />
+                      <text x="122" y="70" fontSize="11.5" fontWeight="700" fill="#991b1b">P (Nguồn α)</text>
+                      <text x="32" y="88" fontSize="11" fill="#475569">Khí ¹⁴₇N</text>
+                      <rect x="240" y="36" width="8" height="96" fill="#93c5fd" stroke="#1d4ed8" strokeWidth="1.5" />
+                      <text x="252" y="128" fontSize="12" fontWeight="700" fill="#1e3a8a">S</text>
+                      <polygon points="256,88 286,76 322,76 322,100 286,100" fill="#cbd5e1" stroke="#0f172a" strokeWidth="1.5" />
+                      <text x="296" y="92" fontSize="12" fontWeight="700" fill="#0f172a">K</text>
+                    </svg>
+                    <figcaption style={{ fontSize: "12.5px", color: "#334155", marginTop: "8px", lineHeight: 1.55 }}>
+                      <strong>Hình 22.1 (SGK tr. 96) · Sơ đồ thí nghiệm Rutherford (1919):</strong> Nguồn <code>P</code> phát hạt α trong bình chứa khí Nitrogen (nạp qua van <code>A</code>). Kính hiển vi <code>K</code> đặt ngoài chỉ đếm các chớp sáng trên màn huỳnh quang <code>S</code> nên <strong>chưa nhìn thấy trực tiếp diễn biến ngay tại điểm va chạm</strong>.
+                    </figcaption>
+                  </figure>
+
+                  {/* Hình 22.2 SGK tr. 96: Ảnh vết buồng sương Blackett 1925 */}
+                  <figure
+                    style={{
+                      margin: 0,
+                      border: "1px solid #bae6fd",
+                      background: "#0b1220",
+                      padding: "12px",
+                      color: "#e2e8f0",
+                    }}
+                  >
+                    <svg
+                      viewBox="0 0 340 155"
+                      role="img"
+                      aria-label="Hình 22.2 SGK trang 96: Ảnh vết sương rẽ nhánh chữ Y của Blackett với 4 chi tiết (1), (2), (3), (4)"
+                      style={{ width: "100%", height: "auto", display: "block" }}
+                    >
+                      <rect x="0" y="0" width="340" height="155" fill="#060b16" />
+                      {[28, 52, 118, 140].map((y) => (
+                        <line key={y} x1="18" y1={y} x2="215" y2={y} stroke="#334155" strokeWidth="1.8" />
+                      ))}
+                      <line x1="18" y1="86" x2="156" y2="86" stroke="#38bdf8" strokeWidth="4" />
+                      <circle cx="156" cy="86" r="5.5" fill="#facc15" />
+                      <line x1="156" y1="86" x2="318" y2="24" stroke="#fde047" strokeWidth="2.1" />
+                      <line x1="156" y1="86" x2="218" y2="124" stroke="#fb7185" strokeWidth="5.4" strokeLinecap="round" />
+                      <text x="24" y="76" fill="#7dd3fc" fontSize="11.5" fontWeight="700">(1) Vệt tới</text>
+                      <text x="108" y="106" fill="#facc15" fontSize="11.5" fontWeight="700">(2) Đỉnh</text>
+                      <text x="206" y="24" fill="#fde047" fontSize="11.5" fontWeight="700">(3) Nhánh mảnh, dài</text>
+                      <text x="224" y="130" fill="#fda4af" fontSize="11.5" fontWeight="700">(4) Nhánh đậm, ngắn</text>
+                    </svg>
+                    <figcaption style={{ fontSize: "12.5px", color: "#cbd5e1", marginTop: "8px", lineHeight: 1.55 }}>
+                      <strong>Hình 22.2 (SGK tr. 96) · Ảnh vết buồng sương Blackett (1925):</strong> Chụp trực tiếp qua cửa sổ buồng sương (hơn 23 000 ảnh, ~400 000 vệt α) cho thấy rõ tại đỉnh <code>(2)</code> vệt α <strong>kết thúc</strong> và chỉ tách thành <strong>đúng hai nhánh (3), (4) hình chữ Y</strong>.
+                    </figcaption>
+                  </figure>
+                </div>
+
+                {/* Mô hình Buồng sương Blackett 3D chuẩn V3 */}
+                <BlackettApparatusV3
+                  externalPredictionLocked={Boolean(lockedB22Label)}
+                  hideStandalonePrediction
+                  hideBuiltInComparisonCards
+                />
+
+                {b21VideoLesson && (
+                  <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+                    <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                      <strong>Video tư liệu bổ trợ Bài 22 (có phụ đề tiếng Việt):</strong> Học sinh vẫn hoàn thành trọn vẹn Pha 1 bằng mô hình buồng sương Blackett 3D ngay trên trang nếu chưa xem video.
+                    </p>
+                    <NuclearLessonVideo lesson={b21VideoLesson} />
+                  </div>
+                )}
+              </section>
+
+              {/* Bước 2: Quan sát vệt, nhập lí do & Khóa dự đoán ban đầu */}
+              <section
+                data-testid="b22-pre-prediction-section"
+                style={{
+                  border: "1px solid #8d8d8d",
+                  background: "#ffffff",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 6px", fontSize: "16px" }}>
+                  Bước 2 · Nhập lí do và khóa dự đoán ban đầu (trước khi mở lời giải thích của Blackett)
+                </h4>
+                {lockedB22Label && (
+                  <div
+                    data-testid="b22-locked-prediction-banner"
+                    style={{
+                      marginBottom: "12px",
+                      padding: "10px 12px",
+                      background: "#fcf4d6",
+                      borderLeft: "4px solid #8e6a00",
+                      fontSize: "13.5px",
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    <strong>🔒 Dự đoán gốc đã khóa (giữ nguyên để đối chiếu ở Pha 2 &amp; Pha 3):</strong> “{lockedB22Label}”
+                    {lockedInitialReason ? <span> — <em>Lí do: {lockedInitialReason}</em></span> : null}
+                  </div>
+                )}
+
+                <fieldset style={{ border: "none", margin: "0 0 12px", padding: 0 }}>
+                  <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
+                    Từ Lượt 1 (vệt thẳng) và Lượt 2 (vết chữ Y) trên buồng sương 3D, em dự đoán điều gì đã xảy ra tại đỉnh (2)?
+                  </legend>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {B22_PREDICTION_CHOICES.map((opt) => (
+                      <label
+                        key={opt.id}
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "flex-start",
+                          padding: "9px 12px",
+                          border: predChoice === opt.id ? "2px solid #0f62fe" : "1px solid #e0e0e0",
+                          background: predChoice === opt.id ? "#edf5ff" : "#fafafa",
+                          cursor: "pointer",
+                          fontSize: "13.5px",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="b22-pre-prediction"
+                          value={opt.id}
+                          checked={predChoice === opt.id}
+                          onChange={() => {
+                            setPredChoiceDraft(opt.id);
+                            setPredSavedMsg("");
+                          }}
+                          style={{ marginTop: "3px" }}
+                        />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <label
+                  htmlFor="b22-pre-reason"
+                  style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+                >
+                  Lí do cho dự đoán của em (dựa vào việc vệt α kết thúc tại đỉnh và chỉ có 2 nhánh sau va chạm):
+                </label>
+                <textarea
+                  id="b22-pre-reason"
+                  className={styles.evidenceTextarea}
+                  rows={2}
+                  value={predReason}
+                  onChange={(e) => {
+                    setPredReasonDraft(e.target.value);
+                    setPredSavedMsg("");
+                  }}
+                  placeholder="Giải thích vì sao sau điểm va chạm (2) không còn nhánh thứ 3 của hạt α bay tiếp mà chỉ có nhánh mảnh dài (3) và nhánh đậm ngắn (4)…"
+                />
+
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", marginTop: "10px" }}>
+                  <button
+                    type="button"
+                    data-b22-lock-prediction-btn
+                    className={`${styles.cdsBtn} ${styles.cdsBtnPrimary}`}
+                    onClick={() => {
+                      if (!predChoice || !predReason.trim()) {
+                        setPredSavedMsg("Em hãy chọn một phương án dự đoán và nhập rõ lí do trước khi khóa.");
+                        return;
+                      }
+                      onSavePreClassPrediction(predChoice, predReason.trim());
+                      const updated = recordPreClassPrediction(notebook, predChoice, predReason.trim());
+                      if (checkB22PreReady(updated)) {
+                        onMarkSectionComplete(section.id, true);
+                      }
+                      setPredSavedMsg("✓ Đã khóa bản dự đoán gốc Bài 22 và mở phần giải thích ngay bên dưới.");
+                    }}
+                  >
+                    {lockedB22Label ? "Cập nhật ghi chú (giữ nguyên dự đoán gốc đã khóa)" : "Khóa bản dự đoán ban đầu"}
+                  </button>
+                  {predSavedMsg && (
+                    <span
+                      role="status"
+                      style={{
+                        fontSize: "13.5px",
+                        fontWeight: 600,
+                        color: predChoice && predReason.trim() ? "#198038" : "#b42332",
+                      }}
+                    >
+                      {predSavedMsg}
+                    </span>
+                  )}
+                </div>
+              </section>
+
+              {/* Bước 3 (ĐẶT ĐÚNG SAU BƯỚC KHÓA DỰ ĐOÁN!): Giải thích nhánh (3), nhánh (4) & Kiểm tra tổng A, Z hai vế */}
+              <section
+                data-testid="b22-post-prediction-explanation"
+                data-locked={lockedB22Label ? "false" : "true"}
+                style={{
+                  border: lockedB22Label ? "1.5px solid #198038" : "1px dashed #94a3b8",
+                  background: lockedB22Label ? "#f0fdf4" : "#f8fafc",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px", color: lockedB22Label ? "#0e6027" : "#334155" }}>
+                  Bước 3 · Giải thích của Blackett sau bước dự đoán &amp; Kiểm tra tổng A, Z ở hai vế
+                </h4>
+                {!lockedB22Label ? (
+                  <p style={{ margin: 0, fontSize: "13.5px", color: "#475569", lineHeight: 1.6 }}>
+                    🔒 <strong>Phần giải thích đang chờ em khóa dự đoán:</strong> Hãy quan sát Lượt 2 (vết chữ Y) trên buồng sương 3D, nhập lí do và bấm <strong>“Khóa bản dự đoán ban đầu”</strong> ở Bước 2 phía trên để mở lời giải thích về nhánh <code>(3)</code>, nhánh <code>(4)</code> và bảng kiểm tra bảo toàn <code>A, Z</code>.
+                  </p>
+                ) : (
+                  <div>
+                    <ul style={{ margin: "0 0 12px", paddingLeft: "18px", fontSize: "14px", lineHeight: 1.65 }}>
+                      <li>
+                        <strong>Vệt (1) kết thúc tại đỉnh (2):</strong> Hạt α (<Nuclide sym="He" a={4} z={2} />) va chạm và bị hạt nhân <Nuclide sym="N" a={14} z={7} /> bắt giữ ngay tại đỉnh <code>(2)</code>, không còn hạt α tự do đi tiếp (nên không có nhánh thứ 3).
+                      </li>
+                      <li>
+                        <strong>Nhánh mảnh, dài (3) là hạt proton <Nuclide sym="H" a={1} z={1} />:</strong> Có số khối nhỏ nhất (<code>A = 1</code>) và điện tích nhỏ (<code>Z = 1</code>) nên phóng đi rất nhanh và xa, mật độ ion hóa thưa tạo vệt sương mảnh.
+                      </li>
+                      <li>
+                        <strong>Nhánh đậm, ngắn (4) là hạt nhân oxygen-17 <Nuclide sym="O" a={17} z={8} />:</strong> Nguyên tố mới tạo thành có số khối lớn (<code>A = 17</code>) và điện tích hạt nhân lớn (<code>Z = 8</code>), ion hóa khí cực mạnh nên vệt giọt sương rất dày, đậm và dừng lại trên quãng ngắn.
+                      </li>
+                    </ul>
+
+                    <div
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #86efac",
+                        padding: "12px 14px",
+                      }}
+                    >
+                      <p style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: 700 }}>
+                        Phương trình Blackett – Rutherford:{" "}
+                        <Nuclide sym="He" a={4} z={2} /> + <Nuclide sym="N" a={14} z={7} /> →{" "}
+                        <Nuclide sym="O" a={17} z={8} /> + <Nuclide sym="H" a={1} z={1} /> — Kiểm tra tổng A và Z ở hai vế:
+                      </p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "center", marginBottom: "8px" }}>
+                        <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                          A của Oxygen-17:{" "}
+                          <input
+                            type="number"
+                            data-b22-check-o17-a
+                            value={b22O17A}
+                            onChange={(e) => setB22O17A(e.target.value)}
+                            style={{ width: "60px", minHeight: "34px", padding: "4px 6px", border: "1px solid #8d8d8d" }}
+                          />
+                        </label>
+                        <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                          Z của Oxygen-17:{" "}
+                          <input
+                            type="number"
+                            data-b22-check-o17-z
+                            value={b22O17Z}
+                            onChange={(e) => setB22O17Z(e.target.value)}
+                            style={{ width: "60px", minHeight: "34px", padding: "4px 6px", border: "1px solid #8d8d8d" }}
+                          />
+                        </label>
+                        <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                          A của Proton:{" "}
+                          <input
+                            type="number"
+                            data-b22-check-p1-a
+                            value={b22P1A}
+                            onChange={(e) => setB22P1A(e.target.value)}
+                            style={{ width: "60px", minHeight: "34px", padding: "4px 6px", border: "1px solid #8d8d8d" }}
+                          />
+                        </label>
+                        <label style={{ fontSize: "13px", fontWeight: 600 }}>
+                          Z của Proton:{" "}
+                          <input
+                            type="number"
+                            data-b22-check-p1-z
+                            value={b22P1Z}
+                            onChange={(e) => setB22P1Z(e.target.value)}
+                            style={{ width: "60px", minHeight: "34px", padding: "4px 6px", border: "1px solid #8d8d8d" }}
+                          />
+                        </label>
+                      </div>
+                      <p
+                        role="status"
+                        style={{
+                          margin: 0,
+                          fontSize: "13.5px",
+                          fontWeight: 700,
+                          color: azInputsOk ? "#198038" : "#b42332",
+                        }}
+                      >
+                        {azInputsOk
+                          ? "✓ Khớp bảo toàn hai vế: Tổng số khối ∑A_trước = 4 + 14 = 18 = 17 + 1 = ∑A_sau · Tổng điện tích ∑Z_trước = 2 + 7 = 9 = 8 + 1 = ∑Z_sau."
+                          : "Đối chiếu lại: ¹⁷₈O có A = 17, Z = 8 và proton ¹₁H có A = 1, Z = 1 (để ∑A = 18 và ∑Z = 9)."}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              {/* Bước 4: Ghép đúng 4 chi tiết (1)–(4) của vết chữ Y */}
+              <section
+                style={{
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "10px" }}>
+                  <h4 style={{ margin: 0, fontSize: "16px" }}>
+                    Bước 4 · Ghép vai trò của 4 chi tiết (1), (2), (3), (4) trên vết buồng sương Hình 22.2
+                  </h4>
+                  <span
+                    style={{
+                      fontSize: "12.5px",
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      background: allTracksMatched ? "#defbe6" : "#f1f5f9",
+                      color: allTracksMatched ? "#198038" : "#334155",
+                    }}
+                  >
+                    Đúng {matchedTrackCount}/4 chi tiết
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gap: "10px" }}>
+                  {B22_TRACK_PARTS.map((part) => {
+                    const selectedVal = trackRoles[part.code] ?? "";
+                    const isCorrect = selectedVal === part.correctRole;
+                    return (
+                      <div
+                        key={part.code}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))",
+                          gap: "8px",
+                          alignItems: "center",
+                          padding: "10px 12px",
+                          background: isCorrect ? "#f0fdf4" : "#f8fafc",
+                          border: isCorrect ? "1px solid #86efac" : "1px solid #e2e8f0",
+                        }}
+                      >
+                        <label htmlFor={`b22-track-${part.code}`} style={{ fontWeight: 700, fontSize: "13.5px" }}>
+                          {part.label} {isCorrect ? "✓" : ""}
+                        </label>
+                        <select
+                          id={`b22-track-${part.code}`}
+                          data-b22-track-select={part.code}
+                          value={selectedVal}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const nextRoles = { ...trackRoles, [part.code]: val };
+                            patchNotebook((cur) => ({
+                              ...cur,
+                              preClassWork: {
+                                ...cur.preClassWork,
+                                b22TrackRoles: nextRoles,
+                              },
+                            }));
+                            if (checkB22PreReady(notebook, nextRoles)) {
+                              onMarkSectionComplete(section.id, true);
+                            }
+                          }}
+                          style={{
+                            width: "100%",
+                            minHeight: "40px",
+                            padding: "6px 8px",
+                            border: "1px solid #8d8d8d",
+                            background: "#ffffff",
+                            fontSize: "13.5px",
+                          }}
+                        >
+                          {B22_TRACK_ROLE_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {/* Bước 5: Câu tự kiểm tra đối chiếu B21 và B22 */}
+              <section
+                style={{
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                  Bước 5 · Câu tự kiểm tra: Đối chiếu tán xạ Bài 21 với phản ứng hạt nhân Bài 22
+                </h4>
+                <fieldset style={{ border: "none", margin: 0, padding: 0 }}>
+                  <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
+                    Nhận định nào phân biệt đúng bản chất vật lí của vết chữ Y trong thí nghiệm Blackett (Bài 22) so với tán xạ hạt α ở Bài 21?
+                  </legend>
+                  {B22_PRE_SELF_CHECK_OPTIONS.map((opt) => (
+                    <label
+                      key={opt.id}
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        alignItems: "flex-start",
+                        padding: "10px 12px",
+                        marginBottom: "8px",
+                        border: b22SelfCheck === opt.id ? "2px solid #0f62fe" : "1px solid #e0e0e0",
+                        background: b22SelfCheck === opt.id ? "#edf5ff" : "#fafafa",
+                        cursor: "pointer",
+                        fontSize: "13.5px",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="b22-pre-selfcheck"
+                        value={opt.id}
+                        checked={b22SelfCheck === opt.id}
+                        onChange={() => {
+                          patchNotebook((cur) => ({
+                            ...cur,
+                            preClassWork: { ...cur.preClassWork, selfCheckChoice: opt.id },
+                          }));
+                          if (checkB22PreReady(notebook, undefined, opt.id)) {
+                            onMarkSectionComplete(section.id, true);
+                          }
+                        }}
+                        style={{ marginTop: "3px" }}
+                      />
+                      <span>{opt.label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+                {b22SelfOpt && (
+                  <div
+                    role="status"
+                    style={{
+                      marginTop: "8px",
+                      padding: "10px 14px",
+                      background: b22SelfOpt.id === "two_branches_transmute" ? "#defbe6" : "#fff1f1",
+                      borderLeft:
+                        b22SelfOpt.id === "two_branches_transmute"
+                          ? "4px solid #198038"
+                          : "4px solid #b42332",
+                      fontSize: "13.5px",
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {b22SelfOpt.feedback}
+                  </div>
+                )}
+              </section>
+
+              {/* Bước 6: Sản phẩm mang vào lớp */}
+              <section
+                data-testid="b22-phase1-summary-card"
+                style={{ border: "2px solid #0f62fe", background: "#edf5ff", padding: "16px" }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "8px" }}>
+                  <h4 style={{ margin: 0, fontSize: "16px", color: "#002d9c" }}>
+                    Sản phẩm mang vào lớp · Pha 1 Bài 22
+                  </h4>
+                  <span
+                    style={{
+                      fontSize: "12.5px",
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      background: b22Ready ? "#defbe6" : "#fcf4d6",
+                      color: b22Ready ? "#198038" : "#8e6a00",
+                    }}
+                  >
+                    {b22Ready
+                      ? "✓ Đã hoàn thành Pha 1 Bài 22"
+                      : "Cần đủ: Khóa dự đoán + lí do, ghép 4/4 chi tiết và đúng câu tự kiểm tra"}
+                  </span>
+                </div>
+                <ul style={{ margin: "0 0 12px", paddingLeft: "18px", fontSize: "13.5px", lineHeight: 1.65 }}>
+                  <li>
+                    {lockedB22Label ? "✓" : "○"} <strong>Dự đoán gốc đã khóa:</strong>{" "}
+                    {lockedB22Label ? `“${lockedB22Label}”` : "Chưa khóa"}
+                  </li>
+                  <li>
+                    {allTracksMatched ? "✓" : "○"} <strong>Ghép 4 chi tiết vết chữ Y (1)–(4):</strong> {matchedTrackCount}/4 đúng
+                  </li>
+                  <li>
+                    {b22SelfCheck === "two_branches_transmute" ? "✓" : "○"} <strong>Câu tự kiểm tra B21 – B22:</strong>{" "}
+                    {b22SelfCheck === "two_branches_transmute" ? "Đã trả lời đúng" : "Chưa hoàn tất"}
+                  </li>
+                </ul>
+                <button
+                  type="button"
+                  data-b22-jump-phase2-btn
+                  className={`${styles.cdsBtn} ${styles.cdsBtnPrimary}`}
+                  onClick={() => onJumpToSection("b22-conservation")}
+                >
+                  Chuyển sang Pha 2: Bảo toàn A và Z →
+                </button>
+              </section>
+            </div>
+          );
+        })()}
+
+      {/* ====================================================================
+          BÀI 22 — PHA 2 (MỤC 1): LẤY LẠI DỰ ĐOÁN GỐC & CÂN BẰNG SỐ KHỐI A, ĐIỆN TÍCH Z
+          ==================================================================== */}
+      {section.kind === "b22_conservation" && (
         <div>
-          <figure className={styles.darkBenchStage} style={{ margin: "0 0 18px" }}>
-            <svg
-              viewBox="0 0 680 220"
-              width="680"
-              height="220"
-              role="img"
-              aria-label="Sơ đồ vết sương phân nhánh trong thí nghiệm Blackett năm 1925: hạt alpha va chạm hạt nhân Nitrogen-14 tạo thành proton mảnh dài và Oxygen-17 ngắn đậm"
-              style={{ width: "100%", height: "auto", display: "block" }}
+          <div
+            data-testid="b22-phase2-prediction-comparison"
+            style={{
+              marginBottom: "16px",
+              padding: "14px 16px",
+              background: "#edf5ff",
+              border: "1px solid #a6c8ff",
+              borderLeft: "5px solid #0f62fe",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px", marginBottom: "6px" }}>
+              <strong style={{ fontSize: "15px", color: "#002d9c" }}>
+                🔍 Đối chiếu dự đoán đã khóa ở Pha 1 với thực nghiệm buồng sương Blackett
+              </strong>
+              {!lockedB22PredictionLabel && (
+                <button
+                  type="button"
+                  className={`${styles.cdsBtn} ${styles.cdsBtnSecondary} ${styles.cdsBtnSmall}`}
+                  onClick={() => onJumpToSection("b22-blackett-track")}
+                >
+                  ← Mở Pha 1 để khóa dự đoán
+                </button>
+              )}
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))",
+                gap: "12px",
+                fontSize: "13.5px",
+                lineHeight: 1.55,
+              }}
             >
-              <rect x="0" y="0" width="680" height="220" fill="#0b1220" />
-              {/* Chùm tia alpha song song không va chạm */}
-              {[42, 74, 152, 184].map((y) => (
-                <line key={y} x1="36" y1={y} x2="360" y2={y} stroke="#334155" strokeWidth="2" />
-              ))}
-              {/* Tia alpha tạo phản ứng hạt nhân */}
-              <line x1="36" y1="114" x2="292" y2="114" stroke="#38bdf8" strokeWidth="4" />
-              <circle cx="292" cy="114" r="6" fill="#facc15" />
-              {/* Nhánh proton mảnh, dài */}
-              <line x1="292" y1="114" x2="590" y2="38" stroke="#fde047" strokeWidth="2.2" />
-              {/* Nhánh hạt nhân giật lùi O-17 dày, ngắn */}
-              <line x1="292" y1="114" x2="394" y2="158" stroke="#fb7185" strokeWidth="5.2" strokeLinecap="round" />
+              <div style={{ background: "#ffffff", padding: "10px 12px", border: "1px solid #cbd5e1" }}>
+                <strong style={{ display: "block", color: "#8e6a00", marginBottom: "4px" }}>
+                  Dự đoán gốc của em ở Pha 1:
+                </strong>
+                {lockedB22PredictionLabel ? (
+                  <>
+                    <div>“{lockedB22PredictionLabel}”</div>
+                    {lockedInitialReason && (
+                      <div style={{ marginTop: "4px", color: "#334155" }}>
+                        <em>Lí do ban đầu:</em> {lockedInitialReason}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <span style={{ color: "#525252" }}>Em chưa khóa dự đoán ở Pha 1.</span>
+                )}
+              </div>
+              <div style={{ background: "#f0fdf4", padding: "10px 12px", border: "1px solid #86efac" }}>
+                <strong style={{ display: "block", color: "#0e6027", marginBottom: "4px" }}>
+                  Kết luận vật lí từ vết chữ Y (Hình 22.2 SGK tr. 96–97):
+                </strong>
+                <div>
+                  Tại đỉnh <code>(2)</code> xảy ra phản ứng hạt nhân kích thích:{" "}
+                  <strong>
+                    <Nuclide sym="He" a={4} z={2} /> + <Nuclide sym="N" a={14} z={7} /> →{" "}
+                    <Nuclide sym="O" a={17} z={8} /> + <Nuclide sym="H" a={1} z={1} />
+                  </strong>
+                  . Mọi phản ứng hạt nhân đều tuân theo <strong>bảo toàn số nucleon A</strong> và{" "}
+                  <strong>bảo toàn điện tích Z</strong>, nhưng <strong>không bảo toàn khối lượng nghỉ</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <text x="44" y="104" fill="#7dd3fc" fontSize="13" fontWeight="700">
-                Vệt hạt α tới (⁴₂He)
-              </text>
-              <text x="248" y="140" fill="#facc15" fontSize="12.5" fontWeight="700">
-                Va chạm với ¹⁴₇N
-              </text>
-              <text x="460" y="34" fill="#fde047" fontSize="13" fontWeight="700">
-                Nhánh mảnh, dài: Proton (¹₁H)
-              </text>
-              <text x="404" y="164" fill="#fda4af" fontSize="13" fontWeight="700">
-                Nhánh đậm, ngắn: Hạt nhân ¹⁷₈O
-              </text>
-            </svg>
-            <figcaption className={styles.darkBenchCaption}>
-              <strong>Thí nghiệm buồng sương Blackett (SGK tr. 96):</strong> Trong hàng chục nghìn vết hạt α đi thẳng qua khí Nitrogen, xuất hiện điểm va chạm tại đó vệt α biến mất và tách thành <strong>hai nhánh chữ Y</strong> (không có nhánh thứ ba), chứng tỏ hạt α đã nhập vào hạt nhân <Nuclide sym="N" a={14} z={7} /> để biến đổi thành nguyên tố mới <Nuclide sym="O" a={17} z={8} /> và phát ra proton <Nuclide sym="H" a={1} z={1} />.
-            </figcaption>
-          </figure>
-
-          <p style={{ fontSize: "15px", lineHeight: 1.6 }}>
-            Phương trình phản ứng hạt nhân đầu tiên do con người thực hiện:{" "}
-            <strong>
-              <Nuclide sym="He" a={4} z={2} /> + <Nuclide sym="N" a={14} z={7} /> →{" "}
-              <Nuclide sym="O" a={17} z={8} /> + <Nuclide sym="H" a={1} z={1} />
-            </strong>{" "}
-            (kiểm tra: tổng số khối <code>4 + 14 = 17 + 1 = 18</code>; tổng điện tích{" "}
-            <code>2 + 7 = 8 + 1 = 9</code>).
-          </p>
+          <FixedPhysicsActivityRenderer
+            activityKey="nuclear_reaction_balancer"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
         </div>
       )}
 
-      {section.kind === "b22_conservation" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="nuclear_reaction_balancer"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
-      )}
-
+      {/* ====================================================================
+          BÀI 22 — PHA 2 (MỤC 2): ĐỘ HỤT KHỐI Δm, MÔ HÌNH CÂN & ĐỒ THỊ Eₗₖ/A
+          ==================================================================== */}
       {section.kind === "b22_binding_energy" && (
         <div>
-          <div style={{ border: "1px solid #d0d7de", background: "#ffffff", padding: "14px", marginBottom: "18px" }}>
+          <div style={{ border: "1px solid #d0d7de", background: "#ffffff", padding: "14px 16px", marginBottom: "16px" }}>
             <h4 style={{ margin: "0 0 8px", fontSize: "15.5px" }}>
-              Đồ thị năng lượng liên kết riêng Wₗₖ/A theo số khối A (SGK tr. 100)
+              Độ hụt khối Δm, năng lượng liên kết Eₗₖ và đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ / A (SGK tr. 98–100)
             </h4>
+            <p style={{ margin: "0 0 10px", fontSize: "13.5px", lineHeight: 1.6, color: "#334155" }}>
+              Khối lượng của một hạt nhân luôn nhỏ hơn tổng khối lượng của các nucleon tạo thành nó một lượng{" "}
+              <LatexMath math={String.raw`\Delta m = [Z m_p + (A - Z) m_n] - m_X`} />. Năng lượng liên kết{" "}
+              <LatexMath math={String.raw`E_{\text{lk}} = \Delta m \cdot c^2`} /> và <strong>năng lượng liên kết riêng</strong>{" "}
+              <LatexMath math={String.raw`E_{\text{lkr}} = \frac{E_{\text{lk}}}{A}`} /> đặc trưng cho <strong>mức độ bền vững</strong> của hạt nhân (đạt cực đại khoảng <code>8,8 MeV/nucleon</code> ở vùng <code>50 &lt; A &lt; 70</code> quanh <Nuclide sym="Fe" a={56} z={26} />).
+            </p>
             <svg
-              viewBox="0 0 640 210"
+              viewBox="0 0 640 205"
               width="640"
-              height="210"
+              height="205"
               role="img"
-              aria-label="Đồ thị năng lượng liên kết riêng theo số khối A đạt đỉnh khoảng 8,8 MeV/nucleon ở vùng Fe-56"
+              aria-label="Đồ thị năng lượng liên kết riêng Elkr = Elk/A theo số khối A đạt đỉnh khoảng 8,8 MeV/nucleon ở vùng Fe-56"
               style={{ width: "100%", height: "auto", display: "block" }}
             >
-              <line x1="56" y1="178" x2="610" y2="178" stroke="#525252" strokeWidth="1.4" />
-              <line x1="56" y1="178" x2="56" y2="20" stroke="#525252" strokeWidth="1.4" />
-              <rect x="140" y="24" width="145" height="154" fill="#defbe6" opacity="0.55" />
+              <line x1="58" y1="176" x2="612" y2="176" stroke="#525252" strokeWidth="1.4" />
+              <line x1="58" y1="176" x2="58" y2="18" stroke="#525252" strokeWidth="1.4" />
+              <rect x="138" y="22" width="146" height="154" fill="#defbe6" opacity="0.55" />
               <path
-                d="M 62 162 L 68 62 L 82 88 L 96 56 L 148 40 Q 195 34 250 38 Q 380 48 590 66"
+                d="M 64 162 L 70 62 L 84 88 L 98 56 L 150 40 Q 195 34 250 38 Q 380 48 592 66"
                 fill="none"
                 stroke="#0f62fe"
                 strokeWidth="2.8"
               />
-              <circle cx="182" cy="36" r="5" fill="#198038" />
-              <text x="190" y="34" fill="#198038" fontSize="12" fontWeight="700">
+              <circle cx="184" cy="36" r="5" fill="#198038" />
+              <text x="192" y="34" fill="#198038" fontSize="12" fontWeight="700">
                 ⁵⁶₂₆Fe (~8,8 MeV/nucleon · Bền nhất)
               </text>
-              <text x="74" y="54" fill="#0f62fe" fontSize="11.5" fontWeight="700">⁴₂He</text>
-              <text x="530" y="60" fill="#161616" fontSize="11.5" fontWeight="700">²³⁵₉₂U (~7,6 MeV)</text>
-              <text x="64" y="152" fill="#8e6a00" fontSize="11.5" fontWeight="700">Tổng hợp hạt nhân ↗</text>
+              <text x="76" y="54" fill="#0f62fe" fontSize="11.5" fontWeight="700">⁴₂He</text>
+              <text x="526" y="60" fill="#161616" fontSize="11.5" fontWeight="700">²³⁵₉₂U (~7,6 MeV)</text>
+              <text x="66" y="152" fill="#8e6a00" fontSize="11.5" fontWeight="700">Tổng hợp hạt nhân ↗</text>
               <text x="430" y="92" fill="#002d9c" fontSize="11.5" fontWeight="700">↖ Phân hạch hạt nhân</text>
-              <text x="520" y="198" fill="#525252" fontSize="12">Số khối A →</text>
-              <text x="12" y="22" fill="#525252" fontSize="12">Wₗₖ/A (MeV)</text>
+              <text x="520" y="196" fill="#525252" fontSize="12">Số khối A →</text>
+              <text x="8" y="20" fill="#525252" fontSize="12">Eₗₖ/A (MeV)</text>
             </svg>
           </div>
           <FixedPhysicsActivityRenderer
@@ -2203,61 +2883,313 @@ export function Chapter4SectionBody({
         </div>
       )}
 
+      {/* ====================================================================
+          BÀI 22 — PHA 2 (MỤC 3): PHÂN HẠCH HẠT NHÂN ²³⁵U VỚI k < 1, k = 1, k > 1
+          ==================================================================== */}
       {section.kind === "b22_fission" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="nuclear_fission"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
-      )}
-
-      {section.kind === "b22_fusion" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="nuclear_fusion"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
-      )}
-
-      {section.kind === "b22_after_transfer" && (
-        <div style={{ border: "1px solid #d0d7de", padding: "16px", background: "#ffffff" }}>
-          <p style={{ margin: "0 0 10px", fontWeight: 700, fontSize: "14.5px" }}>
-            Dựa vào đồ thị năng lượng liên kết riêng <code>Wₗₖ/A</code>, phát biểu nào giải thích đúng vì sao cả phân hạch <Nuclide sym="U" a={235} z={92} /> lẫn tổng hợp <Nuclide sym="H" a={2} z={1} /> + <Nuclide sym="H" a={3} z={1} /> đều tỏa năng lượng lớn?
-          </p>
-          {[
-            [
-              "correct",
-              "Vì các hạt nhân sản phẩm đều dịch chuyển về phía vùng số khối trung bình có năng lượng liên kết riêng Wₗₖ/A lớn hơn các hạt nhân ban đầu.",
-            ],
-            [
-              "wrong1",
-              "Vì tổng số nucleon A sau phản ứng giảm đi để biến thành năng lượng.",
-            ],
-            [
-              "wrong2",
-              "Vì các hạt nhân sản phẩm có khối lượng nghỉ lớn hơn tổng khối lượng các hạt ban đầu.",
-            ],
-          ].map(([val, label]) => (
-            <label key={val} style={{ display: "flex", gap: "8px", marginBottom: "8px", fontSize: "14px", cursor: "pointer" }}>
-              <input
-                type="radio"
-                name="b22-after"
-                checked={b22AfterChoice === val}
-                onChange={() => {
-                  setB22AfterChoice(val);
-                  onMarkSectionComplete(section.id, val === "correct");
-                }}
-              />
-              <span>{label}</span>
-            </label>
-          ))}
-          {b22AfterChoice && (
-            <p role="status" style={{ margin: "8px 0 0", fontWeight: 600, color: b22AfterChoice === "correct" ? "#198038" : "#b42332" }}>
-              {b22AfterChoice === "correct"
-                ? "✓ Chính xác! Tổng số khối A luôn bảo toàn, nhưng năng lượng liên kết riêng tăng lên làm tổng khối lượng nghỉ giảm đi — phần chênh lệch khối lượng tỏa ra dưới dạng động năng và bức xạ."
-                : "Chưa đúng. Nhớ rằng số khối A bảo toàn; phản ứng tỏa năng lượng khi hạt nhân con bền hơn (Wₗₖ/A cao hơn) và có tổng khối lượng nghỉ nhỏ hơn."}
-            </p>
-          )}
+        <div>
+          <div
+            style={{
+              border: "1px solid #d0d7de",
+              background: "#f8fafc",
+              padding: "12px 14px",
+              marginBottom: "14px",
+              fontSize: "13.5px",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>Cơ chế phân hạch &amp; điều kiện dây chuyền (Hình 22.6 – 22.7 SGK tr. 100–102):</strong> Hạt nhân nặng{" "}
+            <Nuclide sym="U" a={235} z={92} /> hấp thụ 1 neutron chậm tạo trạng thái kích thích <Nuclide sym="U" a="236*" z={92} />, vỡ thành hai hạt nhân trung bình kèm 2–3 neutron thứ cấp và tỏa <code>~ 200 MeV</code>. Tùy theo <strong>hệ số nhân neutron hiệu dụng k</strong> (và khối lượng tới hạn <code>m_th</code>): <code>k &lt; 1</code> tắt dần, <code>k = 1</code> tự duy trì ổn định, <code>k &gt; 1</code> tăng vọt.
+          </div>
+          <FixedPhysicsActivityRenderer
+            activityKey="nuclear_fission"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
         </div>
       )}
+
+      {/* ====================================================================
+          BÀI 22 — PHA 2 (MỤC 4): TỔNG HỢP HẠT NHÂN (SO SÁNH KÊNH D+T VÀ D+D)
+          ==================================================================== */}
+      {section.kind === "b22_fusion" && (
+        <div>
+          <div
+            style={{
+              border: "1px solid #d0d7de",
+              background: "#f8fafc",
+              padding: "12px 14px",
+              marginBottom: "14px",
+              fontSize: "13.5px",
+              lineHeight: 1.6,
+            }}
+          >
+            <strong>Điều kiện nhiệt hạch (SGK tr. 102–103):</strong> Để hai hạt nhân rất nhẹ mang điện dương tiến lại đủ gần cỡ <code>10⁻¹⁵ m</code> cho lực hạt nhân phát huy tác dụng, hệ cần nhiệt độ cực cao <code>10⁷ – 10⁸ K</code> (trạng thái plasma) kèm mật độ hạt nhân <code>n</code> và thời gian giam giữ <code>Δt</code> thỏa điều kiện Lawson (<code>n·Δt &gt; 10¹⁴ s/cm³</code>).
+          </div>
+          <FixedPhysicsActivityRenderer
+            activityKey="nuclear_fusion"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
+        </div>
+      )}
+
+      {/* ====================================================================
+          BÀI 22 — PHA 3 (SAU GIỜ HỌC): BÀI TẬP VẬN DỤNG LƯU KẾT QUẢ & ĐỐI CHIẾU DỰ ĐOÁN GỐC
+          ==================================================================== */}
+      {section.kind === "b22_after_transfer" &&
+        (() => {
+          const afterWork = notebook.afterClassWork ?? {};
+          const b22NeutronCount = afterWork.b22NeutronCount ?? "";
+          const b22AfterChoice = afterWork.b22AfterChoice ?? "";
+          const b22ReasonNote = afterWork.b22ReasonNote ?? "";
+          const b22Checked = Boolean(afterWork.b22Checked) || b22AfterCheckedLocal;
+          const b22SubmittedAt = afterWork.b22SubmittedAt ?? "";
+
+          const kTrimmed = b22NeutronCount.trim();
+          const kOk = kTrimmed !== "" && Number(kTrimmed) === 2;
+          const choiceOk = b22AfterChoice === "correct";
+          const noteOk = b22ReasonNote.trim().length >= 8;
+          const allB22AfterOk = kOk && choiceOk && noteOk;
+
+          return (
+            <div
+              data-testid="b22-pha3-transfer-task"
+              style={{
+                border: "1px solid #d0d7de",
+                borderTop: "4px solid #0f62fe",
+                padding: "18px",
+                background: "#ffffff",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                  marginBottom: "10px",
+                }}
+              >
+                <h4 style={{ margin: 0, fontSize: "16.5px" }}>
+                  Bài tập vận dụng Pha 3: Bảo toàn A, Z · Đọc đồ thị Eₗₖ/A &amp; Đối chiếu dự đoán gốc
+                </h4>
+                {b22SubmittedAt && (
+                  <span
+                    data-b22-pha3-saved-badge
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      padding: "3px 10px",
+                      background: allB22AfterOk ? "#defbe6" : "#fcf4d6",
+                      color: allB22AfterOk ? "#198038" : "#8e6a00",
+                      border: "1px solid #cbd5e1",
+                    }}
+                  >
+                    Đã lưu bài nộp ({b22SubmittedAt})
+                  </span>
+                )}
+              </div>
+
+              <div
+                data-testid="b22-pha3-locked-prediction-echo"
+                style={{
+                  marginBottom: "14px",
+                  padding: "10px 14px",
+                  background: "#edf5ff",
+                  borderLeft: "4px solid #0f62fe",
+                  fontSize: "13.5px",
+                  lineHeight: 1.55,
+                }}
+              >
+                <strong>🔒 Dự đoán gốc của em ở Pha 1:</strong>{" "}
+                {lockedB22PredictionLabel ? (
+                  <>
+                    “{lockedB22PredictionLabel}”
+                    {lockedInitialReason ? <span> (Lí do: {lockedInitialReason})</span> : null}
+                  </>
+                ) : (
+                  <span>Chưa khóa dự đoán ở Pha 1 — em vẫn có thể hoàn thành bài vận dụng và ghi nhận xét bên dưới.</span>
+                )}
+              </div>
+
+              <label style={{ display: "block", fontSize: "14px", fontWeight: 700, marginBottom: "14px" }}>
+                1. Xét kênh phân hạch:{" "}
+                <Nuclide sym="n" a={1} z={0} /> + <Nuclide sym="U" a={235} z={92} /> →{" "}
+                <Nuclide sym="Mo" a={95} z={42} /> + <Nuclide sym="La" a={139} z={57} /> +{" "}
+                <code>k</code>·<Nuclide sym="n" a={1} z={0} /> + 7·<Nuclide sym="e" a={0} z={-1} />. Số neutron thứ cấp <code>k</code> bằng bao nhiêu?
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  data-b22-pha3-k-input
+                  value={b22NeutronCount}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setB22AfterCheckedLocal(false);
+                    patchNotebook((cur) => ({
+                      ...cur,
+                      afterClassWork: { ...cur.afterClassWork, b22NeutronCount: val, b22Checked: false },
+                    }));
+                  }}
+                  placeholder="Tính từ bảo toàn số khối 1 + 235 = 95 + 139 + k…"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    maxWidth: "320px",
+                    marginTop: "6px",
+                    minHeight: "42px",
+                    padding: "8px 10px",
+                    border: "1px solid #8d8d8d",
+                    fontSize: "15px",
+                  }}
+                />
+              </label>
+
+              <fieldset style={{ border: "none", padding: 0, margin: "0 0 14px" }}>
+                <legend style={{ margin: "0 0 8px", fontWeight: 700, fontSize: "14px" }}>
+                  2. Dựa vào đồ thị năng lượng liên kết riêng <code>Eₗₖᵣ = Eₗₖ / A</code>, vì sao cả phân hạch{" "}
+                  <Nuclide sym="U" a={235} z={92} /> lẫn tổng hợp <Nuclide sym="H" a={2} z={1} /> +{" "}
+                  <Nuclide sym="H" a={3} z={1} /> đều tỏa năng lượng lớn?
+                </legend>
+                {[
+                  [
+                    "correct",
+                    "Vì các hạt nhân tạo thành sau phản ứng đều tiến về vùng số khối trung bình có năng lượng liên kết riêng Eₗₖ/A lớn hơn các hạt nhân ban đầu (tổng độ hụt khối tăng, tổng khối lượng nghỉ giảm).",
+                  ],
+                  [
+                    "wrong1",
+                    "Vì tổng số nucleon A sau phản ứng bị hụt đi để chuyển hóa thành năng lượng.",
+                  ],
+                  [
+                    "wrong2",
+                    "Vì các hạt nhân sản phẩm có năng lượng liên kết riêng Eₗₖ/A nhỏ hơn hạt nhân ban đầu.",
+                  ],
+                ].map(([val, label]) => (
+                  <label
+                    key={val}
+                    style={{ display: "flex", gap: "8px", marginBottom: "8px", fontSize: "14px", cursor: "pointer" }}
+                  >
+                    <input
+                      type="radio"
+                      name="b22-after"
+                      data-b22-pha3-radio={val}
+                      checked={b22AfterChoice === val}
+                      onChange={() => {
+                        setB22AfterCheckedLocal(false);
+                        patchNotebook((cur) => ({
+                          ...cur,
+                          afterClassWork: { ...cur.afterClassWork, b22AfterChoice: val, b22Checked: false },
+                        }));
+                      }}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </fieldset>
+
+              <label
+                htmlFor="b22-after-reason"
+                style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+              >
+                3. Nhận xét đối chiếu với dự đoán gốc ở Pha 1 (vì sao phản ứng hạt nhân biến đổi nguyên tố và tỏa/thu năng lượng dù tổng A, Z không đổi):
+              </label>
+              <textarea
+                id="b22-after-reason"
+                data-b22-pha3-reason
+                className={styles.evidenceTextarea}
+                rows={2}
+                value={b22ReasonNote}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setB22AfterCheckedLocal(false);
+                  patchNotebook((cur) => ({
+                    ...cur,
+                    afterClassWork: { ...cur.afterClassWork, b22ReasonNote: val, b22Checked: false },
+                  }));
+                }}
+                placeholder="Ví dụ: Tổng A và Z luôn bảo toàn, nhưng các nucleon tái tổ hợp thành hạt nhân mới có Eₗₖ/A khác trước; khi Eₗₖ/A tăng thì tổng khối lượng nghỉ giảm và tỏa năng lượng…"
+              />
+
+              <div style={{ marginTop: "12px", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  data-b22-submit-pha3-btn
+                  className={`${styles.cdsBtn} ${styles.cdsBtnPrimary}`}
+                  onClick={() => {
+                    const nowStr = new Date().toLocaleTimeString("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    setB22AfterCheckedLocal(true);
+                    patchNotebook((cur) => ({
+                      ...cur,
+                      afterClassWork: {
+                        ...cur.afterClassWork,
+                        b22Checked: true,
+                        b22SubmittedAt: nowStr,
+                      },
+                    }));
+                    onMarkSectionComplete(section.id, allB22AfterOk, { allowUnmark: true });
+                  }}
+                >
+                  Nộp bài vận dụng B22 &amp; xem phản hồi
+                </button>
+              </div>
+
+              {b22Checked && (
+                <div
+                  role="status"
+                  data-b22-pha3-feedback={allB22AfterOk ? "correct" : "needs-review"}
+                  style={{
+                    marginTop: "12px",
+                    padding: "12px 14px",
+                    background: allB22AfterOk ? "#defbe6" : "#fff0f1",
+                    borderLeft: allB22AfterOk ? "4px solid #198038" : "4px solid #b42332",
+                    fontSize: "14px",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {allB22AfterOk ? (
+                    <>
+                      <strong>✓ Đã nộp và hoàn thành chính xác bài vận dụng Sau giờ học Bài 22!</strong>
+                      <ul style={{ margin: "6px 0 0", paddingLeft: "18px" }}>
+                        <li>
+                          Câu 1: Bảo toàn số khối <code>1 + 235 = 95 + 139 + k · 1 + 7 · 0</code> suy ra <code>k = 2</code> neutron thứ cấp (đồng thời điện tích <code>0 + 92 = 42 + 57 − 7 = 92</code> cũng bảo toàn).
+                        </li>
+                        <li>
+                          Câu 2: Cả phân hạch hạt nhân rất nặng lẫn tổng hợp hạt nhân rất nhẹ đều tạo các hạt nhân sản phẩm có <code>Eₗₖ/A</code> cao hơn → tổng khối lượng nghỉ giảm → tỏa năng lượng lớn.
+                        </li>
+                        <li>
+                          Câu 3: Bài làm, dự đoán gốc và tiến độ của em đã được lưu bền vững trên trình duyệt để khôi phục sau khi tải lại trang.
+                        </li>
+                      </ul>
+                    </>
+                  ) : (
+                    <>
+                      <strong>Bài nộp chưa hoàn chỉnh — vui lòng bổ sung hoặc chỉnh sửa các mục sau:</strong>
+                      <ul style={{ margin: "6px 0 0", paddingLeft: "18px" }}>
+                        {!kOk && (
+                          <li>
+                            Câu 1 (còn thiếu hoặc chưa đúng): Áp dụng bảo toàn số khối <code>1 + 235 = 95 + 139 + k</code> (electron có <code>A = 0</code>), suy ra <code>k = 2</code>.
+                          </li>
+                        )}
+                        {!choiceOk && (
+                          <li>
+                            Câu 2 (còn thiếu hoặc chưa đúng): Số khối <code>A</code> luôn bảo toàn; phản ứng tỏa năng lượng vì các hạt nhân sản phẩm có <strong>năng lượng liên kết riêng Eₗₖ/A lớn hơn</strong> hạt nhân ban đầu.
+                          </li>
+                        )}
+                        {!noteOk && (
+                          <li>
+                            Câu 3 (còn thiếu nhận xét): Em hãy nhập ít nhất một câu ngắn (tối thiểu 8 kí tự) đối chiếu lại với dự đoán gốc ở Pha 1.
+                          </li>
+                        )}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
       {/* ====================================================================
           BÀI 23 — HIỆN TƯỢNG PHÓNG XẠ (SGK VẬT LÍ 12 KNTT, TR. 104–110)

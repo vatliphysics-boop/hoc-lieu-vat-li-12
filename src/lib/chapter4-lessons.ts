@@ -359,24 +359,48 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
     title: "Phản ứng hạt nhân và năng lượng liên kết",
     sgkPages: "SGK tr. 96–103",
     guidingQuestion:
-      "Vì sao vết sương trong buồng Blackett tách làm hai nhánh và phần khối lượng hụt đi của hạt nhân chuyển thành gì?",
+      "Vì sao vết sương trong buồng Blackett tách làm hai nhánh chữ Y và phần khối lượng hụt đi của hạt nhân chuyển thành gì?",
     hubHighlight:
-      "Vết phân nhánh buồng sương Blackett, bảo toàn A và Z, độ hụt khối Δm, đồ thị năng lượng liên kết riêng, phân hạch và nhiệt hạch.",
+      "Buồng sương Blackett 3D (Hình 22.1–22.2), bảo toàn A và Z, mô hình cân độ hụt khối Δm & đồ thị Eₗₖ/A, phân hạch k < 1 · k = 1 · k > 1 và nhiệt hạch D+T / D+D.",
+    lessonGoals: {
+      knowledge:
+        "Phân biệt được sơ đồ thí nghiệm Rutherford (Hình 22.1) với ảnh vết buồng sương Blackett (Hình 22.2); phát biểu định luật bảo toàn số nucleon A và điện tích Z; viết công thức độ hụt khối Δm, năng lượng liên kết Eₗₖ = Δm·c², năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A và nêu bản chất phản ứng phân hạch, tổng hợp hạt nhân (SGK Vật lí 12 KNTT, tr. 96–103).",
+      competence:
+        "Xoay, thu phóng, chọn bộ phận và chuyển sang góc cửa sổ quan sát trên buồng sương Blackett 3D; chạy hai lượt vệt thẳng và vết chữ Y (1)→(2)→(3)→(4), khóa dự đoán trước khi mở giải thích proton ¹₁H và oxygen-17 ¹⁷₈O; cân bằng phương trình A/Z, đọc đồ thị Eₗₖ/A, khảo sát k < 1, k = 1, k > 1 và đối chiếu hai kênh nhiệt hạch D+T, D+D.",
+      quality:
+        "Rèn tác phong tôn trọng bằng chứng thực nghiệm lịch sử (Rutherford 1919, Blackett 1925, Oliphant 1934), cẩn trọng khi đối chiếu đơn vị và nguồn dữ liệu hạt nhân.",
+    },
     sections: [
       {
         id: "b22-blackett-track",
         kind: "b22_blackett_track",
         phase: "before",
-        title: "Vết phân nhánh trong thí nghiệm buồng sương Blackett",
-        shortTocTitle: "Vết phân nhánh Blackett",
+        title: "Buồng sương Blackett 3D: Đối chiếu Hình 22.1 – 22.2 và vết phân nhánh chữ Y",
+        shortTocTitle: "Buồng sương Blackett 3D",
         sgkPages: "tr. 96–97",
-        minutes: 10,
+        minutes: 12,
         phenomenonPrompt:
-          "Quan sát bức ảnh lịch sử trong buồng sương chứa khí Nitrogen: một vệt hạt α biến mất tại điểm va chạm và tách thành hai nhánh mới.",
+          "Khảo sát buồng sương Blackett 3D ở góc toàn cảnh và góc cửa sổ quan sát; chạy lại lượt vệt thẳng và lượt vết chữ Y (1)→(2)→(3)→(4), đối chiếu Hình 22.1 (Rutherford) với Hình 22.2 (Blackett 1925).",
         evidencePrompt:
-          "Dự đoán hai hạt tạo ra sau điểm phân nhánh từ phương trình ⁴₂He + ¹⁴₇N → ¹⁷₈O + ¹₁H.",
+          "Nhập lí do và khóa dự đoán ban đầu trước khi mở giải thích nhánh (3) proton ¹₁H, nhánh (4) oxygen-17 ¹⁷₈O; kiểm tra tổng A, Z hai vế, ghép 4 chi tiết và làm câu tự kiểm tra.",
         teacherTip:
-          "Khơi gợi sự khác biệt giữa phản ứng hóa học (bảo toàn nguyên tố) và phản ứng hạt nhân (nguyên tố Nitrogen biến đổi thành Oxygen).",
+          "Giao trước giờ học (12 phút): cho học sinh tự quan sát vệt α kết thúc tại đỉnh (2) trên buồng sương 3D và khóa dự đoán trước khi mở lời giải thích của Blackett.",
+        teacherGuide: {
+          learningObjective:
+            "Nhận diện được cấu tạo buồng sương Blackett 3D (vỏ buồng, cửa sổ quan sát, cổng hạt tới, vùng quan sát); phân biệt Hình 22.1 và Hình 22.2 SGK tr. 96; giải thích vết chữ Y theo phương trình ⁴₂He + ¹⁴₇N → ¹⁷₈O + ¹₁H.",
+          projectorStrategy:
+            "Chiếu buồng sương Blackett 3D ở góc cửa sổ quan sát, chạy Lượt 1 (vệt thẳng) rồi Lượt 2 (vết chữ Y hiện tuần tự 1→2→3→4) và đối chiếu các dự đoán đã khóa của học sinh.",
+          openQuestions: [
+            "Vì sao sau đỉnh va chạm (2) chỉ có hai nhánh (3) và (4) tạo hình chữ Y mà không còn nhánh thứ ba của hạt α bay tiếp?",
+            "Dựa vào độ mảnh – dài của nhánh (3) và độ đậm – ngắn của nhánh (4), nhánh nào là proton ¹₁H, nhánh nào là hạt nhân ¹⁷₈O?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ nghĩ phản ứng hạt nhân bảo toàn nguyên tố như phản ứng hóa học hoặc nhầm nhánh đậm ngắn (4) là hạt α đi tiếp. Cách gỡ: Đặt phần giải thích ngay sau bước khóa dự đoán và kiểm tra Z: 2 + 7 = 8 (Oxygen) + 1 (Hydrogen).",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn Pha 1 bằng mô hình buồng sương Blackett 3D (kèm sơ đồ dự phòng khi thiếu WebGL) và đối chiếu Hình 22.1–22.2 ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh đã khóa dự đoán kèm lí do, ghép đúng 4/4 chi tiết vết chữ Y và trả lời đúng câu tự kiểm tra Pha 1.",
+        },
       },
       {
         id: "b22-conservation",
@@ -385,77 +409,156 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         title: "Bảo toàn số khối A và điện tích Z trong phản ứng hạt nhân",
         shortTocTitle: "Bảo toàn số khối & điện tích",
         sgkPages: "tr. 97–98",
-        minutes: 12,
+        minutes: 10,
         phenomenonPrompt:
-          "Kiểm tra tổng số nucleon A và tổng điện tích Z trước – sau các phản ứng hạt nhân kích thích và tự phát.",
+          "Lấy lại dự đoán đã khóa ở Pha 1; phân biệt phản ứng hạt nhân tự phát với phản ứng hạt nhân kích thích và kiểm tra bảo toàn số nucleon A, điện tích Z.",
         evidencePrompt:
-          "Cân bằng đúng ít nhất hai phương trình phản ứng hạt nhân và ghi rõ hạt còn thiếu.",
+          "Đối chiếu dự đoán Pha 1 với phương trình Blackett và cân bằng đúng các phương trình phản ứng hạt nhân.",
         activityKey: "nuclear_reaction_balancer",
         teacherTip:
-          "Lưu ý học sinh neutron (¹₀n) có Z = 0 nhưng A = 1, còn electron (⁰₋₁e) có Z = −1 và A = 0.",
+          "Lưu ý học sinh neutron (¹₀n) có Z = 0, A = 1; electron (⁰₋₁e) có Z = −1, A = 0; khối lượng nghỉ KHÔNG bảo toàn.",
+        teacherGuide: {
+          learningObjective:
+            "Phân loại được phản ứng hạt nhân tự phát và kích thích; vận dụng định luật bảo toàn số khối A và bảo toàn điện tích Z để xác định hạt chưa biết.",
+          projectorStrategy:
+            "Mở khung Đối chiếu dự đoán Pha 1 ở đầu mục để nối liền từ vết chữ Y Blackett sang quy tắc tổng quát ∑A và ∑Z trên bộ cân bằng phương trình.",
+          openQuestions: [
+            "Trong phản ứng hạt nhân, số proton riêng lẻ và số neutron riêng lẻ có nhất thiết bảo toàn không, hay chỉ tổng số nucleon A bảo toàn?",
+            "Điểm khác nhau cốt lõi giữa phân rã tự phát của ²³⁸₉₂U và phản ứng bắn phá ¹⁴₇N bằng hạt α là gì?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay áp dụng nhầm bảo toàn khối lượng nghỉ hoặc quên Z = −1 của hạt β⁻ (⁰₋₁e).",
+          noVideoFallback:
+            "Dùng bảng phân loại 2 nhóm phản ứng hạt nhân và bộ cân bằng phương trình tương tác trực tiếp trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh cân bằng chính xác các phương trình và phân loại đúng phản ứng hạt nhân.",
+        },
       },
       {
         id: "b22-binding-energy",
         kind: "b22_binding_energy",
         phase: "in_class",
-        title: "Độ hụt khối Δm và đồ thị năng lượng liên kết riêng",
-        shortTocTitle: "Độ hụt khối & đồ thị Wlk/A",
-        sgkPages: "tr. 99–101",
-        minutes: 18,
+        title: "Độ hụt khối Δm, năng lượng liên kết Eₗₖ và đồ thị Eₗₖᵣ = Eₗₖ/A",
+        shortTocTitle: "Độ hụt khối & đồ thị Eₗₖ/A",
+        sgkPages: "tr. 98–100",
+        minutes: 15,
         phenomenonPrompt:
-          "So sánh tổng khối lượng các nucleon rời rạc với khối lượng hạt nhân thực tế và khảo sát đường cong Wₗₖ/A theo số khối A.",
+          "Khảo sát mô hình cân hai đĩa (ghi rõ số đọc dùng khối lượng nguyên tử trung hòa) và đọc đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A theo số khối A (Hình 22.3 & Hình 22.5 SGK).",
         evidencePrompt:
-          "Tính Δm, Wₗₖ, Wₗₖ/A và chỉ ra vùng số khối bền vững nhất (quanh ⁵⁶₂₆Fe ≈ 8,8 MeV/nucleon).",
+          "Tính Δm, Eₗₖ, Eₗₖᵣ = Eₗₖ/A, so sánh 2 hạt nhân bất kì và xác định vùng bền vững nhất quanh ⁵⁶₂₆Fe (~8,8 MeV/nucleon).",
         activityKey: "binding_energy_lab",
         teacherTip:
-          "Dùng đồ thị Wₗₖ/A làm trục xương sống để giải thích vì sao hạt nhân rất nặng dễ phân hạch còn hạt nhân rất nhẹ có thể tổng hợp.",
+          "Chỉ rõ trên mô hình cân: m_nt(¹H) và m_nt(X) đều dùng khối lượng nguyên tử trung hòa nên khối lượng Z electron ở hai đĩa tự triệt tiêu khi tính Δm.",
+        teacherGuide: {
+          learningObjective:
+            "Tính được độ hụt khối Δm, năng lượng liên kết Eₗₖ = Δm·c² và dùng năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A để so sánh độ bền vững hạt nhân.",
+          projectorStrategy:
+            "Chiếu mô hình cân hai đĩa kèm chú thích khối lượng nguyên tử trung hòa cạnh đồ thị Eₗₖ/A để giải thích nguồn gốc năng lượng tỏa ra.",
+          openQuestions: [
+            "Vì sao khi thay khối lượng nguyên tử trung hòa m_nt(¹H) và m_nt(X) vào hai vế của mô hình cân, khối lượng của Z electron lại tự giản ước?",
+            "Hạt nhân ²³⁵₉₂U có Eₗₖ lớn hơn nhiều so với ⁵⁶₂₆Fe, vì sao ⁵⁶₂₆Fe lại bền vững hơn?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay đánh giá độ bền dựa vào Eₗₖ thay vì Eₗₖ/A hoặc cộng/trừ thừa khối lượng Z electron khi đề đã cho khối lượng nguyên tử trung hòa.",
+          noVideoFallback:
+            "Sử dụng trực tiếp đồ thị Eₗₖ/A, mô hình cân hai đĩa và phòng thí nghiệm năng lượng liên kết ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh khảo sát đủ ⁵⁶Fe, ²³⁵U, so sánh 2 hạt nhân khác nhau và trả lời đúng câu hỏi kiểm tra.",
+        },
       },
       {
         id: "b22-fission",
         kind: "b22_fission",
         phase: "in_class",
-        title: "Phản ứng phân hạch hạt nhân ²³⁵₉₂U",
+        title: "Phản ứng phân hạch hạt nhân ²³⁵₉₂U (k < 1, k = 1, k > 1)",
         shortTocTitle: "Phân hạch hạt nhân",
-        sgkPages: "tr. 101–102",
+        sgkPages: "tr. 100–102",
         minutes: 12,
         phenomenonPrompt:
-          "Theo dõi một neutron chậm kích thích hạt nhân ²³⁵₉₂U vỡ thành hai mảnh trung bình kèm các neutron thứ cấp.",
+          "Theo dõi một neutron chậm bị ²³⁵₉₂U hấp thụ tạo trạng thái kích thích ²³⁶₉₂U* rồi vỡ thành hai mảnh trung bình kèm các neutron thứ cấp và khảo sát dây chuyền với k < 1, k = 1, k > 1.",
         evidencePrompt:
-          "Ghi lại điều kiện để các neutron thứ cấp duy trì phản ứng dây chuyền.",
+          "Đếm đúng số neutron tự do sau phân hạch và so sánh sự phát triển phản ứng dây chuyền ở cả ba chế độ k < 1, k = 1 và k > 1.",
         activityKey: "nuclear_fission",
         teacherTip:
-          "Đối chiếu số neutron sinh ra sau mỗi phân hạch (2–3 hạt) với vai trò kiểm soát mật độ neutron.",
+          "Phân biệt số neutron sinh ra trong 1 phân hạch đơn lẻ (2–3 hạt) với hệ số nhân hiệu dụng k của cả khối nhiên liệu.",
+        teacherGuide: {
+          learningObjective:
+            "Mô tả được cơ chế phân hạch hạt nhân nặng qua trạng thái kích thích ²³⁶₉₂U* và phân tích ba chế độ phản ứng dây chuyền k < 1, k = 1, k > 1.",
+          projectorStrategy:
+            "Chạy mô phỏng phân hạch đến bước tách mảnh, sau đó chuyển lần lượt k = 0,6, k = 1 và k = 1,4 trên sơ đồ phân nhánh thế hệ.",
+          openQuestions: [
+            "Vì sao một số neutron sinh ra sau phân hạch không tiếp tục gây phân hạch mới?",
+            "Trong lò phản ứng điện hạt nhân, người ta phải giữ hệ số nhân neutron ở chế độ nào?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay quên cộng 1 neutron tới ở vế trái (1 + 235 = 236) hoặc đồng nhất số neutron phát ra mỗi phân hạch với hệ số nhân k.",
+          noVideoFallback:
+            "Sử dụng trực tiếp phòng thí nghiệm phân hạch (có sơ đồ 2D dự phòng khi thiếu WebGL) và sơ đồ phân nhánh k trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi quan sát đủ diễn biến phân hạch, đếm đúng 3 neutron tự do, thử đủ k < 1, k = 1, k > 1 và trả lời đúng câu hỏi.",
+        },
       },
       {
         id: "b22-fusion",
         kind: "b22_fusion",
         phase: "in_class",
-        title: "Phản ứng tổng hợp hạt nhân (nhiệt hạch)",
-        shortTocTitle: "Tổng hợp hạt nhân",
+        title: "Phản ứng tổng hợp hạt nhân (nhiệt hạch): So sánh kênh D+T và D+D",
+        shortTocTitle: "Tổng hợp hạt nhân (D+T & D+D)",
         sgkPages: "tr. 102–103",
-        minutes: 10,
+        minutes: 8,
         phenomenonPrompt:
-          "Khảo sát điều kiện nhiệt độ hàng chục triệu độ để hai hạt nhân nhẹ ²₁H và ³₁H vượt lực đẩy tĩnh điện kết hợp thành ⁴₂He.",
+          "Khảo sát điều kiện nhiệt độ siêu cao 10⁷ – 10⁸ K để thắng rào thế đẩy tĩnh điện Coulomb và so sánh hai kênh phản ứng nhiệt hạch D+T (17,6 MeV) với D+D (~4,0 MeV theo SGK tr. 102 / 3,27 MeV theo CODATA).",
         evidencePrompt:
-          "So sánh năng lượng tỏa ra tính trên một đơn vị khối lượng nhiên liệu giữa nhiệt hạch và phân hạch.",
+          "Thực hành phóng hạt ở nhiệt độ thấp và ở 10⁷ – 10⁸ K trên cả hai kênh D+T, D+D; đối chiếu phương trình và số liệu năng lượng với nguồn từng kênh.",
         activityKey: "nuclear_fusion",
         teacherTip:
-          "Liên hệ trực tiếp với nguồn năng lượng của Mặt Trời và các ngôi sao.",
+          "Đối chiếu rõ con số làm tròn ~4 MeV trong SGK tr. 102 (kênh D+D của Oliphant) với giá trị 3,27 MeV từ bảng khối lượng nguyên tử và kênh mở rộng D+T (17,6 MeV).",
+        teacherGuide: {
+          learningObjective:
+            "Giải thích được điều kiện xảy ra phản ứng nhiệt hạch (nhiệt độ 10⁷ – 10⁸ K, mật độ và thời gian giam giữ) và so sánh được phương trình, năng lượng tỏa ra của hai kênh D+D và D+T.",
+          projectorStrategy:
+            "Thử kịch bản nhiệt độ thấp (tán xạ Coulomb) rồi nâng lên 10⁷ – 10⁸ K cho cả hai kênh D+D và D+T, chỉ rõ bảng nguồn dữ liệu năng lượng ngay bên dưới.",
+          openQuestions: [
+            "Vì sao phân hạch ²³⁵₉₂U xảy ra được với neutron chậm ở nhiệt độ thường, còn tổng hợp hai hạt nhân nhẹ lại cần nhiệt độ 10⁷ – 10⁸ K?",
+            "So sánh số nucleon tham gia và năng lượng tỏa ra Q giữa hai kênh D+D và D+T?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay nhầm lẫn sản phẩm và năng lượng tỏa ra giữa hai kênh D+D (³₂He + n, ~4 MeV SGK / 3,27 MeV) và D+T (⁴₂He + n, 17,6 MeV).",
+          noVideoFallback:
+            "Sử dụng mô phỏng va chạm nhiệt hạch và bảng đối chiếu nguồn hai kênh D+D, D+T trực tiếp trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thử cả hai chế độ nhiệt độ trên đủ hai kênh D+T, D+D và trả lời đúng câu hỏi kiểm tra.",
+        },
       },
       {
         id: "b22-after-transfer",
         kind: "b22_after_transfer",
         phase: "after",
-        title: "Kiểm tra, đánh giá: Đọc đồ thị Wₗₖ/A để dự đoán chiều tỏa năng lượng",
+        title: "Kiểm tra, đánh giá: Vận dụng bảo toàn A, Z và đọc đồ thị Eₗₖ/A",
         shortTocTitle: "Kiểm tra, đánh giá",
         sgkPages: "tr. 103 · Vận dụng",
         minutes: 12,
         phenomenonPrompt:
-          "Vận dụng đồ thị năng lượng liên kết riêng để xét hai quá trình hạt nhân mới.",
+          "Vận dụng định luật bảo toàn số khối A, điện tích Z và đồ thị năng lượng liên kết riêng Eₗₖᵣ = Eₗₖ/A để giải bài tập vận dụng và đối chiếu lại dự đoán gốc ở Pha 1.",
         evidencePrompt:
-          "Giải thích vì sao cả sự phân hạch của hạt nhân rất nặng lẫn sự tổng hợp của hạt nhân rất nhẹ đều tiến về vùng đỉnh bền vững và tỏa năng lượng.",
+          "Nộp bài làm gồm số neutron thứ cấp k, lập luận từ đồ thị Eₗₖ/A và nhận xét đối chiếu dự đoán gốc; nhận phản hồi chi tiết và khôi phục sau khi tải lại trang.",
         teacherTip:
-          "Đánh giá năng lực lập luận từ đồ thị thay vì chỉ thay số vào công thức.",
+          "Kiểm tra khả năng tự rà soát khi nộp thiếu thông tin và đối chiếu tiến bộ nhận thức từ Pha 1 sang Pha 3.",
+        teacherGuide: {
+          learningObjective:
+            "Vận dụng kết hợp bảo toàn A, Z và đồ thị Eₗₖ/A để giải bài toán phản ứng hạt nhân và giải thích cơ chế tỏa năng lượng.",
+          projectorStrategy:
+            "Chiếu phản hồi mẫu cho trường hợp nộp thiếu và trường hợp hoàn chỉnh để rèn kĩ năng trình bày lập luận vật lí.",
+          openQuestions: [
+            "Vì sao tổng số nucleon A bảo toàn nhưng tổng khối lượng nghỉ của các hạt sản phẩm trong phản ứng tỏa năng lượng lại nhỏ hơn trước phản ứng?",
+          ],
+          commonMisconceptions:
+            "Học sinh viết nhầm “số khối A hụt đi biến thành năng lượng” thay vì độ hụt khối lượng nghỉ Δm.",
+          noVideoFallback:
+            "Thực hiện trực tiếp phiếu vận dụng có phản hồi tức thời và lưu bền vững trên trình duyệt.",
+          completionCriteriaNote:
+            "Hoàn thành khi nộp đúng k = 2, chọn đúng giải thích theo đồ thị Eₗₖ/A và ghi nhận xét đối chiếu dự đoán Pha 1.",
+        },
       },
     ],
   },
@@ -1093,11 +1196,14 @@ export function saveTeacherLessonDraftAndSyncPlan(
    ========================================================================== */
 
 export type B21ApparatusPartCode = "R" | "D" | "S" | "M";
+export type B22TrackPartCode = "1" | "2" | "3" | "4";
 
 export interface PreClassWorkData {
   readonly apparatusRoles?: Readonly<Partial<Record<B21ApparatusPartCode, string>>>;
   readonly selfCheckChoice?: string;
   readonly bringToClassQuestion?: string;
+  readonly b22TrackRoles?: Readonly<Partial<Record<B22TrackPartCode, string>>>;
+  readonly b22AzChecked?: boolean;
   readonly b23Count5to10?: string;
   readonly b23Count15to20?: string;
   readonly b23GeigerTwoRunsDone?: boolean;
@@ -1132,6 +1238,11 @@ export interface AfterClassWorkData {
   readonly predictionReflection?: string;
   readonly checked?: boolean;
   readonly submittedAt?: string;
+  readonly b22NeutronCount?: string;
+  readonly b22AfterChoice?: string;
+  readonly b22ReasonNote?: string;
+  readonly b22Checked?: boolean;
+  readonly b22SubmittedAt?: string;
   readonly b23C14AgeYears?: string;
   readonly b23C14AssumptionChoice?: string;
   readonly b23SafetyActionChoice?: string;
