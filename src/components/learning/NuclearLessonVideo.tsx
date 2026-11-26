@@ -47,7 +47,7 @@ export function NuclearLessonVideo({ lesson }: { lesson: NuclearLabLesson }) {
         <>
           <video ref={video} controls playsInline preload="metadata" aria-label={`Video ${lesson.code} · ${lesson.title}`}
             poster={src.replace(/\.mp4$/, ".jpg")} src={src} onError={() => setFailed(true)}>
-            <track kind="captions" srcLang="vi" label="Tiếng Việt" src={src.replace(/\.mp4$/, ".vi.vtt")} />
+            <track kind="captions" srcLang="vi" label="Tiếng Việt" src={src.replace(/\.mp4$/, ".vi.vtt")} default />
             Trình duyệt chưa hỗ trợ video. <a href={src}>Mở tệp MP4</a>.
           </video>
           <div className={styles.actions}>

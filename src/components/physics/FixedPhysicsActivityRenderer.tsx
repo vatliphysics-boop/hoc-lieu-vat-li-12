@@ -24,6 +24,12 @@ export type PhysicsActivityProps = {
   activityKey: ActivityKey;
   customPrompt?: string;
   onProgress?: (done: boolean) => void;
+  lockedPhase1Prediction?: {
+    readonly choiceLabel: string;
+    readonly reason: string;
+    readonly bringQuestion?: string;
+  } | null;
+  onOpenPhase1?: () => void;
 };
 
 export const ACTIVITY_KEYS = {
@@ -98,20 +104,50 @@ function ActivityDataPanel({ activityKey, onProgress }: PhysicsActivityProps) {
   }
 }
 
-export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProgress }: PhysicsActivityProps) {
-  const observed = useRef(false), answered = useRef(false);
-  const report = useCallback((part: "observed" | "answered", done: boolean) => {
-    if (part === "observed") observed.current = done; else answered.current = done;
-    onProgress?.(observed.current && answered.current);
-  }, [onProgress]);
+export function FixedPhysicsActivityRenderer({
+  activityKey,
+  customPrompt,
+  onProgress,
+  lockedPhase1Prediction,
+  onOpenPhase1,
+}: PhysicsActivityProps) {
+  const normalized = normalizeActivityKey(activityKey);
+  const isB21NucleonOrIsotope =
+    normalized === "nuclear_structure_builder" ||
+    normalized === "isotope_and_nuclear_size";
+
+  const observed = useRef(false);
+  const answered = useRef(false);
+  const hadReportedComplete = useRef(false);
+
+  const report = useCallback(
+    (part: "observed" | "answered", done: boolean) => {
+      if (part === "observed") observed.current = done;
+      else answered.current = done;
+      const nextDone = isB21NucleonOrIsotope
+        ? answered.current
+        : observed.current && answered.current;
+      if (nextDone || hadReportedComplete.current) {
+        onProgress?.(nextDone);
+      }
+      hadReportedComplete.current = nextDone;
+    },
+    [isB21NucleonOrIsotope, onProgress],
+  );
   const reportObserved = useCallback((done: boolean) => report("observed", done), [report]);
   const reportAnswered = useCallback((done: boolean) => report("answered", done), [report]);
-  const normalized = normalizeActivityKey(activityKey);
   if (!normalized) return <UnavailableActivity activityKey={activityKey} />;
 
-  // Core processes own both their visual and numerical state. A second generic
-  // viewer would display a different run and report unrelated completion.
-  if (normalized === "rutherford_alpha_scattering") return <RutherfordApparatusV3 onProgress={onProgress} />;
+  // Core processes own both their visual and numerical state.
+  if (normalized === "rutherford_alpha_scattering") {
+    return (
+      <RutherfordApparatusV3
+        onProgress={onProgress}
+        lockedPhase1Prediction={lockedPhase1Prediction}
+        onOpenPhase1={onOpenPhase1}
+      />
+    );
+  }
   if (normalized === "radioactive_decay_half_life") return <RadioactiveDecayHalfLife onProgress={onProgress} />;
   if (normalized === "nuclear_fission") return <GuidedFissionLab onProgress={onProgress} />;
   if (normalized === "reactor_control_concept" || normalized === "nuclear_power_energy_flow") return <ReactorControlConcept onProgress={onProgress} />;
@@ -120,10 +156,17 @@ export function FixedPhysicsActivityRenderer({ activityKey, customPrompt, onProg
   return (
     <div className="interactive-experiment">
       <Simulation3D activityKey={normalized} customPrompt={customPrompt} onObserved={reportObserved} />
-      <details style={{ marginTop: "14px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px" }}>
-        <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>Mở phiếu bài tập và câu hỏi kiểm tra</summary>
+      <details
+        open={isB21NucleonOrIsotope ? true : undefined}
+        style={{ marginTop: "14px", background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px" }}
+      >
+        <summary style={{ cursor: "pointer", fontWeight: 700, color: "#0f172a" }}>
+          {isB21NucleonOrIsotope
+            ? "Bàn thực hành cấu tạo hạt nhân, kí hiệu A/Z/N & câu hỏi kiểm tra"
+            : "Mở phiếu bài tập và câu hỏi kiểm tra"}
+        </summary>
         <div style={{ marginTop: "12px" }}>
-          <p className="physics-note">Khung quan sát bổ trợ và bài tập bên dưới là hai hoạt động riêng. Đọc giả thiết của từng phần trước khi đối chiếu.</p>
+          <p className="physics-note">Khung quan sát bổ trợ và bài tập bên dưới bổ sung cho nhau. Hoàn thành các thao tác thực hành bên dưới để ghi nhận kết quả.</p>
           <ActivityDataPanel activityKey={normalized} onProgress={reportAnswered} />
         </div>
       </details>

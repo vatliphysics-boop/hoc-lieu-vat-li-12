@@ -22,6 +22,7 @@ import {
   getPhaseMeta,
   loadStudentNotebook,
   loadTeacherLessonDraft,
+  recordPreClassPrediction,
   resolveLessonWithDraft,
   saveStudentNotebook,
   saveTeacherLessonDraftAndSyncPlan,
@@ -297,19 +298,31 @@ export function VisualLearningStudio({
   const handleSavePreClassPrediction = useCallback(
     (choice: string, reason: string) => {
       const current = loadStudentNotebook(sampleLesson.code);
-      saveStudentNotebook(sampleLesson.code, {
-        ...current,
-        preClassPredictionChoice: choice,
-        preClassPredictionReason: reason,
-      });
+      saveStudentNotebook(
+        sampleLesson.code,
+        recordPreClassPrediction(current, choice, reason)
+      );
+    },
+    [sampleLesson.code]
+  );
+
+  const handlePatchNotebook = useCallback(
+    (updater: (current: StudentLessonNotebook) => StudentLessonNotebook) => {
+      const current = loadStudentNotebook(sampleLesson.code);
+      saveStudentNotebook(sampleLesson.code, updater(current));
     },
     [sampleLesson.code]
   );
 
   const handleMarkSectionComplete = useCallback(
-    (sectionId: string, done: boolean) => {
+    (
+      sectionId: string,
+      done: boolean,
+      options?: { readonly allowUnmark?: boolean }
+    ) => {
       const current = loadStudentNotebook(sampleLesson.code);
       const has = current.completedSectionIds.includes(sectionId);
+      if (has && !done && !options?.allowUnmark) return;
       if (done === has) return;
       const nextIds = done
         ? [...current.completedSectionIds, sectionId]
@@ -1015,21 +1028,81 @@ export function VisualLearningStudio({
                     </div>
                   </div>
 
-                  {showTeacherControls && (
-                    <p
-                      style={{
-                        margin: "10px 0 0",
-                        padding: "8px 12px",
-                        background: "#fcf4d6",
-                        borderLeft: "3px solid #8e6a00",
-                        fontSize: "13px",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      <strong>Gợi ý tổ chức cho giáo viên:</strong>{" "}
-                      {sec.teacherTip}
-                    </p>
-                  )}
+                  {showTeacherControls &&
+                    (sec.teacherGuide ? (
+                      <section
+                        aria-label={`Hướng dẫn sư phạm mục ${sec.shortTocTitle}`}
+                        data-testid={`teacher-guide-${sec.id}`}
+                        style={{
+                          marginTop: "14px",
+                          border: "1px solid #d2a106",
+                          borderLeft: "4px solid #8e6a00",
+                          background: "#fffdf5",
+                          padding: "12px 14px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "baseline",
+                            flexWrap: "wrap",
+                            gap: "8px",
+                            marginBottom: "8px",
+                          }}
+                        >
+                          <strong style={{ fontSize: "13.5px", color: "#5e4600" }}>
+                            Hướng dẫn sư phạm Giáo viên · {sec.shortTocTitle}
+                          </strong>
+                          <span style={{ fontSize: "12px", fontWeight: 700, color: "#5e4600" }}>
+                            {sec.minutes} phút · {secPhaseMeta.shortLabel}
+                          </span>
+                        </div>
+                        <div className={styles.tableScroll} style={{ margin: 0 }}>
+                          <table className={styles.cdsTable}>
+                            <tbody>
+                              <tr>
+                                <th scope="row" style={{ width: "200px" }}>Mục tiêu cần đạt</th>
+                                <td>{sec.teacherGuide.learningObjective}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Phương án tổ chức</th>
+                                <td>
+                                  <div>{sec.teacherGuide.projectorStrategy}</div>
+                                  {sec.teacherTip && (
+                                    <div style={{ marginTop: "4px", color: "#525252" }}>
+                                      <em>Lưu ý:</em> {sec.teacherTip}
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Hiểu nhầm cần gỡ</th>
+                                <td>{sec.teacherGuide.commonMisconceptions}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Tiêu chí hoàn thành</th>
+                                <td>{sec.teacherGuide.completionCriteriaNote}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    ) : (
+                      <p
+                        style={{
+                          margin: "10px 0 0",
+                          padding: "8px 12px",
+                          background: "#fcf4d6",
+                          borderLeft: "3px solid #8e6a00",
+                          fontSize: "13px",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <strong>Gợi ý tổ chức cho giáo viên:</strong>{" "}
+                        {sec.teacherTip}
+                      </p>
+                    ))}
                 </header>
 
                 <Chapter4SectionBody
@@ -1037,6 +1110,7 @@ export function VisualLearningStudio({
                   section={sec}
                   notebook={notebook}
                   onSavePreClassPrediction={handleSavePreClassPrediction}
+                  onPatchNotebook={handlePatchNotebook}
                   onMarkSectionComplete={handleMarkSectionComplete}
                   onJumpToSection={selectSection}
                 />

@@ -437,3 +437,120 @@ test("Rutherford V3 student inquiry evaluation & onProgress criteria", async (t)
     assert.strictEqual(contraryWithExplanation.isComplete, true);
   });
 });
+
+test("Rutherford V3 SGK Hình 21.2 R–D–S–M, positions (1)/(2), 3D geometry & state persistence", async (t) => {
+  const {
+    CORE_SGK_21_2_PARTS,
+    RUTHERFORD_COMPONENTS,
+    describeObserverPosition,
+    parseRutherfordV3State,
+    resolveRutherfordRaycastPart,
+    sampleEqualTimeFlashCount,
+  } = await import("../src/simulations-v3/apparatus/rutherford/parts");
+  const {
+    buildExplanatoryModelLayer,
+    buildRutherfordApparatus,
+    buildScintillationLayer,
+    engineFmToWorld,
+    setMicroscopeAngle,
+  } = await import("../src/simulations-v3/apparatus/rutherford/geometry");
+
+  await t.test("CORE_SGK_21_2_PARTS exposes primary R, D, S, M and supporting G, P", () => {
+    const primarySymbols = CORE_SGK_21_2_PARTS.filter((p) => p.isPrimaryRDSM).map((p) => p.sgkSymbol);
+    assert.deepStrictEqual(primarySymbols, ["R", "D", "S", "M"]);
+    const allSymbols = CORE_SGK_21_2_PARTS.map((p) => p.sgkSymbol);
+    assert.deepStrictEqual(allSymbols, ["R", "D", "S", "M", "G", "P"]);
+  });
+
+  await t.test("resolveRutherfordRaycastPart prioritizes inner parts (R, D, S, M) through outer glass G", () => {
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber", "gold-foil", "base-platform"]),
+      "gold-foil",
+    );
+    assert.strictEqual(
+      resolveRutherfordRaycastPart(["chamber-window", "vacuum-chamber"]),
+      "chamber-window",
+    );
+    assert.strictEqual(resolveRutherfordRaycastPart([]), null);
+  });
+
+  await t.test("describeObserverPosition & sampleEqualTimeFlashCount reflect Position (1) vs Position (2) ~10⁴ ratio", () => {
+    const pos1 = describeObserverPosition(0);
+    const mid = describeObserverPosition(45);
+    const pos2 = describeObserverPosition(140);
+
+    assert.strictEqual(pos1.zone, "position_1");
+    assert.strictEqual(mid.zone, "intermediate");
+    assert.strictEqual(pos2.zone, "position_2");
+    assert.ok(pos2.relativeFrequencyLabel.includes("10⁴"));
+
+    const flash1 = sampleEqualTimeFlashCount(0, 7);
+    const flash2 = sampleEqualTimeFlashCount(140, 7);
+    assert.ok(flash1.count > 9000);
+    assert.ok(flash2.count >= 1 && flash2.count < 20);
+  });
+
+  await t.test("parseRutherfordV3State deep-clones and restores independent run1 & run2", () => {
+    const raw = JSON.stringify({
+      impactFm: 60,
+      energyMeV: 8,
+      cameraMode: "cutaway",
+      selectedPartId: "gold-foil",
+      showScintillation: true,
+      showBeam: true,
+      observerAngleDeg: 140,
+      prediction: "decrease",
+      run1: { b: 10, e: 8, theta: 109.77 },
+      run2: { b: 60, e: 8, theta: 26.75 },
+      lastCapturedSlot: 2,
+      conclusion: "Khi b tăng thì góc lệch giảm do hạt α đi xa hạt nhân vàng hơn.",
+    });
+
+    const parsed = parseRutherfordV3State(raw);
+    assert.strictEqual(parsed.cameraMode, "cutaway");
+    assert.strictEqual(parsed.selectedPartId, "gold-foil");
+    assert.strictEqual(parsed.observerAngleDeg, 140);
+    assert.deepStrictEqual(parsed.run1, { b: 10, e: 8, theta: 109.77 });
+    assert.deepStrictEqual(parsed.run2, { b: 60, e: 8, theta: 26.75 });
+    assert.notStrictEqual(parsed.run1, parsed.run2);
+  });
+
+  await t.test("buildRutherfordApparatus builds unique meshes and separate trajectory/angle label anchors", () => {
+    const built = buildRutherfordApparatus(RUTHERFORD_COMPONENTS);
+    assert.strictEqual(built.size, RUTHERFORD_COMPONENTS.length);
+
+    const meshRefs = new Set();
+    for (const item of built.values()) {
+      assert.ok(!meshRefs.has(item.mesh), `Duplicate mesh detected for ${item.id}`);
+      meshRefs.add(item.mesh);
+    }
+
+    const mic = built.get("rotating-microscope");
+    assert.ok(mic);
+    setMicroscopeAngle(mic, 140);
+    assert.ok(Math.abs(mic.mesh.rotation.y - (140 * Math.PI) / 180) < 1e-6);
+
+    const run = createRutherfordRun({ impactFm: 20, energyMeV: 8 });
+    const trail3D = rutherfordTrail(run, run.durationZs, 40).map((pt) =>
+      engineFmToWorld(pt.xFm, pt.yFm),
+    );
+    const hit3D = trail3D[trail3D.length - 1] ?? null;
+
+    const flashOff = buildScintillationLayer(hit3D, false);
+    const flashOn = buildScintillationLayer(hit3D, true);
+    assert.ok(flashOn.children.length > flashOff.children.length);
+
+    const explanatory = buildExplanatoryModelLayer(
+      trail3D,
+      20,
+      run.scatteringAngleDeg,
+      run.detectorAngleDeg,
+    );
+    assert.ok(explanatory.group.children.length >= 4);
+    assert.ok(
+      explanatory.trajectoryLabelAnchor.distanceTo(explanatory.angleLabelAnchor) > 0.5,
+      "Trajectory label anchor and angle label anchor must be distinct in 3D space",
+    );
+  });
+});
+

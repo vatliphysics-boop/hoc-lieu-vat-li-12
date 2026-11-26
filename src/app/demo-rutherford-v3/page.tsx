@@ -22,7 +22,7 @@ export default function RutherfordV3DemoPage() {
         Rutherford Apparatus V3 — Demo
       </h1>
       <p style={{ fontSize: "15px", color: "var(--text-secondary, #64748b)", marginBottom: "32px" }}>
-        Thí nghiệm Geiger–Marsden (1909–1913) — Apparatus-first simulation với thiết bị khoa học 3D.
+        Thí nghiệm tán xạ hạt alpha Geiger–Marsden / Rutherford (SGK Vật lí 12 Kết nối tri thức, Hình 21.2, tr. 91–92).
       </p>
 
       <Suspense
@@ -45,15 +45,14 @@ export default function RutherfordV3DemoPage() {
 
       <div style={{ marginTop: "48px", padding: "24px", background: "var(--bg-surface-elevated, #f8fafc)", borderRadius: "12px" }}>
         <h2 style={{ fontSize: "18px", fontWeight: 600, marginBottom: "16px" }}>
-          Tính năng Apparatus-First
+          Tính năng Thiết bị 3D &amp; Bàn khảo sát Rutherford V3
         </h2>
         <ul style={{ lineHeight: 2, fontSize: "15px", paddingLeft: "24px" }}>
-          <li><strong>10 góc nhìn camera:</strong> Orbit, Front, Top, Cutaway, Exploded, Instrument POV, ...</li>
-          <li><strong>Registry linh kiện:</strong> Nhấp vào từng bộ phận → xem tên tiếng Việt/Anh + chức năng</li>
-          <li><strong>Thiết bị khoa học:</strong> Nguồn alpha, khe chuẩn trực, lá vàng, màn ZnS, kính hiển vi xoay, thang đo góc</li>
-          <li><strong>Physics engine độc lập:</strong> Coulomb cổ điển chính xác, CODATA 2022</li>
-          <li><strong>Histogram góc:</strong> Phân bố 1/sin⁴(θ/2) — phù hợp thí nghiệm Geiger–Marsden</li>
-          <li><strong>Tái sử dụng:</strong> Pure functions, không phụ thuộc React/Three trong physics layer</li>
+          <li><strong>Đối chiếu Hình 21.2 (SGK tr. 91):</strong> Làm rõ 4 bộ phận cốt lõi R (Nguồn hạt α), D (Lá vàng mỏng), S (Màn huỳnh quang), M (Kính hiển vi) cùng hộp chân không G và chân đế P — xoay 360°, thu phóng và nhấp đọc công dụng trực tiếp</li>
+          <li><strong>Đa góc nhìn trực quan:</strong> Toàn cảnh, Cắt lớp (Hình 21.2a), Qua kính hiển vi M, Mặt cắt (Hình 21.2b), Tách rời linh kiện — chỉ rõ vị trí (1) tại 0° và vị trí (2) tại góc lệch &gt; 90°</li>
+          <li><strong>Đốm lóe trên màn S &amp; Mô hình giải thích:</strong> Phát đốm sáng huỳnh quang xanh lục trên màn S khi hạt α tới màn; gắn nhãn riêng cho Đường đi hạt α và Góc lệch θ trong chế độ “Mô hình giải thích”</li>
+          <li><strong>Khảo sát 2 lượt độc lập bền vững:</strong> Lưu độc lập Lượt 1 &amp; Lượt 2 (hiển thị rõ E (MeV), b (fm), θ (°)), khôi phục sau khi tải lại trang và tự cảnh báo khi hai lượt khác E hoặc trùng b</li>
+          <li><strong>Physics engine độc lập:</strong> Quỹ đạo tán xạ Coulomb cổ điển chính xác theo CODATA 2022 và phân bố góc 1/sin⁴(θ/2)</li>
         </ul>
 
         <h3 style={{ fontSize: "16px", fontWeight: 600, marginTop: "24px", marginBottom: "12px" }}>

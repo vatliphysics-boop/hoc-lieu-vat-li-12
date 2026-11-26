@@ -2,7 +2,6 @@
 
 
 import { useId, useState, type ReactNode } from 'react';
-import { LatexMath } from '@/components/learning/LatexMath';
 
 export function Lab({ intro, children, note }: { intro: ReactNode; children: ReactNode; note?: ReactNode }) {
   return <div className="physics-lab"><p className="physics-intro">{intro}</p>{children}{note && <p className="physics-note">{note}</p>}</div>;
@@ -21,18 +20,52 @@ export function Feedback({ correct, children }: { correct?: boolean; children: R
   return <div role="status" className={`physics-feedback ${correct === true ? 'is-correct' : correct === false ? 'is-retry' : ''}`}>{children}</div>;
 }
 
-export function ChoiceCheck({ question, options, correctIndex, explanation, onResult }: { question: ReactNode; options: readonly string[]; correctIndex: number; explanation: ReactNode; onResult?: (correct: boolean) => void }) {
+export function ChoiceCheck({
+  question,
+  options,
+  correctIndex,
+  explanation,
+  onResult,
+  initialSelected = null,
+  initialChecked = false,
+}: {
+  question: ReactNode;
+  options: readonly string[];
+  correctIndex: number;
+  explanation: ReactNode;
+  onResult?: (correct: boolean) => void;
+  initialSelected?: number | null;
+  initialChecked?: boolean;
+}) {
   const id = useId();
-  const [selected, setSelected] = useState<number | null>(null);
-  const [checked, setChecked] = useState(false);
+  const [selected, setSelected] = useState<number | null>(initialSelected);
+  const [checked, setChecked] = useState(initialChecked);
   const helpId = `${id}-help`;
   return <div className="physics-check"><fieldset aria-describedby={helpId}><legend>{question}</legend><div className="physics-options">{options.map((option, i) => <label key={option} className={selected === i ? 'is-selected' : ''}><input type="radio" name={id} checked={selected === i} onChange={() => { setSelected(i); setChecked(false); onResult?.(false); }} /> <span>{option}</span></label>)}</div></fieldset><p id={helpId} className="physics-note" role="status">{selected === null ? 'Chưa chọn đáp án. Chọn một nhận định rồi nhấn Kiểm tra nhận định để xem giải thích.' : 'Đã chọn một nhận định. Nhấn Kiểm tra nhận định để xem giải thích; có thể đổi lựa chọn và thử lại.'}</p><button type="button" className="physics-button primary" aria-describedby={helpId} disabled={selected === null} onClick={() => { setChecked(true); onResult?.(selected === correctIndex); }}>Kiểm tra nhận định</button>{checked && <Feedback correct={selected === correctIndex}><strong>{selected === correctIndex ? 'Chính xác. ' : 'Chưa chính xác. '}</strong>{explanation}</Feedback>}</div>;
 }
 
-export function NuclearSymbol({ a, z, symbol }: { a: number | string; z: number | string; symbol: string }) {
+export function NuclearSymbol({
+  a,
+  z,
+  symbol,
+  size = 'md',
+}: {
+  a: number | string;
+  z: number | string;
+  symbol: string;
+  size?: 'md' | 'lg';
+}) {
   return (
-    <span className="physics-nuclide" aria-label={`${symbol}, số khối ${a}, số proton ${z}`}>
-      <LatexMath math={`{}_{${z}}^{${a}}\\mathrm{${symbol}}`} />
+    <span
+      className={`physics-nuclide${size === 'lg' ? ' physics-nuclide--lg' : ''}`}
+      translate="no"
+      aria-label={`${symbol}-${a}, số khối ${a}, số proton ${z}`}
+    >
+      <span className="physics-nuclide__scripts" aria-hidden="true">
+        <span className="physics-nuclide__a">{a}</span>
+        <span className="physics-nuclide__z">{z}</span>
+      </span>
+      <strong className="physics-nuclide__sym">{symbol}</strong>
     </span>
   );
 }

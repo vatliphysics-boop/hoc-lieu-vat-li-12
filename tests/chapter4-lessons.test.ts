@@ -109,3 +109,43 @@ test("isVerifiedVideoUrl chỉ cho phép hiện nút phát Video Flow khi có t�
   assert.equal(isVerifiedVideoUrl("/videos/nuclear-lessons/b21.mp4"), true);
   assert.equal(isVerifiedVideoUrl("https://example.com/flow-b21.mp4"), true);
 });
+
+test("SGK_TABLE_21_1 có đủ 8 dòng đúng nguyên tố và đơn vị Bảng 21.1 SGK tr. 94", async () => {
+  const { SGK_TABLE_21_1, EMPTY_STUDENT_NOTEBOOK, recordPreClassPrediction } = await import(
+    "@/lib/chapter4-lessons"
+  );
+  assert.equal(SGK_TABLE_21_1.length, 8);
+  assert.deepEqual(
+    SGK_TABLE_21_1.map((r) => `${r.symbol}-${r.massNumberA}`),
+    ["H-1", "He-4", "O-16", "Si-28", "Fe-56", "Cd-114", "Au-197", "U-238"],
+  );
+  const si = SGK_TABLE_21_1.find((r) => r.symbol === "Si");
+  assert.ok(si);
+  assert.equal(si.z, 14);
+  assert.equal(si.atomicRadius10m10, "2,1");
+  assert.equal(si.nuclearRadius10m15, "3,1");
+
+  const firstLock = recordPreClassPrediction(
+    EMPTY_STUDENT_NOTEBOOK,
+    "straight",
+    "Theo Thomson điện tích dương trải đều nên hạt α đi thẳng.",
+  );
+  assert.equal(firstLock.initialPredictionChoice, "straight");
+  assert.equal(
+    firstLock.initialPredictionReason,
+    "Theo Thomson điện tích dương trải đều nên hạt α đi thẳng.",
+  );
+
+  const afterSecondEdit = recordPreClassPrediction(
+    firstLock,
+    "rare_bounce",
+    "Sau khi xem thí nghiệm em muốn đổi sang có tia bật ngược.",
+  );
+  assert.equal(afterSecondEdit.preClassPredictionChoice, "rare_bounce");
+  assert.equal(afterSecondEdit.initialPredictionChoice, "straight");
+  assert.equal(
+    afterSecondEdit.initialPredictionReason,
+    "Theo Thomson điện tích dương trải đều nên hạt α đi thẳng.",
+  );
+});
+

@@ -63,6 +63,52 @@ export type Chapter4SectionKind =
   | "b25_equations_energy"
   | "b25_after_transfer";
 
+export interface SectionTeacherGuide {
+  readonly learningObjective: string;
+  readonly projectorStrategy: string;
+  readonly openQuestions: readonly string[];
+  readonly commonMisconceptions: string;
+  readonly noVideoFallback: string;
+  readonly completionCriteriaNote: string;
+}
+
+export interface LessonGoalsSpec {
+  readonly knowledge: string;
+  readonly competence: string;
+  readonly quality: string;
+}
+
+export interface SgkTable21Row {
+  readonly elementName: string;
+  readonly symbol: string;
+  readonly z: number;
+  readonly massNumberA: number;
+  /** Bán kính nguyên tử theo đơn vị 10⁻¹⁰ m (SGK tr. 94) */
+  readonly atomicRadius10m10: string;
+  /** Bán kính hạt nhân thực nghiệm theo đơn vị 10⁻¹⁵ m (SGK tr. 94) */
+  readonly nuclearRadius10m15: string;
+  /** Bán kính tính theo công thức R = 1,2·10⁻¹⁵·A¹/³ (đơn vị 10⁻¹⁵ m) */
+  readonly formulaRadius10m15: string;
+}
+
+export const SGK_B21_MASS_CONSTANTS = {
+  protonKg: "1,67262 × 10⁻²⁷ kg",
+  neutronKg: "1,67493 × 10⁻²⁷ kg",
+  amuKg: "1,66054 × 10⁻²⁷ kg",
+} as const;
+
+/** Đủ 8 dòng Bảng 21.1 — Kích thước của một số hạt nhân (SGK Vật lí 12 Kết nối tri thức, tr. 94) */
+export const SGK_TABLE_21_1: readonly SgkTable21Row[] = [
+  { elementName: "Hydrogen", symbol: "H", z: 1, massNumberA: 1, atomicRadius10m10: "1,2", nuclearRadius10m15: "0,9", formulaRadius10m15: "1,2" },
+  { elementName: "Helium", symbol: "He", z: 2, massNumberA: 4, atomicRadius10m10: "1,4", nuclearRadius10m15: "1,7", formulaRadius10m15: "1,9" },
+  { elementName: "Oxigen", symbol: "O", z: 8, massNumberA: 16, atomicRadius10m10: "1,5", nuclearRadius10m15: "2,7", formulaRadius10m15: "3,0" },
+  { elementName: "Silicon", symbol: "Si", z: 14, massNumberA: 28, atomicRadius10m10: "2,1", nuclearRadius10m15: "3,1", formulaRadius10m15: "3,6" },
+  { elementName: "Sắt", symbol: "Fe", z: 26, massNumberA: 56, atomicRadius10m10: "1,9", nuclearRadius10m15: "3,7", formulaRadius10m15: "4,6" },
+  { elementName: "Cadimium", symbol: "Cd", z: 48, massNumberA: 114, atomicRadius10m10: "1,6", nuclearRadius10m15: "4,6", formulaRadius10m15: "5,8" },
+  { elementName: "Vàng", symbol: "Au", z: 79, massNumberA: 197, atomicRadius10m10: "1,7", nuclearRadius10m15: "5,4", formulaRadius10m15: "7,0" },
+  { elementName: "Uranium", symbol: "U", z: 92, massNumberA: 238, atomicRadius10m10: "1,9", nuclearRadius10m15: "5,9", formulaRadius10m15: "7,4" },
+] as const;
+
 export interface Chapter4SectionSpec {
   readonly id: string;
   readonly kind: Chapter4SectionKind;
@@ -79,6 +125,8 @@ export interface Chapter4SectionSpec {
   readonly activityKey?: CanonicalActivityKey;
   /** Gợi ý tổ chức dành riêng cho giáo viên */
   readonly teacherTip: string;
+  /** Hướng dẫn sư phạm chi tiết cho Chế độ Giáo viên (tùy chọn) */
+  readonly teacherGuide?: SectionTeacherGuide;
   /** Liên kết Video Flow tùy chọn — chỉ hiển thị nút phát khi có URL thật */
   readonly flowVideoUrl?: string;
 }
@@ -91,6 +139,7 @@ export interface Chapter4LessonSpec {
   /** Câu hỏi dẫn ở Kho học liệu và đầu Trang bài học */
   readonly guidingQuestion: string;
   readonly hubHighlight: string;
+  readonly lessonGoals?: LessonGoalsSpec;
   readonly sections: readonly Chapter4SectionSpec[];
 }
 
@@ -103,7 +152,15 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
     guidingQuestion:
       "Từ những đốm sáng trên màn, làm sao biết nguyên tử có một hạt nhân rất nhỏ?",
     hubHighlight:
-      "Bộ thiết bị tán xạ hạt alpha Rutherford V3, đối chiếu 3 mô hình nguyên tử, cấu tạo hạt nhân Silic-28 và đồng vị Hydrogen.",
+      "Bộ thiết bị tán xạ hạt alpha Rutherford V3, đối chiếu 3 mô hình nguyên tử, cấu tạo hạt nhân Silic-28, đủ 8 dòng Bảng 21.1 và đồng vị Hydrogen.",
+    lessonGoals: {
+      knowledge:
+        "Trình bày được thí nghiệm tán xạ hạt alpha của Rutherford (Hình 21.2: R, D, S, M), rút ra mô hình hành tinh nguyên tử; nêu được cấu tạo hạt nhân từ proton và neutron (nucleon), đơn vị amu, công thức R = 1,2·10⁻¹⁵·A¹/³ (m), Bảng 21.1, kí hiệu hạt nhân ᴬᶻX và đồng vị (SGK Vật lí 12, tr. 91–95).",
+      competence:
+        "Nhận diện được 4 bộ phận R–D–S–M và vị trí (1), (2); khóa dự đoán ban đầu trước giờ học; thực hiện hai lượt đo cùng E khác b trên Rutherford 3D để đối chiếu dự đoán; dựng ²⁸₁₄Si, đọc đủ 8 dòng Bảng 21.1 đúng đơn vị, khảo sát ¹H, ²H, ³H bằng N = A − Z và giải bài toán vận dụng ²⁷₁₃Al.",
+      quality:
+        "Trung thực giữ nguyên dự đoán ban đầu để đối chiếu khoa học; cẩn trọng với đơn vị vi mô (10⁻¹⁰ m và 10⁻¹⁵ m).",
+    },
     sections: [
       {
         id: "b21-pre-setup",
@@ -112,13 +169,29 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         title: "Nhận diện bộ thí nghiệm tán xạ hạt alpha và ghi dự đoán",
         shortTocTitle: "Nhận diện thiết bị & dự đoán",
         sgkPages: "tr. 91–92",
-        minutes: 12,
+        minutes: 15,
         phenomenonPrompt:
-          "Quan sát cấu tạo bộ thí nghiệm chân không gồm nguồn phát hạt α, khe chuẩn trực, lá vàng mỏng và màn huỳnh quang ZnS.",
+          "Tìm hiểu mô hình nguyên tử Thomson ở Hình 21.1 và nhận diện 4 bộ phận R–D–S–M cùng vị trí (1), (2) trên bộ thí nghiệm tán xạ hạt α ở Hình 21.2.",
         evidencePrompt:
-          "Phân biệt đốm sáng quan sát trên màn với quỹ đạo mô hình, rồi lưu dự đoán ban đầu trước khi lên lớp đo.",
+          "Ghép đúng vai trò 4 bộ phận R–D–S–M, ghi dự đoán kèm lí do để khóa bản đầu và hoàn thành câu tự kiểm tra Pha 1.",
         teacherTip:
-          "Giao trước giờ học để học sinh phân biệt dấu hiệu quan sát trực tiếp (đốm sáng trên màn ZnS) với đường quỹ đạo giải thích, đồng thời chốt dự đoán cá nhân.",
+          "Giao trước giờ học (15 phút). Đầu tiết mở nhanh dự đoán đã khóa của học sinh để tạo tình huống mâu thuẫn nhận thức cho Pha 2.",
+        teacherGuide: {
+          learningObjective:
+            "Từ mô hình Thomson (Hình 21.1), nêu được dự đoán kèm lí do về đường đi của hạt α, nhận diện đúng 4 bộ phận R–D–S–M trên Hình 21.2 và phân biệt đốm sáng trên màn S với quỹ đạo giải thích.",
+          projectorStrategy:
+            "Chiếu sơ đồ Hình 21.1 cạnh Hình 21.2a–21.2b; gọi học sinh đối chiếu bản dự đoán đầu tiên đã khóa.",
+          openQuestions: [
+            "Nếu điện tích dương trải đều khắp nguyên tử như Hình 21.1 thì hạt α có thể bị bật ngược về vị trí (2) không?",
+            "Mắt người quan sát qua kính hiển vi M nhìn thấy gì trực tiếp trên màn S?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ tưởng mắt nhìn thấy đường bay của hạt α hoặc sửa lại dự đoán ban đầu sau khi xem kết quả. Hệ thống khóa giữ nguyên bản dự đoán chốt lần đầu để đối chiếu ở Pha 2 và Pha 3.",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn 100% Pha 1 từ sơ đồ Hình 21.1, Hình 21.2a–21.2b và câu hỏi tương tác ngay trên trang mà không phụ thuộc video.",
+          completionCriteriaNote:
+            "Chỉ ghi nhận hoàn thành khi đủ cả 3 tiêu chí: (1) khóa dự đoán + lí do, (2) ghép đúng 4/4 bộ phận R–D–S–M, (3) trả lời đúng câu tự kiểm tra.",
+        },
       },
       {
         id: "b21-rutherford-v3",
@@ -127,14 +200,30 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         title: "Thí nghiệm tán xạ hạt alpha (Rutherford V3)",
         shortTocTitle: "Thí nghiệm tán xạ hạt alpha",
         sgkPages: "tr. 91–92",
-        minutes: 18,
+        minutes: 15,
         phenomenonPrompt:
-          "Bắn hạt α vào lá vàng mỏng ở cùng động năng E nhưng thay đổi tham số va chạm b để quan sát vị trí đốm sáng và góc tán xạ θ.",
+          "Khảo sát thiết bị Rutherford 3D (R–D–S–M, góc toàn cảnh, cắt lớp, qua kính hiển vi tại vị trí (1) và (2)), chạy bắn hạt α tới màn S và lưu hai lượt đo cùng E khác b.",
         evidencePrompt:
-          "Đối chiếu dự đoán trước giờ học, lưu hai lượt đo cùng E khác b và viết lời giải thích vì sao có hạt bị bật ngược.",
+          "Lưu độc lập Lượt 1 và Lượt 2 (cùng động năng E, khác tham số va chạm b), đối chiếu ngay với dự đoán đã khóa ở Pha 1 và viết lời giải thích dựa trên kết quả quan sát.",
         activityKey: "rutherford_alpha_scattering",
         teacherTip:
-          "Chiếu bàn thí nghiệm nền tối lên màn hình lớp. Nhắc học sinh giữ nguyên E giữa hai lượt lưu để cô lập vai trò của khoảng cách b tới tâm hạt nhân.",
+          "Chiếu thiết bị 3D lên màn hình lớp: cho học sinh xoay 360°, chuyển góc Cắt lớp và Qua kính hiển vi M ở vị trí (1) và (2), sau đó bật chế độ Mô hình giải thích để thấy nhãn đường đi và góc lệch θ.",
+        teacherGuide: {
+          learningObjective:
+            "Thực hiện trọn vẹn hai lượt khảo sát cùng E khác b trên thiết bị Rutherford 3D, đối chiếu dự đoán Pha 1 và giải thích 3 câu hỏi thảo luận SGK tr. 92.",
+          projectorStrategy:
+            "Tắt lớp Mô hình giải thích trước để học sinh chỉ quan sát đốm lóe trên màn S ở vị trí (1) và (2), sau đó bật lớp Mô hình giải thích để phân tích đường đi và góc lệch θ.",
+          openQuestions: [
+            "Vì sao tần suất đốm lóe ở vị trí (1) lớn nhất còn ở vị trí (2) nhỏ hơn cỡ 10⁴ lần?",
+            "Khi giữ nguyên E và giảm b (hạt α đi sát tâm hơn), góc lệch θ thay đổi như thế nào?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ đổi cả E và b cùng lúc hoặc nhầm 1 tia đơn lẻ với tần suất cả chùm hạt. Giao diện tự cảnh báo lượt cần đo lại khi khác E hoặc trùng b.",
+          noVideoFallback:
+            "Sử dụng trực tiếp thiết bị Rutherford 3D và phiếu khảo sát hai lượt ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi chọn dự đoán, lưu đủ 2 lượt hợp lệ (cùng E, khác b) và viết lời giải thích.",
+        },
       },
       {
         id: "b21-atomic-models",
@@ -143,13 +232,29 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         title: "So sánh các mô hình nguyên tử",
         shortTocTitle: "So sánh các mô hình nguyên tử",
         sgkPages: "tr. 91–93",
-        minutes: 12,
+        minutes: 10,
         phenomenonPrompt:
-          "Đối chiếu trên cùng một nguyên tử Hydrogen trung hòa (¹₁H): vùng điện tích dương ở Thomson so với Rutherford, và mật độ chấm đo vị trí electron trên lát cắt đám mây 1s.",
+          "Đối chiếu trên cùng một nguyên tử Hydrogen trung hòa (¹₁H): mô hình Thomson (Hình 21.1), mô hình hành tinh nguyên tử Rutherford (Hình 21.5a) và mô hình đám mây electron (Hình 21.5b).",
         evidencePrompt:
-          "Chọn mô hình khớp trực tiếp với bằng chứng hạt α lệch góc lớn trên lá vàng, viết câu giải thích và phân biệt với bước mô tả đám mây xác suất.",
+          "Chọn mô hình được chứng minh trực tiếp từ kết quả tán xạ lá vàng, viết câu giải thích và phân biệt với mô hình đám mây electron.",
         teacherTip:
-          "Trên máy chiếu lớp học, bật “Đặt Thomson – Rutherford cạnh nhau” để cả lớp thấy vùng +1e thu về tâm; sau đó chuyển sang Đám mây electron lấy +1 mẫu rồi +100 mẫu.",
+          "Bật “Đặt Thomson – Rutherford cạnh nhau” để thấy điện tích dương thu gọn về hạt nhân nhỏ ở tâm, sau đó chuyển sang Đám mây electron lấy +1 mẫu rồi +100 mẫu.",
+        teacherGuide: {
+          learningObjective:
+            "So sánh được phân bố điện tích dương và mô tả electron giữa Thomson, hành tinh nguyên tử Rutherford và đám mây electron.",
+          projectorStrategy:
+            "Đặt Thomson – Rutherford song song trước, rồi lấy mẫu vị trí electron ở mô hình đám mây 1s.",
+          openQuestions: [
+            "Điểm chung cốt lõi về hạt nhân giữa Hình 21.5a và Hình 21.5b là gì?",
+            "Mỗi chấm trên đám mây electron biểu diễn điều gì?",
+          ],
+          commonMisconceptions:
+            "Tránh hiểu lầm 1 electron bị nhòe ra thành đám mây vật chất liên tục; đám mây biểu diễn mật độ xác suất có mặt của electron.",
+          noVideoFallback:
+            "Thao tác trực tiếp trên bàn so sánh 3 mô hình nguyên tử và bảng đối chiếu SGK tr. 91–93.",
+          completionCriteriaNote:
+            "Hoàn thành khi thao tác trên khung mô phỏng, chọn đúng mô hình Rutherford và lưu câu giải thích.",
+        },
       },
       {
         id: "b21-structure-size",
@@ -160,12 +265,28 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         sgkPages: "tr. 93–94",
         minutes: 15,
         phenomenonPrompt:
-          "Dùng hạt nhân Silic-28 để nhận diện proton, neutron và đối chiếu Bảng 21.1 về tỉ lệ kích thước nguyên tử so với hạt nhân.",
+          "Dựng hạt nhân Silicon-28 (²⁸₁₄Si) với 14 proton và 14 neutron (Hình 21.6), đọc đủ 8 dòng Bảng 21.1 đúng đơn vị (10⁻¹⁰ m và 10⁻¹⁵ m) và kiểm chứng công thức R = 1,2·10⁻¹⁵·A¹/³ (m).",
         evidencePrompt:
-          "Xác định Z = 14, N = 14 của Silic-28, tính tỉ số đường kính nguyên tử / hạt nhân (~10⁴–10⁵ lần) và ghi nhận sự khác biệt tỉ lệ phóng đại giữa hai hình.",
+          "Dựng ²⁸₁₄Si (14 proton, 14 neutron), đọc chính xác số liệu Bảng 21.1 kèm đơn vị và giải thích sự khác biệt tỉ lệ phóng đại.",
         activityKey: "nuclear_structure_builder",
         teacherTip:
-          "Nhấn mạnh cảnh báo tỉ lệ phóng đại: hình vẽ nguyên tử luôn phải phóng to chấm hạt nhân lên hàng nghìn lần để mắt thường nhìn thấy được.",
+          "Cho học sinh bấm từng dòng trong đủ 8 dòng Bảng 21.1 để đọc đúng đơn vị lũy thừa ở tiêu đề cột (10⁻¹⁰ m cho nguyên tử và 10⁻¹⁵ m cho hạt nhân).",
+        teacherGuide: {
+          learningObjective:
+            "Nêu được cấu tạo hạt nhân từ proton và neutron, đơn vị amu, đọc đủ 8 dòng Bảng 21.1 đúng đơn vị và vận dụng công thức (21.1).",
+          projectorStrategy:
+            "Chiếu Bảng 21.1 tương tác 8 dòng và bộ dựng hạt nhân ²⁸₁₄Si ngay bên dưới.",
+          openQuestions: [
+            "Bán kính nguyên tử Silicon lớn gấp bao nhiêu lần bán kính hạt nhân Silicon theo Bảng 21.1?",
+            "Vì sao công thức (21.1) cho kết quả phù hợp hơn với A > 12?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay quên nhân 10⁻¹⁰ m hoặc 10⁻¹⁵ m khi đọc số trong Bảng 21.1. Giao diện buộc kiểm tra đúng đơn vị của cả hai cột.",
+          noVideoFallback:
+            "Dùng trực tiếp Bảng 21.1 tương tác 8 dòng, sơ đồ Hình 21.6–21.7 và bộ dựng ²⁸₁₄Si.",
+          completionCriteriaNote:
+            "Hoàn thành khi hoàn tất bài đọc Bảng 21.1 hoặc hoàn thành bộ dựng hạt nhân ²⁸₁₄Si.",
+        },
       },
       {
         id: "b21-symbol-isotopes",
@@ -176,12 +297,28 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         sgkPages: "tr. 94–95",
         minutes: 12,
         phenomenonPrompt:
-          "Đọc số khối A, điện tích Z, tính N = A − Z và so sánh ba đồng vị của nguyên tố Hydrogen.",
+          "Đọc kí hiệu hạt nhân ᴬᶻX (và dạng gọn ᴬX), khảo sát ba đồng vị ¹H, ²H, ³H của Hydrogen bằng công thức N = A − Z.",
         evidencePrompt:
-          "Lập bảng Z, N, A của Protium (¹₁H), Deuterium (²₁H), Tritium (³₁H) và nêu lí do ba hạt nhân thuộc cùng một nguyên tố hóa học.",
+          "Tính đúng số neutron N = A − Z cho cả ba đồng vị ¹₁H, ²₁H, ³₁H và giải thích vì sao ba hạt nhân thuộc cùng một nguyên tố nhưng khác khối lượng riêng.",
         activityKey: "isotope_and_nuclear_size",
         teacherTip:
-          "Kiểm tra cách học sinh viết chỉ số trên A và chỉ số dưới Z bên trái kí hiệu nguyên tố; tránh nhầm số khối A với số neutron N.",
+          "Yêu cầu học sinh tự tính N = A − Z cho ¹H, ²H, ³H và bấm khảo sát đủ 3 đồng vị Hydrogen trên bàn thực hành.",
+        teacherGuide: {
+          learningObjective:
+            "Viết và đọc đúng kí hiệu ᴬᶻX, tính N = A − Z và phân biệt các đồng vị bền / phóng xạ qua ví dụ ¹H, ²H, ³H và ¹²C, ¹³C, ¹⁴C.",
+          projectorStrategy:
+            "Cho học sinh điền nhanh N = A − Z của ¹H, ²H, ³H rồi bấm khảo sát trực quan trên bàn đồng vị.",
+          openQuestions: [
+            "Ba đồng vị ¹₁H, ²₁H, ³₁H giống nhau ở hạt nào và khác nhau ở hạt nào?",
+            "Tại sao các chất cấu tạo từ cùng một nguyên tố nhưng khối lượng riêng vẫn có thể khác nhau?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ nhầm chỉ số trên A là số neutron thay vì tổng số nucleon (phải tính N = A − Z).",
+          noVideoFallback:
+            "Thực hành trực tiếp trên phiếu N = A − Z của ¹H, ²H, ³H và bàn khảo sát đồng vị.",
+          completionCriteriaNote:
+            "Hoàn thành khi tính đúng N = A − Z cho ba đồng vị ¹H, ²H, ³H hoặc hoàn tất bàn khảo sát đồng vị.",
+        },
       },
       {
         id: "b21-after-transfer",
@@ -194,9 +331,25 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
         phenomenonPrompt:
           "Vận dụng sang tình huống mới: giữ nguyên nguồn phát α nhưng thay lá vàng ¹⁹⁷₇₉Au bằng lá nhôm mỏng ²⁷₁₃Al.",
         evidencePrompt:
-          "Tính Z, N, bán kính gần đúng của hạt nhân ²⁷₁₃Al và giải thích sự thay đổi tỉ lệ hạt α tán xạ góc lớn so với lá vàng.",
+          "Tính Z, N, bán kính gần đúng R của hạt nhân ²⁷₁₃Al, so sánh góc tán xạ với lá vàng, đối chiếu dự đoán Pha 1, nộp bài và xem phản hồi đã lưu.",
         teacherTip:
-          "Dùng làm phiếu đánh giá nhanh cuối bài hoặc giao về nhà để kiểm tra khả năng chuyển giao mô hình hạt nhân sang nguyên tố khác.",
+          "Giao ở Pha 3 (Sau giờ học). Học sinh nộp câu trả lời, nhận phản hồi chi tiết từng ý và mở lại được kết quả đã lưu sau khi tải lại trang.",
+        teacherGuide: {
+          learningObjective:
+            "Chuyển giao kiến thức cấu trúc hạt nhân và tán xạ hạt α sang hạt nhân ²⁷₁₃Al và tự phản tư đối chiếu dự đoán ban đầu.",
+          projectorStrategy:
+            "Dùng làm phiếu đánh giá cuối bài; kiểm tra việc học sinh mở lại kết quả đã lưu để thảo luận lỗi sai phổ biến.",
+          openQuestions: [
+            "Vì sao thay lá vàng (Z = 79) bằng lá nhôm (Z = 13) thì góc lệch của hạt α ở cùng (E, b) lại giảm mạnh?",
+            "Bán kính gần đúng của hạt nhân ²⁷₁₃Al bằng bao nhiêu femtômét?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay nghĩ hạt nhân nhôm nhẹ hơn nên đẩy hạt α lệch mạnh hơn; cần nhắc lực đẩy Coulomb tỉ lệ thuận với điện tích hạt nhân +Ze.",
+          noVideoFallback:
+            "Phiếu vận dụng tương tác có lưu trữ bền vững localStorage và phản hồi từng câu.",
+          completionCriteriaNote:
+            "Hoàn thành khi nộp đúng Z = 13, N = 14, R ≈ 3,6 fm, chọn đúng chiều thay đổi góc lệch và ghi nhận xét phản tư.",
+        },
       },
     ],
   },
@@ -848,16 +1001,66 @@ export function saveTeacherLessonDraftAndSyncPlan(
 }
 
 /* ==========================================================================
-   LƯU BẰNG CHỨNG & DỰ ĐOÁN CỦA HỌC SINH THEO TỪNG BÀI HỌC
+   LƯU BẰNG CHỨNG & DỰ ĐOÁN CỦA HỌC SINH THEO TỪNG BÀI HỌC (LIÊN THÔNG PHA 1→2→3)
    ========================================================================== */
 
+export type B21ApparatusPartCode = "R" | "D" | "S" | "M";
+
+export interface PreClassWorkData {
+  readonly apparatusRoles?: Readonly<Partial<Record<B21ApparatusPartCode, string>>>;
+  readonly selfCheckChoice?: string;
+  readonly bringToClassQuestion?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface StructureSizeWorkData {
+  readonly selectedElement?: string;
+  readonly inspectedElements?: readonly string[];
+  readonly atomicRadiusInput?: string;
+  readonly atomicUnitChoice?: string;
+  readonly nuclearRadiusInput?: string;
+  readonly nuclearUnitChoice?: string;
+  readonly scaleExplanation?: string;
+  readonly checked?: boolean;
+}
+
+export interface SymbolIsotopeWorkData {
+  readonly h1NeutronInput?: string;
+  readonly h2NeutronInput?: string;
+  readonly h3NeutronInput?: string;
+  readonly targetNeutronInput?: string;
+  readonly densityChoice?: string;
+  readonly checked?: boolean;
+}
+
+export interface AfterClassWorkData {
+  readonly alZ?: string;
+  readonly alN?: string;
+  readonly alRadiusFm?: string;
+  readonly alChoice?: string;
+  readonly predictionReflection?: string;
+  readonly checked?: boolean;
+  readonly submittedAt?: string;
+}
+
 export interface StudentLessonNotebook {
-  /** Dự đoán ghi ở pha Trước giờ học (được gọi lại ở pha Trong giờ học) */
+  /** Dự đoán hiện hành ghi ở pha Trước giờ học */
   readonly preClassPredictionChoice?: string;
   readonly preClassPredictionReason?: string;
+  /** Dự đoán chốt lần đầu tiên — khóa giữ nguyên kể cả khi đoán sai để đối chiếu ở Pha 2 & Pha 3 */
+  readonly initialPredictionChoice?: string;
+  readonly initialPredictionReason?: string;
+  /** Kết quả nhận diện R-D-S-M, câu tự kiểm tra và câu hỏi mang vào lớp ở Pha 1 */
+  readonly preClassWork?: PreClassWorkData;
+  /** Kết quả đọc đủ 8 dòng Bảng 21.1 đúng đơn vị & giải thích tỉ lệ phóng đại */
+  readonly structureSizeWork?: StructureSizeWorkData;
+  /** Kết quả khảo sát ba đồng vị ¹H, ²H, ³H bằng N = A − Z */
+  readonly symbolIsotopeWork?: SymbolIsotopeWorkData;
+  /** Kết quả nhiệm vụ vận dụng Pha 3 với lá nhôm ²⁷₁₃Al */
+  readonly afterClassWork?: AfterClassWorkData;
   /** Ghi chú bằng chứng của từng mục theo section.id */
   readonly sectionNotes: Readonly<Record<string, string>>;
-  /** Mục đã hoàn thành (mô phỏng báo onProgress(true) hoặc học sinh hoàn tất nhiệm vụ đọc/ghi) */
+  /** Mục đã hoàn thành thực chất */
   readonly completedSectionIds: readonly string[];
 }
 
@@ -868,21 +1071,69 @@ export const EMPTY_STUDENT_NOTEBOOK: StudentLessonNotebook = {
   completedSectionIds: [],
 };
 
+/**
+ * Ghi nhận dự đoán Pha 1 và KHÓA vĩnh viễn lần chốt đầu tiên vào
+ * `initialPredictionChoice` / `initialPredictionReason` kể cả khi học sinh cập nhật ghi chú sau đó.
+ */
+export function recordPreClassPrediction(
+  current: StudentLessonNotebook,
+  choice: string,
+  reason: string
+): StudentLessonNotebook {
+  const trimmedChoice = choice.trim();
+  const trimmedReason = reason.trim();
+  const hasLockedInitial = Boolean(current.initialPredictionChoice?.trim());
+
+  return {
+    ...current,
+    preClassPredictionChoice: trimmedChoice,
+    preClassPredictionReason: trimmedReason,
+    initialPredictionChoice: hasLockedInitial
+      ? current.initialPredictionChoice
+      : trimmedChoice || undefined,
+    initialPredictionReason: hasLockedInitial
+      ? current.initialPredictionReason
+      : trimmedReason || undefined,
+  };
+}
+
+function asCleanObject<T extends object>(val: unknown): T | undefined {
+  if (!val || typeof val !== "object" || Array.isArray(val)) return undefined;
+  return val as T;
+}
+
 export function loadStudentNotebook(code: NuclearPhysicsLessonCode): StudentLessonNotebook {
   if (typeof window === "undefined") return EMPTY_STUDENT_NOTEBOOK;
   try {
     const raw = window.localStorage.getItem(`${STUDENT_NOTEBOOK_PREFIX}${code}`);
     if (!raw) return EMPTY_STUDENT_NOTEBOOK;
     const parsed = JSON.parse(raw) as Partial<StudentLessonNotebook>;
+    const preChoice =
+      typeof parsed.preClassPredictionChoice === "string"
+        ? parsed.preClassPredictionChoice
+        : undefined;
+    const preReason =
+      typeof parsed.preClassPredictionReason === "string"
+        ? parsed.preClassPredictionReason
+        : undefined;
+    const initChoice =
+      typeof parsed.initialPredictionChoice === "string" && parsed.initialPredictionChoice
+        ? parsed.initialPredictionChoice
+        : preChoice;
+    const initReason =
+      typeof parsed.initialPredictionReason === "string"
+        ? parsed.initialPredictionReason
+        : preReason;
+
     return {
-      preClassPredictionChoice:
-        typeof parsed.preClassPredictionChoice === "string"
-          ? parsed.preClassPredictionChoice
-          : undefined,
-      preClassPredictionReason:
-        typeof parsed.preClassPredictionReason === "string"
-          ? parsed.preClassPredictionReason
-          : undefined,
+      preClassPredictionChoice: preChoice,
+      preClassPredictionReason: preReason,
+      initialPredictionChoice: initChoice,
+      initialPredictionReason: initReason,
+      preClassWork: asCleanObject<PreClassWorkData>(parsed.preClassWork),
+      structureSizeWork: asCleanObject<StructureSizeWorkData>(parsed.structureSizeWork),
+      symbolIsotopeWork: asCleanObject<SymbolIsotopeWorkData>(parsed.symbolIsotopeWork),
+      afterClassWork: asCleanObject<AfterClassWorkData>(parsed.afterClassWork),
       sectionNotes:
         parsed.sectionNotes && typeof parsed.sectionNotes === "object"
           ? (parsed.sectionNotes as Record<string, string>)

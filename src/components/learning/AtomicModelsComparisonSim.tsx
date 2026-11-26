@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import {
   ATOMIC_MODELS_STORAGE_KEY,
   INITIAL_ATOMIC_MODELS_STATE,
@@ -583,6 +583,15 @@ export function AtomicModelsComparisonSim({
 
   const stats = useMemo(() => summarizeElectronSamples(samples), [samples]);
   const feedback = useMemo(() => evaluateAtomicModelsEvidence(state), [state]);
+  const isComplete = useMemo(() => isAtomicModelsInquiryComplete(state), [state]);
+
+  const hadCompleteRef = useRef(isComplete);
+  useEffect(() => {
+    if (isComplete || hadCompleteRef.current) {
+      onProgress?.(isComplete);
+    }
+    hadCompleteRef.current = isComplete;
+  }, [isComplete, onProgress]);
 
   const commitState = useCallback(
     (updater: (prev: AtomicModelsInquiryState) => AtomicModelsInquiryState) => {
