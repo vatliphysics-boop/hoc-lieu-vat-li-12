@@ -13,8 +13,11 @@ import {
 } from "@/lib/curriculum";
 import { IsotopeActivity, NuclearBuilderActivity } from "./B21Activities";
 import { RutherfordApparatusV3 } from "@/simulations-v3/apparatus/rutherford/RutherfordApparatusV3";
+import { GeigerApparatusV3 } from "@/simulations-v3/apparatus/geiger/GeigerApparatusV3";
+import { RadiationFieldApparatusV3 } from "@/simulations-v3/apparatus/radiation-field/RadiationFieldApparatusV3";
+import { HalfLifeApparatusV3 } from "@/simulations-v3/apparatus/half-life/HalfLifeApparatusV3";
 import { BindingEnergyLab, NuclearFission, NuclearFusion, NuclearReactionBalancer } from "./B22Activities";
-import { Carbon14Dating, GeigerRandomDecay, RadioactiveDecayHalfLife, RadiationProperties, RadiationSafety } from "./B23Activities";
+import { Carbon14Dating, RadiationSafety } from "./B23Activities";
 import { NuclearPowerEnergyFlow, ReactorControlConcept, NuclearMedicine, RadiationApplications } from "./B24Activities";
 import { NuclearPhysicsPracticeLab } from "./B25Activities";
 import { GuidedFissionLab } from "./GuidedFissionLab";
@@ -74,11 +77,11 @@ function ActivityDataPanel({ activityKey, onProgress }: PhysicsActivityProps) {
       
     // B23
     case "geiger_random_decay":
-      return <GeigerRandomDecay onProgress={onProgress} />;
+      return <GeigerApparatusV3 onProgress={onProgress} />;
     case "radiation_properties":
-      return <RadiationProperties onProgress={onProgress} />;
+      return <RadiationFieldApparatusV3 onProgress={onProgress} />;
     case "radioactive_decay_half_life":
-      return <RadioactiveDecayHalfLife onProgress={onProgress} />;
+      return <HalfLifeApparatusV3 onProgress={onProgress} />;
     case "carbon14_dating":
       return <Carbon14Dating onProgress={onProgress} />;
     case "radiation_safety":
@@ -148,7 +151,21 @@ export function FixedPhysicsActivityRenderer({
       />
     );
   }
-  if (normalized === "radioactive_decay_half_life") return <RadioactiveDecayHalfLife onProgress={onProgress} />;
+  if (normalized === "geiger_random_decay") {
+    return <GeigerApparatusV3 onProgress={onProgress} />;
+  }
+  if (normalized === "radiation_properties") {
+    return <RadiationFieldApparatusV3 onProgress={onProgress} />;
+  }
+  if (normalized === "radioactive_decay_half_life") {
+    return <HalfLifeApparatusV3 onProgress={onProgress} />;
+  }
+  if (normalized === "radiation_safety") {
+    return <RadiationSafety onProgress={onProgress} />;
+  }
+  if (normalized === "carbon14_dating") {
+    return <Carbon14Dating onProgress={onProgress} />;
+  }
   if (normalized === "nuclear_fission") return <GuidedFissionLab onProgress={onProgress} />;
   if (normalized === "reactor_control_concept" || normalized === "nuclear_power_energy_flow") return <ReactorControlConcept onProgress={onProgress} />;
   if (normalized === "nuclear_physics_practice_lab") return <NuclearPhysicsPracticeLab onProgress={onProgress} />;

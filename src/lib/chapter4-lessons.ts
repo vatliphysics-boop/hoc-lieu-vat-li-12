@@ -463,91 +463,179 @@ export const CHAPTER4_LESSONS: readonly Chapter4LessonSpec[] = [
     code: "B23",
     number: 23,
     title: "Hiện tượng phóng xạ",
-    sgkPages: "SGK tr. 104–113",
+    sgkPages: "SGK tr. 104–110",
     guidingQuestion:
       "Không biết lúc nào một hạt nhân riêng lẻ phân rã, làm sao ta vẫn dự đoán chính xác độ phóng xạ của cả mẫu theo thời gian?",
     hubHighlight:
-      "Vết tia trong buồng sương, số đếm Geiger mỗi 5 giây, độ đâm xuyên α–β–γ, đồ thị bán rã H(t) và nguyên tắc an toàn bức xạ.",
+      "Bộ đếm Geiger–Müller 3D (Hình 23.2 & Bảng 23.1), buồng sương & vùng trường 3D lệch tia α–β⁻–β⁺–γ, bán rã 3D đồng bộ N(t)/H(t), biển cảnh báo Hình 23.8 và định tuổi ¹⁴₆C.",
+    lessonGoals: {
+      knowledge:
+        "Nêu được bản chất tự phát và ngẫu nhiên của hiện tượng phóng xạ qua thí nghiệm đếm xung Geiger–Müller (Hình 23.2, Bảng 23.1) và vết buồng sương; phân biệt bản chất, khả năng ion hóa, độ đâm xuyên và chiều lệch trong điện trường, từ trường của tia α, β⁻, β⁺, γ; viết được công thức định luật phóng xạ N(t), độ phóng xạ H(t) (đơn vị Bq), nhận diện biển cảnh báo phóng xạ và 3 nguyên tắc an toàn bức xạ (SGK Vật lí 12 KNTT, tr. 104–110).",
+      competence:
+        "Khóa dự đoán trước giờ học; thao tác trên bộ đếm Geiger–Müller 3D (đặt lại → đo 5 giây → đọc số xung → lưu các lượt độc lập và đối chiếu Bảng 23.1); bật/đảo cực điện trường và từ trường 3D để kiểm chứng chiều lệch α, β⁻, β⁺ và đường truyền thẳng của γ; khảo sát bán rã đồng bộ hạt 3D – bảng – đồ thị N(t)/H(t) và giải bài toán định tuổi ¹⁴₆C.",
+      quality:
+        "Hình thành ý thức tuân thủ nghiêm ngặt biển cảnh báo và ba nguyên tắc an toàn bức xạ (Thời gian – Khoảng cách – Che chắn) trong học tập, y tế và đời sống.",
+    },
     sections: [
       {
         id: "b23-cloud-geiger",
         kind: "b23_cloud_geiger",
         phase: "before",
-        title: "Vết buồng sương và số đếm Geiger theo từng khoảng 5 giây",
-        shortTocTitle: "Buồng sương & số đếm Geiger",
+        title: "Bộ đếm Geiger–Müller 3D (Hình 23.2), Bảng 23.1 và tính ngẫu nhiên của phóng xạ",
+        shortTocTitle: "Bộ đếm Geiger 3D & Bảng 23.1",
         sgkPages: "tr. 104–105",
         minutes: 12,
         phenomenonPrompt:
-          "Quan sát hình dạng vết sương của các tia phóng xạ và chuỗi số đếm ống Geiger–Müller trong các khoảng 5 giây liên tiếp.",
+          "Lần theo đường đi tín hiệu trên bộ đếm Geiger–Müller 3D (Hình 23.2), thực hiện các lượt đo cửa sổ 5 giây liên tiếp và đối chiếu với dãy 1, 3, 2, 0, 3, 1 của Bảng 23.1 SGK.",
         evidencePrompt:
-          "Nhận xét vì sao số đếm trong từng khoảng 5 giây dao động ngẫu nhiên không hệt nhau dù nguồn không đổi điều kiện ngoài.",
+          "Khóa dự đoán ban đầu kèm lí do, thực hiện và lưu tối thiểu 2 lượt đo 5 giây trên bộ đếm Geiger–Müller 3D (kể cả lượt 0 xung nếu có) để rút ra tính ngẫu nhiên.",
         activityKey: "geiger_random_decay",
         teacherTip:
-          "Giúp học sinh nhận ra bản chất ngẫu nhiên ở mức vi mô trước khi học quy luật thống kê hàm mũ ở mức vĩ mô.",
+          "Giao trước giờ học (12 phút). Nhấn mạnh số đọc trên bộ đếm là số xung ghi nhận trong cửa sổ đo 5 giây (khác với hoạt độ H tính bằng Bq ở phần bán rã) và giải thích vì sao khoảng 15–20 s trên Bảng 23.1 có 0 xung.",
+        teacherGuide: {
+          learningObjective:
+            "Trình bày được cấu tạo và đường truyền tín hiệu của bộ đếm Geiger–Müller (Hình 23.2: giá giữ mẫu, ống đếm, đầu nối BNC, dây tín hiệu, bộ đếm có màn hình, bộ định thời); rút ra tính ngẫu nhiên của phân rã phóng xạ từ các lượt đo 5 giây và Bảng 23.1 SGK tr. 105.",
+          projectorStrategy:
+            "Chiếu góc Toàn cảnh → Cận đầu dò → Đọc màn hình trên bộ đếm Geiger 3D, bấm đo hai khoảng 5 giây ngay trên lớp và đặt cạnh Bảng 23.1 SGK (1, 3, 2, 0, 3, 1).",
+          openQuestions: [
+            "Trên Bảng 23.1 SGK, hai khoảng 5–10 s (3 xung) và 15–20 s (0 xung) đều dài đúng 5 giây và giữ nguyên mẫu phóng xạ — vì sao số xung lại khác nhau?",
+            "Vì sao số xung đọc trên màn hình ống đếm Geiger–Müller trong 5 giây không được gọi trực tiếp là độ phóng xạ H (Bq) của toàn bộ mẫu?",
+          ],
+          commonMisconceptions:
+            "Học sinh dễ nghĩ nguồn phóng xạ phát tia đều đặn như nhịp đồng hồ (nên thấy 0 xung tưởng máy hỏng) hoặc đồng nhất số xung đếm được ở một góc nhỏ với hoạt độ H (Bq) của cả nguồn. Cách gỡ: Tách riêng nhãn Bảng 23.1 SGK với Kết quả mô phỏng và đóng khung phân biệt số xung cửa sổ đo với H (Bq).",
+          noVideoFallback:
+            "Hoàn thành trọn vẹn bằng bộ đếm Geiger–Müller (tự động chuyển sang sơ đồ dự phòng tương tác khi trình duyệt thiếu WebGL) và Bảng 23.1 SGK ngay trên trang.",
+          completionCriteriaNote:
+            "Ghi nhận hoàn thành khi học sinh đã khóa dự đoán ban đầu kèm lí do và đo, lưu tối thiểu 2 lượt 5 giây trên bộ đếm Geiger–Müller.",
+        },
       },
       {
         id: "b23-radiation-types",
         kind: "b23_radiation_types",
         phase: "in_class",
-        title: "Đường đi trong điện từ trường và độ đâm xuyên của tia α, β, γ",
-        shortTocTitle: "Bản chất & đâm xuyên α, β, γ",
+        title: "Buồng sương và vùng trường 3D khảo sát tia α, β⁻, β⁺, γ",
+        shortTocTitle: "Buồng sương & tia α, β⁻, β⁺, γ",
         sgkPages: "tr. 105–107",
         minutes: 15,
         phenomenonPrompt:
-          "Thử đặt tờ giấy, tấm nhôm vài mm và khối chì dày chắn trước các chùm tia α, β⁻, β⁺, γ đồng thời quan sát độ lệch trong điện trường.",
+          "Phân biệt vết sương ngưng tụ quan sát được với đường đi trong mô hình giải thích; bật điện trường E, từ trường B, đảo cực trên vùng trường 3D và kiểm tra độ đâm xuyên của α, β⁻, β⁺, γ.",
         evidencePrompt:
-          "Lập bảng so sánh bản chất hạt, điện tích, khả năng ion hóa và vật liệu chắn tối thiểu của ba loại tia.",
+          "Đối chiếu chiều lệch của các hạt mang điện (α, β⁻, β⁺), đường đi thẳng của tia γ và vật liệu chắn tối thiểu của từng loại tia.",
         activityKey: "radiation_properties",
         teacherTip:
-          "Lưu ý độ cong quỹ đạo của hạt α nhỏ hơn nhiều so với tia β trong cùng từ trường vì khối lượng hạt α lớn gấp ~7300 lần electron.",
+          "Lưu ý học sinh phân biệt rõ vệt giọt sương ngưng tụ thực nghiệm trong buồng sương với đường quỹ đạo + vectơ lực trong chế độ Mô hình giải thích; hạt α lệch ít hơn hẳn β⁺ dù mang điện +2e vì m_α ≈ 7 300 m_e.",
+        teacherGuide: {
+          learningObjective:
+            "Phân biệt được vết ngưng tụ thực nghiệm trong buồng sương với đường đi trong mô hình giải thích; xác định đúng chiều lệch của α, β⁻, β⁺ và đường truyền thẳng của γ khi bật/đảo cực điện trường E và từ trường B; so sánh khả năng ion hóa và đâm xuyên (Hình 23.3–23.4 SGK).",
+          projectorStrategy:
+            "Bật lần lượt Điện trường E (đảo cực +/-) và Từ trường B (đảo cực N/S) trên vùng trường 3D, yêu cầu học sinh dùng lực điện F = qE và quy tắc bàn tay trái kiểm chứng chiều cong của α, β⁻, β⁺ và tia γ đi thẳng.",
+          openQuestions: [
+            "Trong buồng sương, mắt ta nhìn thấy hạt α, β hay nhìn thấy vệt giọt hơi rượu/nước ngưng tụ quanh các ion dọc đường bay?",
+            "Khi đảo cực hai bản tụ điện (hoặc đảo cực hai từ cực N–S), chiều lệch của α, β⁻, β⁺ và đường đi của tia γ thay đổi như thế nào?",
+          ],
+          commonMisconceptions:
+            "Học sinh hay vẽ tia α cong nhiều hơn tia β vì thấy |q_α| = 2e > |q_β| = e, hoặc nhầm vệt sương là bản thân hạt nhân phóng xạ. Cách gỡ: Đặt cạnh nhau chế độ Vết ngưng tụ và Mô hình giải thích trên vùng trường 3D.",
+          noVideoFallback:
+            "Sử dụng trực tiếp buồng sương và vùng điện – từ trường 3D (kèm sơ đồ dự phòng khi thiếu WebGL) ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thử nghiệm điện trường & từ trường (có đảo cực), khảo sát các tia α, β⁻, β⁺, γ và trả lời đúng câu hỏi kiểm tra.",
+        },
       },
       {
         id: "b23-half-life",
         kind: "b23_half_life",
         phase: "in_class",
-        title: "Đồ thị bán rã N(t), chu kì bán rã T và độ phóng xạ H(t)",
-        shortTocTitle: "Đồ thị bán rã & độ phóng xạ",
-        sgkPages: "tr. 108–111",
+        title: "Định luật phóng xạ, chu kì bán rã T và độ phóng xạ H(t) đồng bộ 3D",
+        shortTocTitle: "Bán rã 3D & độ phóng xạ H(t)",
+        sgkPages: "tr. 107–109",
         minutes: 18,
         phenomenonPrompt:
-          "Khảo sát đường cong giảm theo quy luật hàm mũ qua từng chu kì bán rã T, 2T, 3T và mối liên hệ H(t) = λN(t).",
+          "Quan sát đồng bộ mô hình tập hợp hạt nhân 3D phân rã ngẫu nhiên, bảng số liệu tại các mốc t/T và đồ thị N(t), H(t) (đơn vị Bq) theo cùng thời gian t và chu kì bán rã T.",
         evidencePrompt:
-          "Xác định chu kì bán rã T trên đồ thị và giải thích vì sao sau 2T số hạt nhân mẹ còn N₀/4 chứ không về 0.",
+          "Thử Bắt đầu, Tạm dừng, Đặt lại; làm rõ tính ngẫu nhiên của từng hạt riêng lẻ đối lập với xu hướng giảm hàm mũ của cả quần thể lớn và tính H(t) = λN(t) (Bq).",
         activityKey: "radioactive_decay_half_life",
         teacherTip:
-          "Kết nối trực tiếp đơn vị độ phóng xạ Becquerel (1 Bq = 1 phân rã/giây) với số đếm thực nghiệm.",
+          "Cho học sinh chọn theo dõi 1 hạt nhân bất kì trong khối 3D rồi chạy lại để thấy không biết trước lúc nào hạt đó phân rã, nhưng đường N(t) và H(t) (Bq) của cả mẫu luôn bám quy luật 2^(−t/T).",
+        teacherGuide: {
+          learningObjective:
+            "Hiểu và vận dụng được công thức N(t) = N₀·2^(−t/T) = N₀·e^(−λt) và độ phóng xạ H(t) = λN(t) = H₀·2^(−t/T) (đơn vị Bq); kết nối từ tính ngẫu nhiên của từng hạt nhân tới quy luật thống kê của quần thể.",
+          projectorStrategy:
+            "Bấm Bắt đầu → Tạm dừng ở mốc t = T và t = 2T để học sinh đối chiếu cùng lúc số hạt còn lại trên khối 3D, dòng tương ứng trên bảng và điểm dóng trên đồ thị N(t)/H(t).",
+          openQuestions: [
+            "Nếu theo dõi riêng hạt nhân #1 trong mẫu, ta có biết chính xác giây nào nó sẽ phân rã không? Vì sao cả mẫu lớn lại giảm đúng một nửa sau mỗi chu kì T?",
+            "Khi tính độ phóng xạ H = (ln 2 / T)·N theo đơn vị Becquerel (Bq), chu kì bán rã T phải đổi sang đơn vị nào?",
+          ],
+          commonMisconceptions:
+            "Học sinh thường tưởng sau 2 chu kì bán rã (2T) mẫu mất hết 100% hạt nhân mẹ, hoặc quên đổi T từ năm/ngày/phút sang giây khi tính H (Bq).",
+          noVideoFallback:
+            "Sử dụng mô hình hạt 3D đồng bộ bảng và đồ thị N(t)/H(t) (có chế độ dự phòng khi thiếu WebGL) kèm Bảng 23.2 SGK ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh vận hành mô phỏng bán rã đồng bộ, thay đổi tham số khảo sát và trả lời đúng câu hỏi kiểm tra.",
+        },
       },
       {
         id: "b23-safety",
         kind: "b23_safety",
         phase: "in_class",
-        title: "Ba nguyên tắc an toàn bức xạ và biển cảnh báo",
-        shortTocTitle: "Nguyên tắc an toàn bức xạ",
-        sgkPages: "tr. 111–113",
-        minutes: 10,
+        title: "Ảnh hưởng của tia phóng xạ, biển cảnh báo và ba nguyên tắc an toàn",
+        shortTocTitle: "Biển cảnh báo & an toàn bức xạ",
+        sgkPages: "tr. 109–110",
+        minutes: 12,
         phenomenonPrompt:
-          "Thử nghiệm tác động của việc giảm thời gian tiếp xúc, tăng khoảng cách và chọn vách che chắn phù hợp đối với liều chiếu xạ.",
+          "Nhận diện biển cảnh báo phóng xạ chuẩn SGK (cánh quạt ba cánh nền vàng & biển bổ sung ISO nền đỏ) và thử nghiệm 3 nguyên tắc Thời gian – Khoảng cách – Che chắn.",
         evidencePrompt:
-          "Ghi rõ 3 nguyên tắc vàng (Thời gian – Khoảng cách – Che chắn) cho một tình huống làm việc với nguồn γ.",
+          "Phân biệt chiếu xạ ngoài với nhiễm xạ trong và vận dụng 3 nguyên tắc giảm liều chiếu xạ cho tình huống thực tế.",
         activityKey: "radiation_safety",
         teacherTip:
-          "Phân biệt rõ chiếu xạ ngoài (nguồn ở xa cơ thể) và nhiễm xạ trong (hít/nuốt bụi phóng xạ, nơi tia α rất nguy hiểm).",
+          "Làm rõ hai biển cảnh báo phóng xạ trong SGK và phân biệt vì sao nguồn α ở ngoài da dễ chắn nhưng hít/nuốt vào cơ thể lại rất nguy hiểm.",
+        teacherGuide: {
+          learningObjective:
+            "Nhận biết đúng các biển cảnh báo khu vực/nguồn phóng xạ nguy hiểm trong SGK và áp dụng ba nguyên tắc cơ bản phòng chống phóng xạ: giảm thời gian tiếp xúc, tăng khoảng cách và che chắn thích hợp.",
+          projectorStrategy:
+            "Chiếu song song hai biển cảnh báo phóng xạ (nền vàng cánh quạt & nền đỏ bổ sung ISO) rồi cho học sinh điều chỉnh khoảng cách, thời gian, vật liệu chắn để kiểm chứng quy luật giảm liều.",
+          openQuestions: [
+            "Khi gặp vật lạ có gắn biển cảnh báo phóng xạ, học sinh cần xử trí như thế nào?",
+            "Vì sao tăng khoảng cách từ 1 m lên 3 m tới nguồn điểm lại làm cường độ bức xạ giảm tới 9 lần?",
+          ],
+          commonMisconceptions:
+            "Học sinh tưởng quần áo thường chắn được tia γ hoặc không phân biệt nguy cơ chiếu xạ ngoài với nhiễm xạ trong.",
+          noVideoFallback:
+            "Dùng hình biển cảnh báo chuẩn SGK và bàn mô phỏng an toàn bức xạ ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh thực hành phối hợp 3 nguyên tắc đưa liều về ngưỡng an toàn, hoàn tất tình huống và lưu kết quả kiểm tra.",
+        },
       },
       {
         id: "b23-carbon14",
         kind: "b23_carbon14",
         phase: "after",
-        title: "Kiểm tra, đánh giá: Định tuổi mẫu gỗ cổ bằng đồng vị ¹⁴₆C",
+        title: "Kiểm tra, đánh giá: Định tuổi cổ vật bằng đồng vị ¹⁴₆C và vận dụng an toàn",
         shortTocTitle: "Kiểm tra, đánh giá (¹⁴₆C)",
-        sgkPages: "tr. 113 · Vận dụng",
+        sgkPages: "tr. 109–110 · Vận dụng",
         minutes: 15,
         phenomenonPrompt:
-          "Đo độ phóng xạ ¹⁴₆C của mẫu gỗ khảo cổ so với mẫu gỗ đang sống cùng khối lượng (T ≈ 5730 năm).",
+          "Đo độ phóng xạ ¹⁴₆C (Bq) của mẫu gỗ khảo cổ so với mẫu gỗ đang sống cùng khối lượng (chu kì bán rã T ≈ 5 730 năm).",
         evidencePrompt:
-          "Tính tuổi gần đúng của mẫu cổ vật từ tỉ số H/H₀ và nêu giả thiết của phương pháp.",
+          "Tính tuổi mẫu khảo cổ từ tỉ số H/H₀, trả lời bài tập vận dụng định luật phóng xạ – an toàn bức xạ và lưu kết quả để mở lại.",
         activityKey: "carbon14_dating",
         teacherTip:
-          "Học sinh vận dụng trọn vẹn công thức H(t) = H₀·2^(−t/T) vào bài toán khảo cổ thực tế.",
+          "Nhiệm vụ vận dụng sau giờ học (15 phút): nhấn mạnh phải so sánh độ phóng xạ H và H₀ trên cùng khối lượng carbon và kiểm tra đúng đơn vị năm / Bq.",
+        teacherGuide: {
+          learningObjective:
+            "Vận dụng công thức H(t) = H₀·2^(−t/T) = H₀·e^(−λt) để tính tuổi cổ vật hữu cơ bằng đồng vị ¹⁴₆C (T ≈ 5 730 năm) và giải bài toán thực tế về độ phóng xạ (Bq).",
+          projectorStrategy:
+            "Cho học sinh tự hoàn thành sau giờ học, nhận phản hồi giải thích chi tiết từng bước tính và đối chiếu lại với dự đoán đã khóa ở Pha 1.",
+          openQuestions: [
+            "Vì sao chỉ khi sinh vật chết đi thì tỉ lệ ¹⁴₆C trong mẫu mới bắt đầu giảm theo quy luật hàm mũ?",
+            "Vì sao phải đo H₀ trên mẫu gỗ tươi cùng loại và cùng khối lượng với mẫu gỗ cổ?",
+          ],
+          commonMisconceptions:
+            "Học sinh quên quy đổi cùng khối lượng mẫu hoặc nhầm lẫn giữa phần trăm còn lại (N_t/N₀) với phần trăm đã phân rã (ΔN/N₀).",
+          noVideoFallback:
+            "Sử dụng trực tiếp phòng thực hành định tuổi ¹⁴₆C và phiếu vận dụng tự chấm lưu kết quả ngay trên trang.",
+          completionCriteriaNote:
+            "Hoàn thành khi học sinh khảo sát tỉ số H/H₀, nộp bài vận dụng nhận phản hồi đúng và lưu kết quả bền vững.",
+        },
       },
     ],
   },
@@ -1010,6 +1098,9 @@ export interface PreClassWorkData {
   readonly apparatusRoles?: Readonly<Partial<Record<B21ApparatusPartCode, string>>>;
   readonly selfCheckChoice?: string;
   readonly bringToClassQuestion?: string;
+  readonly b23Count5to10?: string;
+  readonly b23Count15to20?: string;
+  readonly b23GeigerTwoRunsDone?: boolean;
   readonly [key: string]: unknown;
 }
 
@@ -1041,6 +1132,13 @@ export interface AfterClassWorkData {
   readonly predictionReflection?: string;
   readonly checked?: boolean;
   readonly submittedAt?: string;
+  readonly b23C14AgeYears?: string;
+  readonly b23C14AssumptionChoice?: string;
+  readonly b23SafetyActionChoice?: string;
+  readonly b23ReflectionNote?: string;
+  readonly b23AfterChecked?: boolean;
+  readonly b23SubmittedAt?: string;
+  readonly b23C14LabDone?: boolean;
 }
 
 export interface StudentLessonNotebook {

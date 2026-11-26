@@ -85,13 +85,56 @@ const B21_PRE_SELF_CHECK_OPTIONS = [
   },
 ] as const;
 
-const GEIGER_5S_INTERVALS = [
-  { window: "0 – 5", counts: 29 },
-  { window: "5 – 10", counts: 34 },
-  { window: "10 – 15", counts: 26 },
-  { window: "15 – 20", counts: 31 },
-  { window: "20 – 25", counts: 28 },
-  { window: "25 – 30", counts: 33 },
+const B23_PREDICTION_CHOICES = [
+  {
+    id: "periodic_equal",
+    label:
+      "Nguồn phóng xạ cố định nên nếu máy tốt thì mỗi khoảng 5 giây bắt buộc phải đếm được số xung bằng hệt nhau.",
+  },
+  {
+    id: "random_spontaneous",
+    label:
+      "Phân rã phóng xạ có bản chất tự phát và ngẫu nhiên nên số xung ghi nhận trong từng khoảng 5 giây dao động ngẫu nhiên (kể cả có khoảng 0 xung).",
+  },
+  {
+    id: "depleted_at_zero",
+    label:
+      "Khoảng 15 – 20 s ghi 0 xung chứng tỏ mẫu phóng xạ đã phân rã hết sạch ở giây thứ 15.",
+  },
+] as const;
+
+const B23_PRE_SELF_CHECK_OPTIONS = [
+  {
+    id: "broken_detector",
+    label:
+      "Khoảng 15 – 20 s trên Bảng 23.1 ghi 0 xung chứng tỏ ống đếm Geiger–Müller bị mất điện tạm thời.",
+    feedback:
+      "Chưa chính xác. Thiết bị và nguồn vẫn giữ nguyên; khoảng 20 – 25 s ngay sau đó máy tiếp tục đếm được 3 xung chứng tỏ 0 xung là thăng giáng ngẫu nhiên tự nhiên.",
+  },
+  {
+    id: "random_not_predictable_single",
+    label:
+      "Không thể biết trước thời điểm phân rã của từng hạt nhân riêng lẻ, nên trong các cửa sổ đo ngắn 5 giây số xung thăng giáng ngẫu nhiên (1, 3, 2, 0, 3, 1).",
+    feedback:
+      "✓ Chính xác! Quá trình phóng xạ là tự phát, ngẫu nhiên ở mức vi mô; số đọc của máy là số xung ghi nhận trong cửa sổ đo 5 giây.",
+  },
+  {
+    id: "pulse_equals_bq",
+    label:
+      "Số xung đọc trên màn hình ống đếm trong 5 giây chính là độ phóng xạ H (đơn vị Bq) của toàn bộ mẫu.",
+    feedback:
+      "Chưa chính xác. Máy chỉ đếm số xung do các tia lọt vào cửa sổ đầu dò trong 5 giây; còn hoạt độ H (Bq) là số phân rã trong 1 giây của toàn bộ mẫu phóng xạ (học ở mục Bán rã).",
+  },
+] as const;
+
+const SGK_TABLE_23_2_SAMPLES = [
+  { name: "Carbon-14", sym: "C", a: 14, z: 6, halfLife: "5 730 năm", radiation: "Phóng xạ β⁻ · Định tuổi khảo cổ" },
+  { name: "Iodine-131", sym: "I", a: 131, z: 53, halfLife: "8,02 ngày", radiation: "Phóng xạ β⁻, γ · Chẩn đoán & điều trị tuyến giáp" },
+  { name: "Oxygen-15", sym: "O", a: 15, z: 8, halfLife: "1,2 × 10² giây (122 s)", radiation: "Phóng xạ β⁺ · Ghi hình PET" },
+  { name: "Polonium-210", sym: "Po", a: 210, z: 84, halfLife: "138 ngày", radiation: "Phóng xạ α mạnh" },
+  { name: "Radium-226", sym: "Ra", a: 226, z: 88, halfLife: "1 600 năm", radiation: "Phóng xạ α, γ · Lịch sử tìm ra phóng xạ" },
+  { name: "Radon-222", sym: "Rn", a: 222, z: 86, halfLife: "3,82 ngày", radiation: "Khí phóng xạ α tự nhiên trong không khí" },
+  { name: "Uranium-238", sym: "U", a: 238, z: 92, halfLife: "4,47 tỉ năm", radiation: "Phóng xạ α · Chu kì rất dài trong vỏ Trái Đất" },
 ] as const;
 
 function isB21PreClassAllComplete(
@@ -181,6 +224,7 @@ export function Chapter4SectionBody({
   const [structCheckedLocal, setStructCheckedLocal] = useState(false);
   const [isoCheckedLocal, setIsoCheckedLocal] = useState(false);
   const [alCheckedLocal, setAlCheckedLocal] = useState(false);
+  const [b23AfterCheckedLocal, setB23AfterCheckedLocal] = useState(false);
 
   // State cho các bài B22–B25 (giữ nguyên ngoài phạm vi lượt này)
   const [b22AfterChoice, setB22AfterChoice] = useState("");
@@ -201,6 +245,9 @@ export function Chapter4SectionBody({
   )?.label;
   const currentPredictionLabel = B21_PREDICTION_CHOICES.find(
     (c) => c.id === notebook.preClassPredictionChoice
+  )?.label;
+  const lockedB23PredictionLabel = B23_PREDICTION_CHOICES.find(
+    (c) => c.id === lockedInitialChoiceId
   )?.label;
 
   const apparatusRoles = notebook.preClassWork?.apparatusRoles ?? {};
@@ -2213,104 +2260,1034 @@ export function Chapter4SectionBody({
       )}
 
       {/* ====================================================================
-          BÀI 23 — HIỆN TƯỢNG PHÓNG XẠ
+          BÀI 23 — HIỆN TƯỢNG PHÓNG XẠ (SGK VẬT LÍ 12 KNTT, TR. 104–110)
           ==================================================================== */}
-      {section.kind === "b23_cloud_geiger" && (
+      {section.kind === "b23_cloud_geiger" &&
+        (() => {
+          const lockedB23Label = B23_PREDICTION_CHOICES.find(
+            (c) => c.id === lockedInitialChoiceId
+          )?.label;
+          const c5to10 = notebook.preClassWork?.b23Count5to10 ?? "";
+          const c15to20 = notebook.preClassWork?.b23Count15to20 ?? "";
+          const geigerTwoRunsDone = Boolean(notebook.preClassWork?.b23GeigerTwoRunsDone);
+          const b23SelfCheck = notebook.preClassWork?.selfCheckChoice ?? "";
+          const b23SelfOpt = B23_PRE_SELF_CHECK_OPTIONS.find((o) => o.id === b23SelfCheck);
+
+          const checkB23PreReady = (
+            nb: StudentLessonNotebook,
+            twoRunsOv?: boolean
+          ) => {
+            const hasP = Boolean(
+              (nb.initialPredictionChoice ?? nb.preClassPredictionChoice ?? "").trim()
+            );
+            const hasR = Boolean(
+              (nb.initialPredictionReason ?? nb.preClassPredictionReason ?? "").trim()
+            );
+            const runsDone = twoRunsOv ?? Boolean(nb.preClassWork?.b23GeigerTwoRunsDone);
+            return hasP && hasR && runsDone;
+          };
+          const b23Ready = checkB23PreReady(notebook);
+
+          return (
+            <div>
+              {/* Bước 1: Câu hỏi mở đầu & Khóa dự đoán ban đầu (Pha 1) */}
+              <section
+                data-testid="b23-pre-prediction-section"
+                style={{
+                  border: "1px solid #8d8d8d",
+                  background: "#ffffff",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                  Bước 1 · Dự đoán trước giờ học về số xung đếm Geiger–Müller (Hình 23.2 &amp; Bảng 23.1 · SGK tr. 104–105)
+                </h4>
+                <p style={{ margin: "0 0 10px", fontSize: "14px", lineHeight: 1.6 }}>
+                  Đặt một mẫu phóng xạ cố định trên giá giữ mẫu trước cửa sổ ống đếm Geiger–Müller (Hình 23.2). Trong Bảng 23.1 SGK, <strong>sáu khoảng 5 giây liên tiếp</strong> lần lượt ghi nhận số xung là{" "}
+                  <strong>1, 3, 2, 0, 3, 1</strong>.
+                </p>
+
+                {lockedB23Label && (
+                  <div
+                    data-testid="b23-locked-prediction-banner"
+                    style={{
+                      marginBottom: "12px",
+                      padding: "10px 12px",
+                      background: "#fcf4d6",
+                      borderLeft: "4px solid #8e6a00",
+                      fontSize: "13.5px",
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    <strong>🔒 Dự đoán ban đầu đã khóa:</strong> “{lockedB23Label}”
+                    {lockedInitialReason ? (
+                      <span>
+                        {" "}
+                        — <em>Lí do: {lockedInitialReason}</em>
+                      </span>
+                    ) : null}
+                  </div>
+                )}
+
+                <fieldset style={{ border: "none", margin: "0 0 12px", padding: 0 }}>
+                  <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
+                    Chọn dự đoán của em để giải thích vì sao số xung trong các khoảng 5 giây không bằng nhau:
+                  </legend>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {B23_PREDICTION_CHOICES.map((opt) => (
+                      <label
+                        key={opt.id}
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "flex-start",
+                          padding: "10px 12px",
+                          border: predChoice === opt.id ? "2px solid #0f62fe" : "1px solid #e0e0e0",
+                          background: predChoice === opt.id ? "#edf5ff" : "#fafafa",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="b23-pre-prediction"
+                          value={opt.id}
+                          checked={predChoice === opt.id}
+                          onChange={() => {
+                            setPredChoiceDraft(opt.id);
+                            setPredSavedMsg("");
+                          }}
+                          style={{ marginTop: "3px" }}
+                        />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <label
+                  htmlFor="b23-pre-reason"
+                  style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+                >
+                  Lí do cho dự đoán của em (bắt buộc trước khi khóa):
+                </label>
+                <textarea
+                  id="b23-pre-reason"
+                  className={styles.evidenceTextarea}
+                  rows={2}
+                  value={predReason}
+                  onChange={(e) => {
+                    setPredReasonDraft(e.target.value);
+                    setPredSavedMsg("");
+                  }}
+                  placeholder="Giải thích vì sao giữ nguyên mẫu và ống đếm nhưng khoảng 5–10 s ghi 3 xung còn khoảng 15–20 s lại ghi 0 xung…"
+                />
+
+                <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", marginTop: "10px" }}>
+                  <button
+                    type="button"
+                    data-b23-lock-prediction-btn
+                    className={`${styles.cdsBtn} ${styles.cdsBtnPrimary}`}
+                    onClick={() => {
+                      if (!predChoice || !predReason.trim()) {
+                        setPredSavedMsg("Em hãy chọn một phương án dự đoán và ghi rõ lí do trước khi khóa.");
+                        return;
+                      }
+                      onSavePreClassPrediction(predChoice, predReason.trim());
+                      const updated = recordPreClassPrediction(notebook, predChoice, predReason.trim());
+                      if (checkB23PreReady(updated)) {
+                        onMarkSectionComplete(section.id, true);
+                      }
+                      setPredSavedMsg("✓ Đã lưu và khóa bản dự đoán ban đầu cho Bài 23.");
+                    }}
+                  >
+                    {lockedB23Label ? "Cập nhật ghi chú (giữ nguyên bản đầu đã khóa)" : "Khóa bản dự đoán ban đầu"}
+                  </button>
+                  {predSavedMsg && (
+                    <span
+                      role="status"
+                      style={{
+                        fontSize: "13.5px",
+                        fontWeight: 600,
+                        color: predChoice && predReason.trim() ? "#198038" : "#b42332",
+                      }}
+                    >
+                      {predSavedMsg}
+                    </span>
+                  )}
+                </div>
+              </section>
+
+              {/* Bước 2: Bộ đếm Geiger–Müller 3D tương tác (Hình 23.2 & đối chiếu Bảng 23.1 SGK) */}
+              <section style={{ marginBottom: "18px" }}>
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                  Bước 2 · Thực hành trên Bộ đếm Geiger–Müller 3D (Hình 23.2 SGK tr. 105) — Đo 2 lượt 5 giây &amp; lưu kết quả
+                </h4>
+                <FixedPhysicsActivityRenderer
+                  activityKey="geiger_random_decay"
+                  onProgress={(done) => {
+                    patchNotebook((cur) => {
+                      const next: StudentLessonNotebook = {
+                        ...cur,
+                        preClassWork: {
+                          ...cur.preClassWork,
+                          b23GeigerTwoRunsDone: done,
+                        },
+                      };
+                      if (checkB23PreReady(next, done)) {
+                        onMarkSectionComplete(section.id, true);
+                      }
+                      return next;
+                    });
+                  }}
+                />
+              </section>
+
+              {/* Bước 3: Tự kiểm tra nhanh Bảng 23.1 SGK & Sản phẩm mang vào lớp */}
+              <section
+                style={{
+                  border: "1px solid #d0d7de",
+                  background: "#ffffff",
+                  padding: "16px",
+                  marginBottom: "18px",
+                }}
+              >
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                  Bước 3 · Đọc kiểm chứng Bảng 23.1 SGK &amp; Câu tự kiểm tra trước giờ học
+                </h4>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                    gap: "12px",
+                    marginBottom: "14px",
+                  }}
+                >
+                  <label style={{ display: "block", fontSize: "13.5px", fontWeight: 700 }}>
+                    Tra Bảng 23.1 SGK — số xung khoảng <code>5 – 10 s</code>:
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={c5to10}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        patchNotebook((cur) => ({
+                          ...cur,
+                          preClassWork: { ...cur.preClassWork, b23Count5to10: val },
+                        }));
+                      }}
+                      placeholder="Nhập số xung (ví dụ: 3)"
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        marginTop: "6px",
+                        minHeight: "40px",
+                        padding: "6px 10px",
+                        border: "1px solid #8d8d8d",
+                        fontSize: "14.5px",
+                      }}
+                    />
+                  </label>
+                  <label style={{ display: "block", fontSize: "13.5px", fontWeight: 700 }}>
+                    Tra Bảng 23.1 SGK — số xung khoảng <code>15 – 20 s</code>:
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={c15to20}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        patchNotebook((cur) => ({
+                          ...cur,
+                          preClassWork: { ...cur.preClassWork, b23Count15to20: val },
+                        }));
+                      }}
+                      placeholder="Nhập số xung (ví dụ: 0)"
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        marginTop: "6px",
+                        minHeight: "40px",
+                        padding: "6px 10px",
+                        border: "1px solid #8d8d8d",
+                        fontSize: "14.5px",
+                      }}
+                    />
+                  </label>
+                </div>
+
+                {(c5to10.trim() !== "" || c15to20.trim() !== "") && (
+                  <p
+                    role="status"
+                    style={{
+                      margin: "0 0 12px",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color:
+                        c5to10.trim() === "3" && c15to20.trim() === "0"
+                          ? "#198038"
+                          : "#8e6a00",
+                    }}
+                  >
+                    {c5to10.trim() === "3" && c15to20.trim() === "0"
+                      ? "✓ Chính xác: khoảng 5–10 s ghi 3 xung và khoảng 15–20 s ghi 0 xung trong Bảng 23.1 SGK."
+                      : "Đối chiếu lại Bảng 23.1 SGK (dãy 1, 3, 2, 0, 3, 1): dòng 5–10 s là 3 và dòng 15–20 s là 0."}
+                  </p>
+                )}
+
+                <fieldset style={{ border: "none", margin: "0 0 12px", padding: 0 }}>
+                  <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
+                    Câu tự kiểm tra nhanh: Kết luận nào sau đây đúng từ phép đếm xung Geiger–Müller?
+                  </legend>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {B23_PRE_SELF_CHECK_OPTIONS.map((opt) => (
+                      <label
+                        key={opt.id}
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          alignItems: "flex-start",
+                          padding: "9px 12px",
+                          border: b23SelfCheck === opt.id ? "2px solid #0f62fe" : "1px solid #e0e0e0",
+                          background: b23SelfCheck === opt.id ? "#edf5ff" : "#fafafa",
+                          cursor: "pointer",
+                          fontSize: "13.5px",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="b23-pre-self-check"
+                          checked={b23SelfCheck === opt.id}
+                          onChange={() =>
+                            patchNotebook((cur) => ({
+                              ...cur,
+                              preClassWork: { ...cur.preClassWork, selfCheckChoice: opt.id },
+                            }))
+                          }
+                          style={{ marginTop: "3px" }}
+                        />
+                        <span>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+
+                {b23SelfOpt && (
+                  <div
+                    role="status"
+                    style={{
+                      padding: "10px 12px",
+                      marginBottom: "12px",
+                      background:
+                        b23SelfOpt.id === "random_not_predictable_single"
+                          ? "#defbe6"
+                          : "#fff1f1",
+                      borderLeft:
+                        b23SelfOpt.id === "random_not_predictable_single"
+                          ? "4px solid #198038"
+                          : "4px solid #da1e28",
+                      fontSize: "13px",
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {b23SelfOpt.feedback}
+                  </div>
+                )}
+
+                <div
+                  data-testid="b23-phase1-summary-card"
+                  style={{
+                    padding: "12px 14px",
+                    background: b23Ready ? "#defbe6" : "#f8fafc",
+                    border: b23Ready ? "1.5px solid #198038" : "1px solid #cbd5e1",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div style={{ fontWeight: 700, fontSize: "14px", color: b23Ready ? "#0e6027" : "#1e293b", marginBottom: "6px" }}>
+                    {b23Ready
+                      ? "✓ Đã hoàn thành nhiệm vụ Trước giờ học (Pha 1 Bài 23)"
+                      : "Điều kiện hoàn thành Pha 1 Bài 23:"}
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "13.5px", lineHeight: 1.65 }}>
+                    <li>
+                      {lockedB23Label ? "✓" : "○"} Khóa dự đoán ban đầu kèm lí do ở Bước 1
+                    </li>
+                    <li>
+                      {geigerTwoRunsDone ? "✓" : "○"} Đo và lưu ít nhất 2 lượt 5 giây trên bộ đếm Geiger–Müller 3D ở Bước 2
+                    </li>
+                  </ul>
+                </div>
+
+                <label
+                  htmlFor="b23-bring-q"
+                  style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+                >
+                  Câu hỏi em muốn mang vào lớp ở Pha 2 (tùy chọn):
+                </label>
+                <input
+                  id="b23-bring-q"
+                  type="text"
+                  value={bringToClassQuestion}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    patchNotebook((cur) => ({
+                      ...cur,
+                      preClassWork: { ...cur.preClassWork, bringToClassQuestion: val },
+                    }));
+                  }}
+                  placeholder="Ví dụ: Nếu có hàng tỉ tỉ hạt nhân cùng phân rã ngẫu nhiên thì đồ thị N(t) có mượt không?"
+                  style={{
+                    width: "100%",
+                    minHeight: "40px",
+                    padding: "8px 10px",
+                    border: "1px solid #8d8d8d",
+                    background: "#ffffff",
+                    fontSize: "14px",
+                    marginBottom: "12px",
+                  }}
+                />
+
+                <button
+                  type="button"
+                  className={`${styles.cdsBtn} ${styles.cdsBtnPrimary}`}
+                  onClick={() => onJumpToSection("b23-radiation-types")}
+                >
+                  Chuyển sang Pha 2 (Trong giờ học) →
+                </button>
+              </section>
+
+              {b21VideoLesson && (
+                <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+                  <p style={{ margin: "0 0 8px", fontSize: "13.5px", lineHeight: 1.55 }}>
+                    <strong>Video mở đầu Bài 23 (kèm phụ đề tiếng Việt):</strong> Minh họa sự xuất hiện ngẫu nhiên của vệt buồng sương và phép đếm 5 giây của ống Geiger–Müller (xem video là tư liệu bổ trợ, không tự tính hoàn thành nếu chưa thao tác).
+                  </p>
+                  <NuclearLessonVideo lesson={b21VideoLesson} />
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+      {/* ====================================================================
+          BÀI 23 — PHA 2 (MỤC 2): BUỒNG SƯƠNG & BA LOẠI TIA PHÓNG XẠ α, β⁻, β⁺, γ
+          ==================================================================== */}
+      {section.kind === "b23_radiation_types" && (
         <div>
+          <div
+            data-testid="b23-locked-prediction-banner"
+            style={{
+              marginBottom: "14px",
+              padding: "10px 14px",
+              background: "#edf5ff",
+              borderLeft: "4px solid #0f62fe",
+              fontSize: "13.5px",
+              lineHeight: 1.55,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
+            <div>
+              <strong>🔒 Dự đoán ban đầu đã khóa ở Pha 1:</strong>{" "}
+              {lockedB23PredictionLabel ? (
+                <>
+                  “{lockedB23PredictionLabel}”
+                  {lockedInitialReason ? <span> (Lí do: {lockedInitialReason})</span> : null}
+                  {bringToClassQuestion ? (
+                    <span style={{ display: "block", marginTop: "4px", color: "#002d9c" }}>
+                      <strong>Câu hỏi mang vào lớp:</strong> {bringToClassQuestion}
+                    </span>
+                  ) : null}
+                </>
+              ) : (
+                <span>Chưa khóa dự đoán ở Pha 1. Em có thể quay lại Pha 1 để khóa bản đầu trước khi khảo sát sâu.</span>
+              )}
+            </div>
+            {!lockedB23PredictionLabel && (
+              <button
+                type="button"
+                className={`${styles.cdsBtn} ${styles.cdsBtnSecondary} ${styles.cdsBtnSmall}`}
+                onClick={() => onJumpToSection("b23-cloud-geiger")}
+              >
+                ← Mở Pha 1
+              </button>
+            )}
+          </div>
+
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: "16px",
-              marginBottom: "18px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+              gap: "12px",
+              marginBottom: "16px",
             }}
           >
-            <figure className={styles.darkBenchStage} style={{ margin: 0 }}>
-              <svg
-                viewBox="0 0 340 160"
-                width="340"
-                height="160"
-                role="img"
-                aria-label="So sánh vết tia alpha dày thẳng và vết tia beta mảnh gấp khúc trong buồng sương"
-                style={{ width: "100%", height: "auto", display: "block" }}
-              >
-                <rect x="0" y="0" width="340" height="160" fill="#0b1220" />
-                <text x="14" y="22" fill="#fda4af" fontSize="12" fontWeight="700">
-                  Vết tia α: Dày, thẳng, quãng đi ngắn vài cm
-                </text>
-                <line x1="18" y1="42" x2="152" y2="38" stroke="#fb7185" strokeWidth="4.5" strokeLinecap="round" />
-                <line x1="18" y1="60" x2="160" y2="62" stroke="#fb7185" strokeWidth="4.5" strokeLinecap="round" />
+            <div style={{ border: "1px solid #fecdd3", borderTop: "3px solid #dc2626", background: "#fff1f2", padding: "12px 14px" }}>
+              <strong style={{ display: "block", fontSize: "14px", color: "#991b1b", marginBottom: "4px" }}>
+                Tia alpha (α) · Hạt nhân <Nuclide sym="He" a={4} z={2} />
+              </strong>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.55, color: "#450a0a" }}>
+                Điện tích <code>+2e</code>, tốc độ <code>≈ 2 × 10⁷ m/s</code>. <strong>Ion hóa rất mạnh</strong> (vệt sương dày, thẳng, ngắn vài cm không khí), <strong>đâm xuyên yếu</strong> (bị tờ bìa dày ~1 mm chặn đứng). Phương trình: <LatexMath math={String.raw`{}_{Z}^{A}\mathrm{X}\rightarrow {}_{Z-2}^{A-4}\mathrm{Y}+{}_{2}^{4}\mathrm{He}`} />.
+              </p>
+            </div>
 
-                <text x="14" y="98" fill="#7dd3fc" fontSize="12" fontWeight="700">
-                  Vết tia β: Mảnh, gấp khúc do dễ lệch khi va chạm
-                </text>
-                <polyline
-                  points="18,118 64,112 108,128 158,114 214,132 278,116 318,126"
-                  fill="none"
-                  stroke="#38bdf8"
-                  strokeWidth="1.8"
-                />
-              </svg>
-              <figcaption className={styles.darkBenchCaption}>
-                Vết sương ion hóa của tia <strong>α</strong> (ion hóa mạnh) so với tia <strong>β</strong> (khối lượng rất nhỏ nên đường đi gấp khúc).
-              </figcaption>
-            </figure>
+            <div style={{ border: "1px solid #bae6fd", borderTop: "3px solid #0284c7", background: "#f0f9ff", padding: "12px 14px" }}>
+              <strong style={{ display: "block", fontSize: "14px", color: "#075985", marginBottom: "4px" }}>
+                Tia beta (β⁻ và β⁺) · <Nuclide sym="e" a={0} z={-1} />, <Nuclide sym="e" a={0} z={1} />
+              </strong>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.55, color: "#0c4a6e" }}>
+                Điện tích <code>−e</code> (electron) hoặc <code>+e</code> (positron), tốc độ <strong>gần bằng c</strong>, khối lượng rất nhỏ nên bị lệch <strong>cong gắt về hai phía đối xứng</strong> trong điện/từ trường; xuyên qua giấy, bị tấm nhôm vài mm chặn lại.
+              </p>
+            </div>
 
-            <div className={styles.tableScroll} style={{ margin: 0 }}>
-              <table className={styles.cdsTable}>
-                <caption>Số đếm ống Geiger–Müller trong từng khoảng 5 giây liên tiếp</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Khoảng thời gian (s)</th>
-                    <th scope="col" className={styles.numCell}>Số xung đếm được</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {GEIGER_5S_INTERVALS.map((row) => (
-                    <tr key={row.window}>
-                      <td>{row.window}</td>
-                      <td className={styles.numCell}>{row.counts}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div style={{ border: "1px solid #fde68a", borderTop: "3px solid #d97706", background: "#fffbeb", padding: "12px 14px" }}>
+              <strong style={{ display: "block", fontSize: "14px", color: "#92400e", marginBottom: "4px" }}>
+                Tia gamma (γ) · Photon năng lượng rất cao
+              </strong>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.55, color: "#451a03" }}>
+                Sóng điện từ bước sóng rất ngắn (<code>&lt; 10⁻¹¹ m</code>), <strong>không mang điện (q = 0)</strong>, tốc độ <code>c = 3 × 10⁸ m/s</code> → <strong>đi thẳng tắp</strong> trong mọi trường E, B; không tạo vệt sương liên tục trực tiếp, <strong>đâm xuyên mạnh nhất</strong> (phải chắn bằng khối chì dày vài cm).
+              </p>
             </div>
           </div>
 
           <FixedPhysicsActivityRenderer
-            activityKey="geiger_random_decay"
+            activityKey="radiation_properties"
             onProgress={(done) => onMarkSectionComplete(section.id, done)}
           />
         </div>
       )}
 
-      {section.kind === "b23_radiation_types" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="radiation_properties"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
-      )}
-
+      {/* ====================================================================
+          BÀI 23 — PHA 2 (MỤC 3): ĐỊNH LUẬT PHÓNG XẠ, CHU KÌ BÁN RÃ T & HOẠT ĐỘ H (Bq)
+          ==================================================================== */}
       {section.kind === "b23_half_life" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="radioactive_decay_half_life"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
+        <div>
+          <div
+            style={{
+              marginBottom: "14px",
+              padding: "10px 14px",
+              background: "#edf5ff",
+              borderLeft: "4px solid #0f62fe",
+              fontSize: "13.5px",
+              lineHeight: 1.55,
+            }}
+          >
+            <strong>🔗 Nối mạch từ Pha 1 (Ống đếm Geiger–Müller) sang quy luật Bán rã:</strong>{" "}
+            {lockedB23PredictionLabel ? (
+              <span>
+                Ở Pha 1 em đã khóa dự đoán: <em>“{lockedB23PredictionLabel}”</em>. Từng hạt nhân riêng lẻ phân rã hoàn toàn <strong>ngẫu nhiên</strong> (không đoán trước được hạt nào vỡ lúc nào), nhưng với một quần thể rất lớn hạt nhân đồng nhất, số hạt còn lại <LatexMath math="N(t)" /> và độ phóng xạ <LatexMath math="H(t)" /> giảm tuân theo quy luật hàm mũ xác định theo <strong>chu kì bán rã T</strong>!
+              </span>
+            ) : (
+              <span>
+                Từng hạt nhân riêng lẻ phân rã hoàn toàn ngẫu nhiên như các xung lẻ tẻ trên ống đếm Geiger–Müller ở Pha 1, nhưng khi xét tập hợp lớn hạt nhân thì số hạt còn lại <LatexMath math="N(t)" /> và hoạt độ <LatexMath math="H(t)" /> tuân theo định luật hàm mũ chặt chẽ.
+              </span>
+            )}
+          </div>
+
+          {/* Bảng phân biệt rạch ròi Số đọc xung cửa sổ đo vs N(t) vs Hằng số phóng xạ λ vs Hoạt độ H (Bq) */}
+          <div className={styles.tableScroll} style={{ marginBottom: "16px" }}>
+            <table className={styles.cdsTable}>
+              <caption>
+                Phân biệt đại lượng và đơn vị chuẩn SI trong hiện tượng phóng xạ (SGK tr. 107–108)
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Đại lượng</th>
+                  <th scope="col">Kí hiệu &amp; Hệ thức</th>
+                  <th scope="col">Đơn vị chuẩn</th>
+                  <th scope="col">Ý nghĩa vật lí cần phân biệt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Số đọc bộ đếm Geiger–Müller</th>
+                  <td><code>Số xung trong cửa sổ Δt</code></td>
+                  <td><code>xung</code> (số đếm)</td>
+                  <td>Chỉ là số tia phóng xạ lọt vào đầu dò và gây xung điện trong khoảng đo ngắn (ví dụ 5 giây ở Pha 1); <strong>không phải</strong> là hoạt độ của cả nguồn.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Số hạt nhân mẹ còn lại</th>
+                  <td><LatexMath math={String.raw`N(t) = N_0 \cdot 2^{-\frac{t}{T}} = N_0 e^{-\lambda t}`} /></td>
+                  <td><code>hạt nhân</code></td>
+                  <td>Số hạt nhân chưa phân rã tại thời điểm <code>t</code>; cứ sau mỗi chu kì bán rã <code>T</code> lại giảm đi một nửa.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Hằng số phóng xạ</th>
+                  <td><LatexMath math={String.raw`\lambda = \frac{\ln 2}{T} \approx \frac{0{,}693}{T}`} /></td>
+                  <td><code>s⁻¹</code> (khi <code>T</code> tính bằng giây)</td>
+                  <td>Đặc trưng cho từng loại hạt nhân phóng xạ; không phụ thuộc nhiệt độ, áp suất hay trạng thái hóa học.</td>
+                </tr>
+                <tr>
+                  <th scope="row">Độ phóng xạ (Hoạt độ)</th>
+                  <td><LatexMath math={String.raw`H(t) = -\frac{\Delta N}{\Delta t} = \lambda N(t) = H_0 \cdot 2^{-\frac{t}{T}}`} /></td>
+                  <td><strong>becquerel (<code>Bq</code>)</strong>, <code>1 Bq = 1 phân rã/s</code></td>
+                  <td>Đặc trưng cho tính phóng xạ mạnh hay yếu của toàn bộ mẫu tại thời điểm <code>t</code>; giảm theo cùng chu kì bán rã <code>T</code> với <code>N(t)</code>.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mô phỏng 3D đồng bộ Quần thể hạt nhân — Bảng số liệu — Đồ thị N(t)/H(t) */}
+          <FixedPhysicsActivityRenderer
+            activityKey="radioactive_decay_half_life"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
+
+          {/* Bảng 23.2 SGK tr. 107 — Chu kì bán rã của một số chất phóng xạ */}
+          <div className={styles.tableScroll} style={{ marginTop: "18px" }}>
+            <table className={styles.cdsTable} data-testid="b23-sgk-table-23-2">
+              <caption>
+                Bảng 23.2 SGK (tr. 107) — Chu kì bán rã T của một số đồng vị phóng xạ tiêu biểu
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Chất phóng xạ</th>
+                  <th scope="col">Kí hiệu hạt nhân</th>
+                  <th scope="col">Chu kì bán rã T</th>
+                  <th scope="col">Tia phát ra &amp; Ghi chú thực tế</th>
+                </tr>
+              </thead>
+              <tbody>
+                {SGK_TABLE_23_2_SAMPLES.map((item) => (
+                  <tr key={`${item.sym}-${item.a}`}>
+                    <th scope="row">{item.name}</th>
+                    <td>
+                      <Nuclide sym={item.sym} a={item.a} z={item.z} />
+                    </td>
+                    <td>
+                      <strong>{item.halfLife}</strong>
+                    </td>
+                    <td>{item.radiation}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
 
+      {/* ====================================================================
+          BÀI 23 — PHA 2 (MỤC 4): TÁC HẠI BỨC XẠ, BIỂN CẢNH BÁO 23.8a/b & BA NGUYÊN TẮC AN TOÀN
+          ==================================================================== */}
       {section.kind === "b23_safety" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="radiation_safety"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
+        <div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gap: "12px",
+              marginBottom: "16px",
+            }}
+          >
+            <div style={{ border: "1px solid #d0d7de", background: "#f8fafc", padding: "12px 14px" }}>
+              <h4 style={{ margin: "0 0 6px", fontSize: "14.5px", color: "#0f172a" }}>
+                Nguồn phóng xạ tự nhiên &amp; nhân tạo (SGK tr. 109)
+              </h4>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.55, color: "#334155" }}>
+                Con người luôn tiếp xúc với bức xạ nền tự nhiên từ <strong>tia vũ trụ</strong>, khí <strong>Radon-222</strong> thoát ra từ đất đá, và các đồng vị <strong>⁴⁰K, ¹⁴C</strong> trong thực phẩm/cơ thể; bên cạnh các nguồn nhân tạo trong chẩn đoán hình ảnh (X-quang, CT, PET), xạ trị và kiểm tra khuyết tật công nghiệp.
+              </p>
+            </div>
+
+            <div style={{ border: "1px solid #bae6fd", background: "#f0f9ff", padding: "12px 14px" }}>
+              <h4 style={{ margin: "0 0 6px", fontSize: "14.5px", color: "#075985" }}>
+                📖 Em có biết: Đơn vị liều hiệu dụng Sievert (Sv) &amp; mSv (SGK tr. 109)
+              </h4>
+              <p style={{ margin: 0, fontSize: "13px", lineHeight: 1.55, color: "#0c4a6e" }}>
+                Khác với hoạt độ nguồn <code>H</code> (đơn vị <code>Bq</code>), mức độ tác động sinh học của bức xạ ion hóa lên mô cơ thể người được đo bằng đơn vị <strong>sievert (<code>Sv</code>)</strong> hoặc <strong>milisievert (<code>1 mSv = 10⁻³ Sv</code>)</strong>. Liều tự nhiên trung bình khoảng <code>2,4 mSv/năm</code>; một lần chụp X-quang lồng ngực khoảng <code>0,1 mSv</code>.
+              </p>
+            </div>
+          </div>
+
+          <FixedPhysicsActivityRenderer
+            activityKey="radiation_safety"
+            onProgress={(done) => onMarkSectionComplete(section.id, done)}
+          />
+        </div>
       )}
 
-      {section.kind === "b23_carbon14" && (
-        <FixedPhysicsActivityRenderer
-          activityKey="carbon14_dating"
-          onProgress={(done) => onMarkSectionComplete(section.id, done)}
-        />
-      )}
+      {/* ====================================================================
+          BÀI 23 — PHA 3 (SAU GIỜ HỌC): ĐỊNH TUỔI ¹⁴C & PHIẾU BÀI TẬP VẬN DỤNG LƯU KẾT QUẢ
+          ==================================================================== */}
+      {section.kind === "b23_carbon14" &&
+        (() => {
+          const afterWork = notebook.afterClassWork ?? {};
+          const ageInput = afterWork.b23C14AgeYears ?? "";
+          const assumptionChoice = afterWork.b23C14AssumptionChoice ?? "";
+          const safetyChoice = afterWork.b23SafetyActionChoice ?? "";
+          const reflectionNote = afterWork.b23ReflectionNote ?? "";
+          const afterChecked = Boolean(afterWork.b23AfterChecked) || b23AfterCheckedLocal;
+          const submittedAt = afterWork.b23SubmittedAt ?? "";
+          const c14LabDone = Boolean(afterWork.b23C14LabDone);
+
+          const normalizedAgeStr = ageInput.trim().replace(/\s+/g, "").replace(/\./g, "").replace(",", ".");
+          const parsedAge = Number(normalizedAgeStr);
+          const ageOk =
+            normalizedAgeStr !== "" &&
+            Number.isFinite(parsedAge) &&
+            Math.abs(parsedAge - 11460) <= 60;
+          const assumptionOk = assumptionChoice === "equal_carbon_mass";
+          const safetyOk = safetyChoice === "evacuate_and_report";
+          const reflectionOk = reflectionNote.trim().length >= 8;
+          const allB23AfterOk = ageOk && assumptionOk && safetyOk && reflectionOk;
+
+          return (
+            <div>
+              <div style={{ marginBottom: "20px" }}>
+                <h4 style={{ margin: "0 0 8px", fontSize: "16px" }}>
+                  Phần A · Mô phỏng định tuổi khảo cổ bằng đồng vị phóng xạ <Nuclide sym="C" a={14} z={6} /> (T ≈ 5 730 năm — SGK tr. 109–110)
+                </h4>
+                <FixedPhysicsActivityRenderer
+                  activityKey="carbon14_dating"
+                  onProgress={(done) => {
+                    patchNotebook((cur) => ({
+                      ...cur,
+                      afterClassWork: {
+                        ...cur.afterClassWork,
+                        b23C14LabDone: done,
+                      },
+                    }));
+                    if (done && allB23AfterOk && afterChecked) {
+                      onMarkSectionComplete(section.id, true);
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Phần B: Bài vận dụng tổng hợp Pha 3 (lưu bền vững và mở lại sau khi tải trang) */}
+              <div
+                data-testid="b23-pha3-transfer-task"
+                style={{
+                  border: "1px solid #d0d7de",
+                  borderTop: "4px solid #0f62fe",
+                  padding: "18px",
+                  background: "#ffffff",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <h4 style={{ margin: 0, fontSize: "16.5px" }}>
+                    Phần B · Bài tập vận dụng Sau giờ học: Định tuổi cổ vật <Nuclide sym="C" a={14} z={6} /> &amp; Ứng phó an toàn bức xạ
+                  </h4>
+                  {submittedAt && (
+                    <span
+                      data-b23-pha3-saved-badge
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        padding: "3px 10px",
+                        background: allB23AfterOk ? "#defbe6" : "#fcf4d6",
+                        color: allB23AfterOk ? "#198038" : "#8e6a00",
+                        border: "1px solid #cbd5e1",
+                      }}
+                    >
+                      Đã lưu kết quả nộp bài ({submittedAt})
+                    </span>
+                  )}
+                </div>
+
+                <p style={{ margin: "0 0 14px", fontSize: "14.5px", lineHeight: 1.6 }}>
+                  <strong>Đề bài vận dụng (theo SGK tr. 108–110):</strong> Tại một di chỉ khảo cổ, các nhà khoa học thu được một mẫu tượng gỗ cổ. Phép đo hoạt độ phóng xạ của đồng vị <Nuclide sym="C" a={14} z={6} /> trong mẫu gỗ cổ cho giá trị <code>H = 42 Bq</code>, trong khi một mẫu gỗ tươi cùng loại và <strong>cùng khối lượng carbon</strong> đang sống có hoạt độ <code>H₀ = 168 Bq</code>. Biết chu kì bán rã của <Nuclide sym="C" a={14} z={6} /> là <code>T = 5 730 năm</code>.
+                </p>
+
+                <div
+                  style={{
+                    marginBottom: "14px",
+                    padding: "10px 14px",
+                    background: "#edf5ff",
+                    borderLeft: "4px solid #0f62fe",
+                    fontSize: "13.5px",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  <strong>🔒 Dự đoán ban đầu của em đã khóa ở Pha 1:</strong>{" "}
+                  {lockedB23PredictionLabel ? (
+                    <>
+                      “{lockedB23PredictionLabel}”
+                      {lockedInitialReason ? <span> (Lí do: {lockedInitialReason})</span> : null}
+                    </>
+                  ) : (
+                    <span>Chưa khóa dự đoán ở Pha 1 — em vẫn có thể hoàn thành bài vận dụng và ghi nhận xét tổng kết bên dưới.</span>
+                  )}
+                </div>
+
+                <div style={{ marginBottom: "14px" }}>
+                  <label
+                    htmlFor="b23-c14-age-input"
+                    style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+                  >
+                    1. Tính niên đại (tuổi) gần đúng của mẫu tượng gỗ cổ (đơn vị: <code>năm</code>):
+                  </label>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
+                    <input
+                      id="b23-c14-age-input"
+                      type="text"
+                      inputMode="numeric"
+                      data-b23-age-input
+                      value={ageInput}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setB23AfterCheckedLocal(false);
+                        patchNotebook((cur) => ({
+                          ...cur,
+                          afterClassWork: {
+                            ...cur.afterClassWork,
+                            b23C14AgeYears: val,
+                            b23AfterChecked: false,
+                          },
+                        }));
+                      }}
+                      placeholder="Nhập số năm (ví dụ từ tỉ số H/H₀ = 42/168)…"
+                      style={{
+                        minWidth: "240px",
+                        flex: "1 1 240px",
+                        minHeight: "42px",
+                        padding: "8px 10px",
+                        border: "1px solid #8d8d8d",
+                        fontSize: "15px",
+                      }}
+                    />
+                    <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#334155" }}>năm</span>
+                  </div>
+                </div>
+
+                <fieldset style={{ border: "none", padding: 0, margin: "0 0 14px" }}>
+                  <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
+                    2. Vì sao khi lập tỉ số <LatexMath math="H / H_0 = 2^{-t/T}" /> để tính tuổi cổ vật, ta bắt buộc phải đối chiếu với mẫu sinh vật đang sống có <strong>cùng khối lượng carbon</strong>?
+                  </legend>
+                  {[
+                    [
+                      "equal_carbon_mass",
+                      "Vì hoạt độ H₀ tỉ lệ thuận với tổng số hạt nhân ¹⁴₆C ban đầu (tức khối lượng carbon trong mẫu) và giả thiết tỉ lệ ¹⁴C/¹²C lúc sinh vật còn sống bằng với mẫu hiện đại.",
+                    ],
+                    [
+                      "change_half_life",
+                      "Vì nếu khối lượng mẫu gỗ cổ nhỏ hơn thì chu kì bán rã T = 5 730 năm của ¹⁴₆C cũng bị rút ngắn theo tỉ lệ khối lượng.",
+                    ],
+                    [
+                      "convert_bq_to_sv",
+                      "Vì chia hai mẫu cùng khối lượng sẽ tự động đổi đơn vị hoạt độ Bq sang đơn vị liều hiệu dụng Sievert (Sv).",
+                    ],
+                  ].map(([val, label]) => (
+                    <label
+                      key={val}
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignItems: "flex-start",
+                        marginBottom: "8px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="b23-c14-assumption"
+                        data-b23-assumption-radio={val}
+                        value={val}
+                        checked={assumptionChoice === val}
+                        onChange={() => {
+                          setB23AfterCheckedLocal(false);
+                          patchNotebook((cur) => ({
+                            ...cur,
+                            afterClassWork: {
+                              ...cur.afterClassWork,
+                              b23C14AssumptionChoice: val,
+                              b23AfterChecked: false,
+                            },
+                          }));
+                        }}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+
+                <fieldset style={{ border: "none", padding: 0, margin: "0 0 14px" }}>
+                  <legend style={{ fontWeight: 700, fontSize: "13.5px", marginBottom: "8px" }}>
+                    3. Giả sử tại công trường khảo cổ hoặc bãi phế liệu, người dân bắt gặp một bình kim loại nặng bị thất lạc có gắn <strong>biển tam giác nền đỏ Hình 23.8b</strong> (tia phóng xạ, đầu lâu xương chéo và người chạy ra xa). Cách xử lí nào đúng nguyên tắc an toàn bức xạ?
+                  </legend>
+                  {[
+                    [
+                      "open_to_check",
+                      "Mở nắp bình kiểm tra xem bên trong phát tia α hay γ rồi lấy giấy bìa bọc lại mang về nộp.",
+                    ],
+                    [
+                      "evacuate_and_report",
+                      "Rời xa ngay lập tức để tăng khoảng cách r (giảm liều theo 1/r²), đứng sau tường che chắn dày, tuyệt đối không chạm/cạy mở (ngừa chiếu xạ mạnh và nhiễm xạ trong) và báo ngay cho cơ quan chức năng.",
+                    ],
+                    [
+                      "wash_with_water",
+                      "Đổ nước nóng lên bình để làm giảm hằng số phóng xạ λ của nguồn bên trong trước khi di dời.",
+                    ],
+                  ].map(([val, label]) => (
+                    <label
+                      key={val}
+                      style={{
+                        display: "flex",
+                        gap: "8px",
+                        alignItems: "flex-start",
+                        marginBottom: "8px",
+                        fontSize: "14px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="radio"
+                        name="b23-safety-transfer"
+                        data-b23-safety-radio={val}
+                        value={val}
+                        checked={safetyChoice === val}
+                        onChange={() => {
+                          setB23AfterCheckedLocal(false);
+                          patchNotebook((cur) => ({
+                            ...cur,
+                            afterClassWork: {
+                              ...cur.afterClassWork,
+                              b23SafetyActionChoice: val,
+                              b23AfterChecked: false,
+                            },
+                          }));
+                        }}
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </fieldset>
+
+                <label
+                  htmlFor="b23-after-reflection"
+                  style={{ display: "block", fontSize: "13.5px", fontWeight: 700, marginBottom: "6px" }}
+                >
+                  4. Tổng kết đối chiếu dự đoán Pha 1: Vì sao từng hạt nhân phân rã hoàn toàn ngẫu nhiên (như số xung nhảy trên bộ đếm Geiger 5 giây) nhưng ta vẫn tính được tuổi cổ vật hàng chục nghìn năm?
+                </label>
+                <textarea
+                  id="b23-after-reflection"
+                  data-b23-reflection-textarea
+                  className={styles.evidenceTextarea}
+                  rows={2}
+                  value={reflectionNote}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setB23AfterCheckedLocal(false);
+                    patchNotebook((cur) => ({
+                      ...cur,
+                      afterClassWork: {
+                        ...cur.afterClassWork,
+                        b23ReflectionNote: val,
+                        b23AfterChecked: false,
+                      },
+                    }));
+                  }}
+                  placeholder="Ví dụ: Ở mức vi mô từng hạt nhân phân rã ngẫu nhiên, nhưng mẫu cổ vật chứa số lượng hạt nhân rất lớn nên độ phóng xạ H(t) giảm đều theo quy luật thống kê hàm mũ 2^(−t/T)…"
+                />
+
+                <div style={{ marginTop: "12px", display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    data-b23-submit-pha3-btn
+                    className={`${styles.cdsBtn} ${styles.cdsBtnPrimary}`}
+                    onClick={() => {
+                      const nowStr = new Date().toLocaleTimeString("vi-VN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      });
+                      setB23AfterCheckedLocal(true);
+                      patchNotebook((cur) => ({
+                        ...cur,
+                        afterClassWork: {
+                          ...cur.afterClassWork,
+                          b23AfterChecked: true,
+                          b23SubmittedAt: nowStr,
+                        },
+                      }));
+                      if (allB23AfterOk) {
+                        onMarkSectionComplete(section.id, true);
+                      }
+                    }}
+                  >
+                    Nộp bài vận dụng B23 &amp; xem phản hồi
+                  </button>
+                  {c14LabDone && (
+                    <span style={{ fontSize: "12.5px", color: "#198038", fontWeight: 600 }}>
+                      ✓ Đã hoàn thành Phần A (Mô phỏng ¹⁴C)
+                    </span>
+                  )}
+                </div>
+
+                {afterChecked && (
+                  <div
+                    role="status"
+                    data-b23-pha3-feedback={allB23AfterOk ? "correct" : "needs-review"}
+                    style={{
+                      marginTop: "12px",
+                      padding: "12px 14px",
+                      background: allB23AfterOk ? "#defbe6" : "#fff0f1",
+                      borderLeft: allB23AfterOk ? "4px solid #198038" : "4px solid #b42332",
+                      fontSize: "14px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {allB23AfterOk ? (
+                      <>
+                        <strong>✓ Đã nộp và hoàn thành chính xác bài vận dụng Sau giờ học Bài 23!</strong>
+                        <ul style={{ margin: "6px 0 0", paddingLeft: "18px" }}>
+                          <li>
+                            Tỉ số độ phóng xạ: <code>H / H₀ = 42 Bq / 168 Bq = 0,25 = 1/4 = 2⁻²</code> → Đã trôi qua <code>2 chu kì bán rã</code>, tuổi mẫu gỗ cổ là <code>t = 2 × 5 730 = 11 460 năm</code>.
+                          </li>
+                          <li>
+                            Điều kiện chuẩn: So sánh trên hai mẫu <strong>cùng khối lượng carbon</strong> (cùng <code>N₀</code> ban đầu); chu kì bán rã <code>T</code> là hằng số đặc trưng hạt nhân, không phụ thuộc khối lượng hay nhiệt độ.
+                          </li>
+                          <li>
+                            Ứng phó biển đỏ <strong>Hình 23.8b</strong>: Rời xa khẩn cấp (tăng <code>r</code>), che chắn, tuyệt đối không cạy mở nguồn và báo ngay cho cơ quan chức năng.
+                          </li>
+                          <li>
+                            Kết quả và phản hồi này đã được lưu bền vững vào sổ tay trình duyệt để em mở lại sau khi tải lại trang.
+                          </li>
+                        </ul>
+                      </>
+                    ) : (
+                      <>
+                        <strong>Phản hồi chi tiết từng mục cần chỉnh sửa:</strong>
+                        <ul style={{ margin: "6px 0 0", paddingLeft: "18px" }}>
+                          {!ageOk && (
+                            <li>
+                              Câu 1: Ta có <code>H / H₀ = 42 / 168 = 1/4 = 2⁻²</code>, suy ra <code>t = 2T = 2 × 5 730 = 11 460 năm</code> (nhập <code>11460</code>).
+                            </li>
+                          )}
+                          {!assumptionOk && (
+                            <li>
+                              Câu 2: Hoạt độ ban đầu <code>H₀ = λN₀</code> tỉ lệ thuận với khối lượng carbon trong mẫu; còn <code>T</code> không đổi và phép chia hai hoạt độ <code>Bq</code> cho tỉ số không thứ nguyên.
+                            </li>
+                          )}
+                          {!safetyOk && (
+                            <li>
+                              Câu 3: Biển tam giác đỏ <strong>Hình 23.8b</strong> cảnh báo nguồn nguy hiểm chết người — phải rời xa ngay lập tức, không chạm/mở nắp và báo cơ quan chức năng (nhiệt độ/nước nóng không làm đổi hằng số phóng xạ <code>λ</code>!).
+                            </li>
+                          )}
+                          {!reflectionOk && (
+                            <li>
+                              Câu 4: Hãy viết tối thiểu một câu ngắn liên hệ giữa tính ngẫu nhiên của từng hạt riêng lẻ và quy luật thống kê trên số lượng hạt rất lớn.
+                            </li>
+                          )}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
       {/* ====================================================================
           BÀI 24 — CÔNG NGHIỆP HẠT NHÂN
